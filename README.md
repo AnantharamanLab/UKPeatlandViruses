@@ -4,7 +4,7 @@ This repository is an R Project used for the analysis of viruses in total metage
 Original, raw sequence reads are deposited to the NCBI Sequence Read Archive under BioProject accession [PRJNAXXXXXX](). Prokaryotic metagenome-assembled genomes (MAGs) can be accessed from NCBI WGA under accession [PRJNAXXXXXX](). Viral genomes can be accessed from XXXXXX at [XXXXXX]().
 
 # Repository organization
-`Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as virus and host community summary statistics, virus and hsot genome information, virus and host genome counts, virus-host predictions, gene annotations, read mapping statistics, functional predictions, and more.
+`Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as virus and host community summary statistics, virus and hsot genome information, virus and host genome counts, virus-host predictions, gene annotations, read mapping statistics, functional predictions, and more. It also includes the `.shp` shapefiles used to generate the map in Figure 1A.
 
 `Tables` include `.csv` and `.tsv` formatted data tables used in analyses to generate the data files present in `Data`.
 

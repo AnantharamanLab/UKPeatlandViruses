@@ -1,0 +1,770 @@
+site,Trend_Group,Domain,Phylum,Class,Abundance,relative_abundance,Type
+Balmoral,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,380.9940387999999,0.19390028739665485,Virus
+Balmoral,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,523.0990710999996,0.2662221711990029,Virus
+Balmoral,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,3.63666988,0.001850819863533147,Virus
+Balmoral,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,0.9952329,5.065064690891597e-4,Virus
+Balmoral,Damaged-abundant,Bacteria,Myxococcota,Polyangia,53.6487321,0.027303588805274885,Virus
+Balmoral,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,20.74130657,0.010555927115217443,Virus
+Balmoral,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,12.2713838,0.006245307283728176,Virus
+Balmoral,Damaged-abundant,Unknown,Unknown,Unknown,969.5102853000002,0.4934153918674985,Virus
+Balmoral,Natural-abundant,Archaea,Thermoproteota,Bathyarchaeia,31.823701200000002,0.002275464771912954,Virus
+Balmoral,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,4364.2598746700105,0.31205419941175333,Virus
+Balmoral,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,1534.7874244000038,0.10974068335575074,Virus
+Balmoral,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,70.4685615,0.005038657452597987,Virus
+Balmoral,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,639.4904993999997,0.045724980077355724,Virus
+Balmoral,Natural-abundant,Bacteria,Armatimonadota,Armatimonadia,2.4861077,1.7776217967165736e-4,Virus
+Balmoral,Natural-abundant,Bacteria,Dependentiae,Babeliae,4.0236294,2.8769836975886564e-4,Virus
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota,DSM-4660,6.878076,4.917975925609798e-4,Virus
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,91.09169260000004,0.006513256777474521,Virus
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,10.317114,7.376963888414697e-4,Virus
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota,Syntrophia,71.237796,0.005093659414660466,Virus
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,384.78577489999935,0.02751303093300085,Virus
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota_B,Binatia,411.0379356999998,0.029390118287220834,Virus
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,35.721135,0.0025541398781499004,Virus
+Balmoral,Natural-abundant,Bacteria,Dormibacterota,Dormibacteria,4.9192971000000005,3.5174058426690977e-4,Virus
+Balmoral,Natural-abundant,Bacteria,Myxococcota,Polyangia,37.5285599,0.002683374741875566,Virus
+Balmoral,Natural-abundant,Bacteria,OLB16,OLB16,3.68307624,2.633480682752772e-4,Virus
+Balmoral,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,493.7693154199999,0.03530559426851913,Virus
+Balmoral,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,3989.2691858000017,0.2852415387172431,Virus
+Balmoral,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,198.9514636,0.014225468115642136,Virus
+Balmoral,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,1.9337005,1.382638474238963e-4,Virus
+Balmoral,Natural-abundant,Unknown,Unknown,Unknown,1597.118977379999,0.11419752676605165,Virus
+Balmoral,Restored-abundant,Archaea,Methanobacteriota,Methanobacteria,11.364196,0.0012983353412754106,Virus
+Balmoral,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,4346.642769899996,0.49659473701970713,Virus
+Balmoral,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,281.73711440000017,0.03218786903837928,Virus
+Balmoral,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,247.51230819999995,0.028277757365035905,Virus
+Balmoral,Restored-abundant,Bacteria,Bacteroidota,Bacteroidia,57.344644,0.006551504210069673,Virus
+Balmoral,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,78.48094600000003,0.008966281979695451,Virus
+Balmoral,Restored-abundant,Bacteria,Dormibacterota,Dormibacteria,23.9651858,0.0027379717565916345,Virus
+Balmoral,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,14.0419745,0.0016042658675227103,Virus
+Balmoral,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,2394.313517240003,0.2735452519057334,Virus
+Balmoral,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,231.79442849999998,0.026482022875378625,Virus
+Balmoral,Restored-abundant,Unknown,Unknown,Unknown,1065.7002900600003,0.12175400264060517,Virus
+Bowness,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,1081.808414999997,0.2925113083224362,Virus
+Bowness,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,19.56486034,0.005290163041668666,Virus
+Bowness,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,422.25488520000016,0.11417393986105431,Virus
+Bowness,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,160.06650130000003,0.04328054863009923,Virus
+Bowness,Damaged-abundant,Bacteria,Bacillota_A,Clostridia,7.2180352,0.001951692083916174,Virus
+Bowness,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,882.4670254999985,0.23861118161149997,Virus
+Bowness,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,18.3522179,0.004962275384544358,Virus
+Bowness,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,551.3409683000002,0.149077660825177,Virus
+Bowness,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,25.096204200000003,0.006785788890788984,Virus
+Bowness,Damaged-abundant,Unknown,Unknown,Unknown,530.1782132000001,0.14335544134881217,Virus
+Bowness,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,190.43486389999978,0.16461341595122542,Virus
+Bowness,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,330.4161403000001,0.28561434826746784,Virus
+Bowness,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,1.6686106,0.0014423603175028926,Virus
+Bowness,Natural-abundant,Bacteria,Desulfobacterota,DSM-4660,7.1832852,0.00620928904669899,Virus
+Bowness,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,17.48771,0.01511651606911673,Virus
+Bowness,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,10.7749278,0.009313933570048484,Virus
+Bowness,Natural-abundant,Bacteria,Dormibacterota,Dormibacteria,12.529853600000001,0.010830905435193066,Virus
+Bowness,Natural-abundant,Bacteria,Myxococcota,Polyangia,2.232356,0.0019296663397316827,Virus
+Bowness,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,11.1243587,0.00961598442833101,Virus
+Bowness,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,194.54175150000017,0.16816344236402975,Virus
+Bowness,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,1.0236213,8.848264198194136e-4,Virus
+Bowness,Natural-abundant,Unknown,Unknown,Unknown,377.44366027000007,0.32626531179083434,Virus
+Bowness,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,117.37458160000004,0.010678744556733481,Virus
+Bowness,Restored-abundant,Archaea,Thermoproteota,Bathyarchaeia,8.668380800000001,7.886496635119251e-4,Virus
+Bowness,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,1780.0026923999928,0.16194472264203885,Virus
+Bowness,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,377.13476639999965,0.03431173750696418,Virus
+Bowness,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,1008.2218868000003,0.0917280712644948,Virus
+Bowness,Restored-abundant,Bacteria,Bacteroidota,Bacteroidia,9.0592323,8.242093500404784e-4,Virus
+Bowness,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,1805.1693228000029,0.16423438377421903,Virus
+Bowness,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,552.1931701000002,0.05023855871594246,Virus
+Bowness,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,419.1789322999997,0.03813691755554656,Virus
+Bowness,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,243.03857264000004,0.022111659946106033,Virus
+Bowness,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,3995.758764079996,0.3635343067492506,Virus
+Bowness,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,7.0511123,6.415105047969046e-4,Virus
+Bowness,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,154.80754110000007,0.014084396845789647,Virus
+Bowness,Restored-abundant,Unknown,Unknown,Unknown,513.7624587999998,0.04674213092457579,Virus
+Crocach,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,1958.189948000002,0.15385447900572102,Virus
+Crocach,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,710.213135449999,0.05580126281890149,Virus
+Crocach,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,69.27591288000002,0.0054429906019505874,Virus
+Crocach,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,174.6159793000002,0.01371953244306781,Virus
+Crocach,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,31.836260799999998,0.002501366797371719,Virus
+Crocach,Damaged-abundant,Bacteria,Bacteroidota,Bacteroidia,41.5302248,0.003263019047830628,Virus
+Crocach,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,0.9641665,7.575431315219342e-5,Virus
+Crocach,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,893.2174145999998,0.0701798618170212,Virus
+Crocach,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,97.62539199999999,0.007670401862306601,Virus
+Crocach,Damaged-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,3.2742176,2.5725443209116184e-4,Virus
+Crocach,Damaged-abundant,Bacteria,OLB16,OLB16,4.626971899999999,3.6353998843456945e-4,Virus
+Crocach,Damaged-abundant,Bacteria,Planctomycetota,Brocadiia,15.768235840000001,0.0012389062217791219,Virus
+Crocach,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,74.09878532,0.005821922445271054,Virus
+Crocach,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,7656.918589920006,0.6016021181420962,Virus
+Crocach,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,126.5028513,0.009939296389187509,Virus
+Crocach,Damaged-abundant,Unknown,Unknown,Unknown,868.8878432599995,0.06826829367381251,Virus
+Crocach,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,3353.2248268700023,0.49262660652978363,Virus
+Crocach,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,266.5673688000001,0.03916175773578939,Virus
+Crocach,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,192.46880099999996,0.028275841076838715,Virus
+Crocach,Natural-abundant,Bacteria,Bacteroidota,Bacteroidia,9.941566,0.001460528349583802,Virus
+Crocach,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,496.94970429999944,0.07300752531818797,Virus
+Crocach,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,43.49170659999999,0.0063894230004690345,Virus
+Crocach,Natural-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,4.4010695,6.465668259144091e-4,Virus
+Crocach,Natural-abundant,Bacteria,Eremiobacterota,Eremiobacteria,115.09063930000006,0.01690811502628195,Virus
+Crocach,Natural-abundant,Bacteria,Myxococcota,Polyangia,136.2471297,0.020016242458810934,Virus
+Crocach,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,182.5055732,0.026812130364133956,Virus
+Crocach,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,656.2570092000001,0.09641156801148612,Virus
+Crocach,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,415.35958379999977,0.06102101493982221,Virus
+Crocach,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,158.46739865,0.023280650977232652,Virus
+Crocach,Natural-abundant,Unknown,Unknown,Unknown,775.8561264999998,0.11398202938566482,Virus
+Crocach,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,2281.1259599999994,0.07605579404186537,Virus
+Crocach,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,4312.141867420002,0.14377258402153317,Virus
+Crocach,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,240.69306860000003,0.0080250292065179,Virus
+Crocach,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,348.2130348999997,0.011609888857276107,Virus
+Crocach,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,6.1313507000000005,2.044274425063521e-4,Virus
+Crocach,Restored-abundant,Bacteria,Bacillota_A,Clostridia,2.8979506,9.66215534968092e-5,Virus
+Crocach,Restored-abundant,Bacteria,Dependentiae,Babeliae,8.4755757,2.825870430344141e-4,Virus
+Crocach,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,112.16115359999995,0.0037396030501093526,Virus
+Crocach,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,286.80633720000014,0.00956250732948785,Virus
+Crocach,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,1012.1157239,0.03374529350561242,Virus
+Crocach,Restored-abundant,Bacteria,Myxococcota,Polyangia,37.269972100000004,0.0012426307760680037,Virus
+Crocach,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,101.15205850000002,0.0033725450777767315,Virus
+Crocach,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,19238.69917424014,0.6414439919965725,Virus
+Crocach,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,95.05570879999999,0.0031692846154783715,Virus
+Crocach,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,1.0196922,3.3997903364045975e-5,Virus
+Crocach,Restored-abundant,Unknown,Unknown,Unknown,1908.837959059999,0.06364321357929835,Virus
+Langwell,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,3101.391860119999,0.21000980560849306,Virus
+Langwell,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,1474.7698201000032,0.09986358938353905,Virus
+Langwell,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,158.787406,0.01075224085544824,Virus
+Langwell,Damaged-abundant,Bacteria,Bacillota_A,Clostridia,44.3396908,0.003002448663577906,Virus
+Langwell,Damaged-abundant,Bacteria,Bacteroidota,Bacteroidia,13.0140582,8.812429889636283e-4,Virus
+Langwell,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,1292.9163274999999,0.0875494354962987,Virus
+Langwell,Damaged-abundant,Bacteria,Myxococcota,Polyangia,9.5033856,6.43518862657146e-4,Virus
+Langwell,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,598.1308474000003,0.040502248234461115,Virus
+Langwell,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,7044.724014179994,0.4770313418976279,Virus
+Langwell,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,126.78156910000003,0.008584975353743448,Virus
+Langwell,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,2.5641656,1.7363169295967306e-4,Virus
+Langwell,Damaged-abundant,Unknown,Unknown,Unknown,900.9199622200006,0.061005520962227784,Virus
+Langwell,Natural-abundant,Archaea,Micrarchaeota,Micrarchaeia,10.3500656,4.8729594530090646e-4,Virus
+Langwell,Natural-abundant,Archaea,Thermoplasmatota,E2,11.0771175,5.215265923891065e-4,Virus
+Langwell,Natural-abundant,Archaea,Thermoproteota,Bathyarchaeia,98.15226574000005,0.004621149562298339,Virus
+Langwell,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,4240.9228218000135,0.1996687340220554,Virus
+Langwell,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,965.6245482000004,0.04546298982113504,Virus
+Langwell,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,1599.3460741399997,0.07529950892884628,Virus
+Langwell,Natural-abundant,Bacteria,Armatimonadota,JADLDR01,7.84605693,3.694036227740506e-4,Virus
+Langwell,Natural-abundant,Bacteria,Dependentiae,Babeliae,15.6986614,7.391155131298735e-4,Virus
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,1617.3987536000059,0.07614945499128263,Virus
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,253.63053430000014,0.011941289625149095,Virus
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Syntrophia,44.855118600000004,0.0021118433703233024,Virus
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,553.4225728999987,0.026055929134609995,Virus
+Langwell,Natural-abundant,Bacteria,Desulfobacterota_B,Binatia,20.462885699999998,9.634220319111697e-4,Virus
+Langwell,Natural-abundant,Bacteria,Myxococcota,Polyangia,240.2203743000001,0.01130992004292766,Virus
+Langwell,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,3698.200639299999,0.17411659462719825,Virus
+Langwell,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,4361.515261899992,0.20534639920464726,Virus
+Langwell,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,480.25495999999924,0.022611092891879705,Virus
+Langwell,Natural-abundant,Unknown,Unknown,Unknown,3020.8155031000015,0.14222433007214452,Virus
+Langwell,Restored-abundant,Archaea,Halobacteriota,Methanomicrobia,3.4885928,1.7038442617844354e-4,Virus
+Langwell,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,60.568058,0.0029581709298582186,Virus
+Langwell,Restored-abundant,Archaea,Thermoproteota,Bathyarchaeia,56.55625910000001,0.0027622328847186975,Virus
+Langwell,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,4400.4496851999975,0.21491992259455275,Virus
+Langwell,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,4.9790536,2.4317919550476445e-4,Virus
+Langwell,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,135.77240329999998,0.006631184650481051,Virus
+Langwell,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,49.48392240000003,0.002416816810257315,Virus
+Langwell,Restored-abundant,Bacteria,Bacteroidota,Bacteroidia,29.1433264,0.0014233730418738136,Virus
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,DSM-4660,410.5525692,0.020051570340690873,Virus
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,1411.7487506000004,0.06895043777511542,Virus
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Desulfomonilia,615.8288537999999,0.030077355511036307,Virus
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,1.483263,7.244322556840588e-5,Virus
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,923.1950047000016,0.04508925522251128,Virus
+Langwell,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,189.76296139999997,0.009268107555591218,Virus
+Langwell,Restored-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,16.0711102,7.849201802736998e-4,Virus
+Langwell,Restored-abundant,Bacteria,Myxococcota,Myxococcia,14.229802000000003,6.949898676632219e-4,Virus
+Langwell,Restored-abundant,Bacteria,Myxococcota,Polyangia,59.0186113,0.002882495262903456,Virus
+Langwell,Restored-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,27.8173914,0.001358613785899624,Virus
+Langwell,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,158.25087664999992,0.007729043300853538,Virus
+Langwell,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,9959.193692899966,0.4864114558066894,Virus
+Langwell,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,222.21922748,0.010853286047026414,Virus
+Langwell,Restored-abundant,Bacteria,Spirochaetota,Spirochaetia,2.2764978,1.1118516650882531e-4,Virus
+Langwell,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,41.29901920000001,0.002017062492396511,Virus
+Langwell,Restored-abundant,Unknown,Unknown,Unknown,1681.44481996,0.0821225139258445,Virus
+Migneint,Damaged-abundant,Archaea,Thermoproteota,Bathyarchaeia,24.5539317,0.0021171229274382333,Virus
+Migneint,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,5790.0201098700045,0.49923509092982554,Virus
+Migneint,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,23.0191655,0.0019847902016663665,Virus
+Migneint,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,112.36822379999997,0.00968876780424092,Virus
+Migneint,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,17.477072500000002,0.0015069322235774668,Virus
+Migneint,Damaged-abundant,Bacteria,Bacillota_A,Clostridia,16.0125916,0.0013806597337755432,Virus
+Migneint,Damaged-abundant,Bacteria,Bacteroidota,Bacteroidia,7.592997899999999,6.546939259458947e-4,Virus
+Migneint,Damaged-abundant,Bacteria,Dependentiae,Babeliae,11.454739100000001,9.876662960837835e-4,Virus
+Migneint,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,267.8630736000003,0.023096058971795366,Virus
+Migneint,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,1402.6081029000006,0.12093760824708315,Virus
+Migneint,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,981.6858371000003,0.0846442687329706,Virus
+Migneint,Damaged-abundant,Bacteria,Dormibacterota,Dormibacteria,10.3577242,8.930779659984896e-4,Virus
+Migneint,Damaged-abundant,Bacteria,Nitrospirota,UBA9217,26.332645399999997,0.0022704896306460333,Virus
+Migneint,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,604.64506327,0.05213453967582953,Virus
+Migneint,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,671.6729015999997,0.057913906297797677,Virus
+Migneint,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,74.77695889999998,0.006447521971859865,Virus
+Migneint,Damaged-abundant,Unknown,Unknown,Unknown,1555.3415791899995,0.13410680446346346,Virus
+Migneint,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,899.8353129000008,0.07631644556060718,Virus
+Migneint,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,2838.6647315000014,0.24075161236799608,Virus
+Migneint,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,2668.468921100008,0.22631703849338983,Virus
+Migneint,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,223.81986690000014,0.018982514292095184,Virus
+Migneint,Natural-abundant,Bacteria,Bacillota_A,Clostridia,1.0236468,8.681709215625259e-5,Virus
+Migneint,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,74.32850039999998,0.00630391680906232,Virus
+Migneint,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,33.427132199999996,0.002835007559957827,Virus
+Migneint,Natural-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,1751.9675765000063,0.14858712061989307,Virus
+Migneint,Natural-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,18.0783924,0.0015332568411562427,Virus
+Migneint,Natural-abundant,Bacteria,Myxococcota,Polyangia,37.3462712,0.0031673958913003993,Virus
+Migneint,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,1475.8970014999957,0.12517314174416605,Virus
+Migneint,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,8.241541999999999,6.98978115619202e-4,Virus
+Migneint,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,688.5033468800002,0.05839304974720706,Virus
+Migneint,Natural-abundant,Unknown,Unknown,Unknown,1071.2418711999994,0.09085370486539578,Virus
+Moor House,Damaged-abundant,Archaea,Micrarchaeota,Micrarchaeia,2.9044790000000003,2.881328355695069e-4,Virus
+Moor House,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,4132.545973950006,0.409960681277284,Virus
+Moor House,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,14.8664392,0.0014747943715611893,Virus
+Moor House,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,367.4875452000002,0.03645584231628233,Virus
+Moor House,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,3.7452262000000003,3.715374237015345e-4,Virus
+Moor House,Damaged-abundant,Bacteria,Armatimonadota,JADLDR01,20.361710799999997,0.0020199414317852707,Virus
+Moor House,Damaged-abundant,Bacteria,Dependentiae,Babeliae,3.8220948999999997,3.791630241956477e-4,Virus
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,11.511243400000001,0.0011419491074897673,Virus
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota,Desulfomonilia,36.153506300000004,0.0035865338623550153,Virus
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,820.4666359000003,0.08139269669088371,Virus
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,859.3116451000001,0.08524623553503426,Virus
+Moor House,Damaged-abundant,Bacteria,Dormibacterota,Dormibacteria,65.1230668,0.006460399231003706,Virus
+Moor House,Damaged-abundant,Bacteria,Myxococcota,Polyangia,22.507635299999997,0.002232823436132032,Virus
+Moor House,Damaged-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,14.083948800000002,0.0013971690288550043,Virus
+Moor House,Damaged-abundant,Bacteria,Planctomycetota,Brocadiia,6.299614,6.249401854216758e-4,Virus
+Moor House,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,117.32478039999994,0.011638962326538318,Virus
+Moor House,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,1802.6988867999967,0.178833016844562,Virus
+Moor House,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,53.8474635,0.005341826312560884,Virus
+Moor House,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,1.3250419,1.3144804279714432e-4,Virus
+Moor House,Damaged-abundant,Unknown,Unknown,Unknown,1723.9601852899984,0.1710219067159858,Virus
+Moor House,Natural-abundant,Archaea,Thermoplasmatota,Thermoplasmata,612.2085979999998,0.041664792509623516,Virus
+Moor House,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,3244.0349756000037,0.2207777620142731,Virus
+Moor House,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,1910.704870999998,0.13003594241801536,Virus
+Moor House,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,658.0587087999995,0.04478519192783822,Virus
+Moor House,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,147.09065119999997,0.010010479242490818,Virus
+Moor House,Natural-abundant,Bacteria,Bacteroidota,Bacteroidia,15.024445400000001,0.001022511611578457,Virus
+Moor House,Natural-abundant,Bacteria,Desulfobacterota,DSM-4660,218.700862,0.014884021666265146,Virus
+Moor House,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,242.7693438,0.016522039007894593,Virus
+Moor House,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,359.1944949999999,0.02444553074501904,Virus
+Moor House,Natural-abundant,Bacteria,Desulfobacterota,Syntrophia,31.121785200000005,0.0021180406925403435,Virus
+Moor House,Natural-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,1298.273615099999,0.08835599658445224,Virus
+Moor House,Natural-abundant,Bacteria,Desulfobacterota_B,Binatia,17.5865329,0.0011968783951024611,Virus
+Moor House,Natural-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,38.96261819999999,0.0026516605749053544,Virus
+Moor House,Natural-abundant,Bacteria,Eremiobacterota,Eremiobacteria,91.27809040000001,0.006212070051963987,Virus
+Moor House,Natural-abundant,Bacteria,Myxococcota,Polyangia,90.8356675,0.00618196028481889,Virus
+Moor House,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,9.6448786,6.563969649598228e-4,Virus
+Moor House,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,4141.183336369993,0.28183456589442785,Virus
+Moor House,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,293.1536963,0.01995102318012314,Virus
+Moor House,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,321.9431763999998,0.02191033528182353,Virus
+Moor House,Natural-abundant,Unknown,Unknown,Unknown,951.8969219899996,0.06478280095187854,Virus
+Moor House,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,5941.720756440006,0.35263909100345947,Virus
+Moor House,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,10.4176816,6.182858334104141e-4,Virus
+Moor House,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,807.037761599999,0.04789741462481734,Virus
+Moor House,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,450.15220444999983,0.026716379092436772,Virus
+Moor House,Restored-abundant,Bacteria,Bacillota_A,Clostridia,21.782149299999997,0.001292763097445843,Virus
+Moor House,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,260.43098979999996,0.015456490009676629,Virus
+Moor House,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,153.35416579999992,0.009101517194441014,Virus
+Moor House,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,702.6736793999997,0.04170344210590876,Virus
+Moor House,Restored-abundant,Bacteria,Dormibacterota,Dormibacteria,2.876563,1.707230284147445e-4,Virus
+Moor House,Restored-abundant,Bacteria,Myxococcota,Polyangia,73.14406489999999,0.004341075189485721,Virus
+Moor House,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,1656.0256818000003,0.09828455678860087,Virus
+Moor House,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,5239.615932399995,0.3109694102682515,Virus
+Moor House,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,44.750648999999996,0.002655935684636581,Virus
+Moor House,Restored-abundant,Unknown,Unknown,Unknown,1485.3146590100002,0.08815291607901542,Virus
+Stean,Damaged-abundant,Archaea,Halobacteriota,Methanomicrobia,67.93022859999999,0.002179438384014366,Virus
+Stean,Damaged-abundant,Archaea,Thermoproteota,Bathyarchaeia,576.7437447000001,0.018503948549046433,Virus
+Stean,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,5473.701401199995,0.17561540984433682,Virus
+Stean,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,18.5353056,5.946771756348312e-4,Virus
+Stean,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,41.291364,0.0013247708050537752,Virus
+Stean,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,1.7063183,5.474463541502259e-5,Virus
+Stean,Damaged-abundant,Bacteria,Bacillota_A,Clostridia,19.4444568,6.238459133674865e-4,Virus
+Stean,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,5384.775301199998,0.17276235076187857,Virus
+Stean,Damaged-abundant,Bacteria,Desulfobacterota,Desulfomonilia,1475.6018080000003,0.04734244659786406,Virus
+Stean,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,75.1796988,0.002412026643221966,Virus
+Stean,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,66.8863384,0.0021459467497675112,Virus
+Stean,Damaged-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,47.159110600000005,0.001513028557622413,Virus
+Stean,Damaged-abundant,Bacteria,Dormibacterota,Dormibacteria,98.4414294,0.003158343998441959,Virus
+Stean,Damaged-abundant,Bacteria,Planctomycetota,Brocadiia,445.75073970000005,0.014301236604479446,Virus
+Stean,Damaged-abundant,Bacteria,Planctomycetota,Phycisphaerae,155.1743125,0.0049785325302959494,Virus
+Stean,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,433.1988631,0.013898528675811414,Virus
+Stean,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,11962.256340399988,0.38379085666269874,Virus
+Stean,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,306.06004160000003,0.00981947236485634,Virus
+Stean,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,6.7415047,2.1629095635331417e-4,Virus
+Stean,Damaged-abundant,Unknown,Unknown,Unknown,4512.10675285,0.14476410358983707,Virus
+Stean,Restored-abundant,Archaea,Methanobacteriota,Methanobacteria,66.0492952,0.006039690595150369,Virus
+Stean,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,281.43005139999997,0.025734573389259493,Virus
+Stean,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,5377.847286800002,0.4917620026358873,Virus
+Stean,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,131.56720629999998,0.012030790277385402,Virus
+Stean,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,176.30889479999996,0.016122067170293068,Virus
+Stean,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,375.1348829999999,0.03430314612604577,Virus
+Stean,Restored-abundant,Bacteria,Bacteroidota,Bacteroidia,114.02468590000001,0.010426664220411015,Virus
+Stean,Restored-abundant,Bacteria,Dependentiae,Babeliae,77.14053849999999,0.0070538979026574826,Virus
+Stean,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,126.81842159999998,0.011596551120038816,Virus
+Stean,Restored-abundant,Bacteria,Desulfobacterota,Desulfomonilia,9.7450498,8.91108458434118e-4,Virus
+Stean,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,118.92592799999998,0.010874844412588522,Virus
+Stean,Restored-abundant,Bacteria,Dormibacterota,Dormibacteria,37.991979,0.0034740688384733943,Virus
+Stean,Restored-abundant,Bacteria,Myxococcota,Polyangia,2.0381632,1.863740570303857e-4,Virus
+Stean,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,97.32071400000001,0.008899216854309732,Virus
+Stean,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,1418.9331517000007,0.1297503203557207,Virus
+Stean,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,102.72575899999998,0.009393465874742345,Virus
+Stean,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,291.4870330999999,0.02665420557617629,Virus
+Stean,Restored-abundant,Unknown,Unknown,Unknown,2130.3849342700005,0.1948070121353931,Virus
+All sites,Damaged-abundant,Archaea,Halobacteriota,Methanomicrobia,67.93022859999999,7.898363440009041e-4,Virus
+All sites,Damaged-abundant,Archaea,Micrarchaeota,Micrarchaeia,2.9044790000000003,3.37708722886206e-5,Virus
+All sites,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,1958.189948000002,0.022768208222806455,Virus
+All sites,Damaged-abundant,Archaea,Thermoproteota,Bathyarchaeia,601.2976764000001,0.006991390551334238,Virus
+All sites,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,20670.674934390023,0.24034145997573966,Virus
+All sites,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,145.26168351999993,0.0016889823484982816,Virus
+All sites,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,3115.8868887,0.03622894783679795,Virus
+All sites,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,377.25545497999974,0.004386413463590209,Virus
+All sites,Damaged-abundant,Bacteria,Armatimonadota,JADLDR01,20.361710799999997,2.3674908133425188e-4,Virus
+All sites,Damaged-abundant,Bacteria,Bacillota_A,Clostridia,87.01477440000001,0.0010117356102369937,Virus
+All sites,Damaged-abundant,Bacteria,Bacteroidota,Bacteroidia,62.13728089999999,7.224807539100966e-4,Virus
+All sites,Damaged-abundant,Bacteria,Dependentiae,Babeliae,15.276834000000001,1.7762635226092422e-4,Virus
+All sites,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,5665.113784699998,0.06586924337328921,Virus
+All sites,Damaged-abundant,Bacteria,Desulfobacterota,Desulfomonilia,1511.7553143000002,0.017577436659335047,Virus
+All sites,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,3191.4718521999944,0.0371077870879333,Virus
+All sites,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,4181.887798499992,0.04862352207348855,Virus
+All sites,Damaged-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,47.159110600000005,5.483270153846985e-4,Virus
+All sites,Damaged-abundant,Bacteria,Dormibacterota,Dormibacteria,173.92222040000001,0.0020222232948772303,Virus
+All sites,Damaged-abundant,Bacteria,Myxococcota,Polyangia,85.659753,9.959805455084319e-4,Virus
+All sites,Damaged-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,17.358166399999998,2.0182635875798206e-4,Virus
+All sites,Damaged-abundant,Bacteria,Nitrospirota,UBA9217,26.332645399999997,0.00030617415544231255,Virus
+All sites,Damaged-abundant,Bacteria,OLB16,OLB16,4.626971899999999,5.379859076892487e-5,Virus
+All sites,Damaged-abundant,Bacteria,Planctomycetota,Brocadiia,467.81858953999995,0.005439406462087678,Virus
+All sites,Damaged-abundant,Bacteria,Planctomycetota,Phycisphaerae,155.1743125,0.0018042381748712944,Virus
+All sites,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,1845.750557390002,0.02146085626725758,Virus
+All sites,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,29710.35300777011,0.3454473373969098,Virus
+All sites,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,650.5595135,0.007564166326062487,Virus
+All sites,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,85.40767110000002,9.930495462995644e-4,Virus
+All sites,Damaged-abundant,Unknown,Unknown,Unknown,11060.90482131,0.12860702525893553,Virus
+All sites,Natural-abundant,Archaea,Micrarchaeota,Micrarchaeia,10.3500656,1.4855079753926445e-4,Virus
+All sites,Natural-abundant,Archaea,Thermoplasmatota,E2,11.0771175,1.5898591396958325e-4,Virus
+All sites,Natural-abundant,Archaea,Thermoplasmatota,Thermoplasmata,612.2085979999998,0.008786811505165235,Virus
+All sites,Natural-abundant,Archaea,Thermoproteota,Bathyarchaeia,129.97596693999995,0.001865498664073594,Virus
+All sites,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,16292.712675740104,0.2338434900411912,Virus
+All sites,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,7249.781575100018,0.10405352744494416,Virus
+All sites,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,5593.325774639926,0.0802790085426787,Virus
+All sites,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,1204.5384290999987,0.017288310163898625,Virus
+All sites,Natural-abundant,Bacteria,Armatimonadota,Armatimonadia,2.4861077,3.568221650725637e-5,Virus
+All sites,Natural-abundant,Bacteria,Armatimonadota,JADLDR01,7.84605693,1.126116547985911e-4,Virus
+All sites,Natural-abundant,Bacteria,Bacillota_A,Clostridia,1.0236468,1.4692037173031632e-5,Virus
+All sites,Natural-abundant,Bacteria,Bacteroidota,Bacteroidia,24.9660114,3.583282510638742e-4,Virus
+All sites,Natural-abundant,Bacteria,Dependentiae,Babeliae,19.7222908,2.830670008160429e-4,Virus
+All sites,Natural-abundant,Bacteria,Desulfobacterota,DSM-4660,232.76222320000002,0.003340753114972748,Virus
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,2540.025704699998,0.036456082384967385,Virus
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,710.8359099000005,0.010202374112024352,Virus
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Syntrophia,147.2146998,0.0021129200441776324,Virus
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,3988.449539400001,0.05724479273087719,Virus
+All sites,Natural-abundant,Bacteria,Desulfobacterota_B,Binatia,449.08735429999984,0.00644559051355802,Virus
+All sites,Natural-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,97.16321510000002,0.0013945489480360496,Virus
+All sites,Natural-abundant,Bacteria,Dormibacterota,Dormibacteria,17.4491507,2.5044143226182205e-4,Virus
+All sites,Natural-abundant,Bacteria,Eremiobacterota,Eremiobacteria,206.36872970000016,0.00296193672280685,Virus
+All sites,Natural-abundant,Bacteria,Myxococcota,Polyangia,544.4103586000004,0.007813727572766981,Virus
+All sites,Natural-abundant,Bacteria,OLB16,OLB16,3.68307624,5.286187875465401e-5,Virus
+All sites,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,4395.244765220001,0.06308337941874573,Virus
+All sites,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,14818.663546269978,0.2126869889853094,Virus
+All sites,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,915.7062857000001,0.013142805496078455,Virus
+All sites,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,1652.126203730003,0.023712377745664648,Virus
+All sites,Natural-abundant,Unknown,Unknown,Unknown,7794.373060439992,0.11186985466516446,Virus
+All sites,Restored-abundant,Archaea,Halobacteriota,Methanomicrobia,3.4885928,3.559893187135694e-5,Virus
+All sites,Restored-abundant,Archaea,Methanobacteriota,Methanobacteria,77.41349119999998,7.899567983837751e-4,Virus
+All sites,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,2740.498651000005,0.02796509376803586,Virus
+All sites,Restored-abundant,Archaea,Thermoproteota,Bathyarchaeia,65.22463990000001,6.655771095250469e-4,Virus
+All sites,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,26158.805058160015,0.2669344267125546,Virus
+All sites,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,764.7917765000003,0.007804227064677068,Virus
+All sites,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,2757.291095800004,0.028136450281294925,Virus
+All sites,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,1128.4146687500006,0.011514773783707596,Virus
+All sites,Restored-abundant,Bacteria,Bacillota_A,Clostridia,24.6800999,2.518451551348679e-4,Virus
+All sites,Restored-abundant,Bacteria,Bacteroidota,Bacteroidia,209.57188859999997,0.002138551505473211,Virus
+All sites,Restored-abundant,Bacteria,Dependentiae,Babeliae,85.61611419999998,8.736594928752117e-4,Virus
+All sites,Restored-abundant,Bacteria,Desulfobacterota,DSM-4660,410.5525692,0.00418943504686513,Virus
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,3604.1674848000166,0.03677830004819011,Virus
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Desulfomonilia,625.5739035999998,0.006383594776310724,Virus
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,113.64441659999994,0.0011596709836996463,Virus
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,2034.4746058000007,0.020760555054141025,Virus
+All sites,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,2402.212243000003,0.024513090200466117,Virus
+All sites,Restored-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,16.0711102,1.6399573980284244e-4,Virus
+All sites,Restored-abundant,Bacteria,Dormibacterota,Dormibacteria,64.8337278,6.615880933189739e-4,Virus
+All sites,Restored-abundant,Bacteria,Myxococcota,Myxococcia,14.229802000000003,1.4520632844879425e-4,Virus
+All sites,Restored-abundant,Bacteria,Myxococcota,Polyangia,171.4708115,0.001749753578725149,Virus
+All sites,Restored-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,27.8173914,2.838592745153491e-4,Virus
+All sites,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,2269.829878089999,0.023162210043458295,Virus
+All sites,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,42246.51423256006,0.4310995487828837,Virus
+All sites,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,427.05180758,0.004357799569952748,Virus
+All sites,Restored-abundant,Bacteria,Spirochaetota,Spirochaetia,2.2764978,2.323025206252044e-5,Virus
+All sites,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,765.1583630999992,0.007807967854200658,Virus
+All sites,Restored-abundant,Unknown,Unknown,Unknown,8785.445121159992,0.08965003376940976,Virus
+Balmoral,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,8.3784059,0.011222519753392828,Host
+Balmoral,Damaged-abundant,Archaea,Thermoproteota,Nitrososphaeria,1.0345639,0.0013857545149366804,Host
+Balmoral,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,17.3165846,0.023194831457711784,Host
+Balmoral,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,92.9787413,0.1245410849437184,Host
+Balmoral,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,343.4405014600001,0.46002400191067244,Host
+Balmoral,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,64.4867844,0.08637731573279166,Host
+Balmoral,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,11.9999046,0.01607336383790256,Host
+Balmoral,Damaged-abundant,Bacteria,Eremiobacterota,Eremiobacteria,8.1337555,0.010894820907162966,Host
+Balmoral,Damaged-abundant,Bacteria,Gemmatimonadota,Gemmatimonadetes,26.765839999999997,0.03585170875000838,Host
+Balmoral,Damaged-abundant,Bacteria,Myxococcota,Polyangia,19.330237699999998,0.02589203447711082,Host
+Balmoral,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,89.78631539999999,0.12026496569721676,Host
+Balmoral,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,62.9191964,0.08427759801737497,Host
+Balmoral,Natural-abundant,Archaea,Halobacteriota,Methanomicrobia,36.97100306,0.02067936960104945,Host
+Balmoral,Natural-abundant,Archaea,Halobacteriota,Methanosarcinia,5.4284345,0.003036341837910309,Host
+Balmoral,Natural-abundant,Archaea,Methanobacteriota,Methanobacteria,5.8373151,0.0032650452094790125,Host
+Balmoral,Natural-abundant,Archaea,Thermoproteota,Bathyarchaeia,4.4032446,0.002462911876625322,Host
+Balmoral,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,580.1331627000001,0.32449182051754305,Host
+Balmoral,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,124.74570869999998,0.06977529422627868,Host
+Balmoral,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,8.6554711,0.004841353253457063,Host
+Balmoral,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,133.288018,0.07455335153174314,Host
+Balmoral,Natural-abundant,Bacteria,Armatimonadota,Armatimonadia,1.0725299,5.999091280883577e-4,Host
+Balmoral,Natural-abundant,Bacteria,Dependentiae,Babeliae,4.1270033999999995,0.002308399058442741,Host
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,56.571523,0.03164272906290116,Host
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota,Syntrophia,21.127717599999997,0.01181758256241905,Host
+Balmoral,Natural-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,8.5723795,0.004794876778248804,Host
+Balmoral,Natural-abundant,Bacteria,Dormibacterota,Dormibacteria,3.2548769,0.0018205836155373728,Host
+Balmoral,Natural-abundant,Bacteria,Eremiobacterota,Eremiobacteria,173.78325,0.09720396418212779,Host
+Balmoral,Natural-abundant,Bacteria,Myxococcota,Myxococcia,12.1423708,0.006791716556856396,Host
+Balmoral,Natural-abundant,Bacteria,Myxococcota,Polyangia,16.0120454,0.00895618126340832,Host
+Balmoral,Natural-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,13.2745865,0.007425010354441852,Host
+Balmoral,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,64.9061467,0.03630461945571124,Host
+Balmoral,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,423.80504899999994,0.23705121640434795,Host
+Balmoral,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,74.32538899999999,0.04157318067292856,Host
+Balmoral,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,15.383379,0.008604542850453634,Host
+Balmoral,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,5.767715,0.009592923196500016,Host
+Balmoral,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,244.2684121,0.40626974748341677,Host
+Balmoral,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,92.85222970000001,0.1544327880513995,Host
+Balmoral,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,12.430722999999999,0.020674906963323646,Host
+Balmoral,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,130.68292770000002,0.21735319593978977,Host
+Balmoral,Restored-abundant,Bacteria,Dormibacterota,Dormibacteria,14.1177137,0.023480727330368448,Host
+Balmoral,Restored-abundant,Bacteria,Eremiobacterota,Eremiobacteria,1.8060398,0.0030038240605200234,Host
+Balmoral,Restored-abundant,Bacteria,Patescibacteria,Paceibacteria,2.9236407,0.004862629427643624,Host
+Balmoral,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,68.4983348,0.11392713835973937,Host
+Balmoral,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,26.1705184,0.04352707667140115,Host
+Balmoral,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,1.7286103,0.002875042515897344,Host
+Bowness,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,3.2448194,0.0021498365653766748,Host
+Bowness,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,387.2130646,0.2565458049433014,Host
+Bowness,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,43.7677714,0.028998087024740868,Host
+Bowness,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,314.5114437,0.20837776114617268,Host
+Bowness,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,69.9055432,0.046315518482747835,Host
+Bowness,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,52.915917699999994,0.035059139119398376,Host
+Bowness,Damaged-abundant,Bacteria,Eremiobacterota,Eremiobacteria,23.3848068,0.015493470216835213,Host
+Bowness,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,2.4221147,0.001604758264079768,Host
+Bowness,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,497.5556524999999,0.32965265649433373,Host
+Bowness,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,114.41192519999998,0.07580296774301244,Host
+Bowness,Restored-abundant,Archaea,Halobacteriota,Methanomicrobia,19.1606209,0.017630495264518584,Host
+Bowness,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,37.6796375,0.0346706233571234,Host
+Bowness,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,185.8324938,0.17099231382082083,Host
+Bowness,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,53.967378599999996,0.04965766077266219,Host
+Bowness,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,106.4462544,0.09794568735113068,Host
+Bowness,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,99.85620845,0.09188190818025659,Host
+Bowness,Restored-abundant,Bacteria,Bacteroidota,Bacteroidia,1.1716592,0.001078093037017899,Host
+Bowness,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,115.2465333,0.10604319506148326,Host
+Bowness,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,2.6932327000000003,0.0024781569768230526,Host
+Bowness,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,53.0407732,0.04880505207057272,Host
+Bowness,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,60.08357709999999,0.05528543292336038,Host
+Bowness,Restored-abundant,Bacteria,Myxococcota,Myxococcia,24.9439022,0.022951936260881538,Host
+Bowness,Restored-abundant,Bacteria,Myxococcota,Polyangia,1.9399861999999999,0.0017850631089064235,Host
+Bowness,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,12.8382363,0.011813002588654137,Host
+Bowness,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,278.5596739999999,0.25631450248790416,Host
+Bowness,Restored-abundant,Bacteria,Spirochaetota,Spirochaetia,1.4805225,0.001362291183646518,Host
+Bowness,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,31.8478889,0.029304585554237646,Host
+Crocach,Damaged-abundant,Archaea,Halobacteriota,Bog-38,1.5573237,8.594347000544586e-4,Host
+Crocach,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,10.897755400000001,0.006014105573212465,Host
+Crocach,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,158.0747792,0.0872361670524418,Host
+Crocach,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,11.128206300000002,0.006141283693033528,Host
+Crocach,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,168.38700060000002,0.09292713605638375,Host
+Crocach,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,100.96320979999999,0.055718208058477735,Host
+Crocach,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,38.121196499999996,0.02103780933899264,Host
+Crocach,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,199.0821805,0.10986677598511156,Host
+Crocach,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,99.8867399,0.05512414043745319,Host
+Crocach,Damaged-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,5.3776946,0.0029677692219899315,Host
+Crocach,Damaged-abundant,Bacteria,Planctomycetota,Brocadiia,15.4544923,0.008528815784633883,Host
+Crocach,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,11.428927400000001,0.00630724157858972,Host
+Crocach,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,860.1871394000002,0.4747084219812117,Host
+Crocach,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,128.6539684,0.07099980867347604,Host
+Crocach,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,2.8319929000000004,0.001562881864937814,Host
+Crocach,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,508.6103672999999,0.2569119483864251,Host
+Crocach,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,468.9479315,0.23687744985030082,Host
+Crocach,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,56.45910370000001,0.028518919920408448,Host
+Crocach,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,80.17471250000001,0.040498273185113814,Host
+Crocach,Natural-abundant,Bacteria,Bacteroidota,Bacteroidia,7.8891056,0.003984986585078321,Host
+Crocach,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,42.8067478,0.021622769979632535,Host
+Crocach,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,28.1146137,0.014201401796315058,Host
+Crocach,Natural-abundant,Bacteria,Eremiobacterota,Eremiobacteria,26.071046959999997,0.013169144597905615,Host
+Crocach,Natural-abundant,Bacteria,Myxococcota,Myxococcia,49.48849849999999,0.024997891096573556,Host
+Crocach,Natural-abundant,Bacteria,Myxococcota,Polyangia,27.802758070000003,0.014043875637452241,Host
+Crocach,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,379.9007025,0.19189744438511894,Host
+Crocach,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,252.36038860000005,0.12747360907124278,Host
+Crocach,Natural-abundant,Bacteria,Spirochaetota,Spirochaetia,0.9810411,4.955486491282966e-4,Host
+Crocach,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,50.0999226,0.025306736859304076,Host
+Crocach,Restored-abundant,Archaea,Halobacteriota,Methanomicrobia,8.235232,0.005376275478675069,Host
+Crocach,Restored-abundant,Archaea,Methanobacteriota,Methanobacteria,5.8055114,0.0037900606298630775,Host
+Crocach,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,379.48387410000004,0.24774163580047864,Host
+Crocach,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,291.5308938,0.19032255504315673,Host
+Crocach,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,51.46201730000001,0.03359637976114604,Host
+Crocach,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,215.8419084,0.14090988079040764,Host
+Crocach,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,9.212186,0.006014068540727666,Host
+Crocach,Restored-abundant,Bacteria,Dependentiae,Babeliae,10.1107125,0.006600661121105454,Host
+Crocach,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,29.728133200000002,0.01940766617746121,Host
+Crocach,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,49.6390014,0.032406245022937714,Host
+Crocach,Restored-abundant,Bacteria,Dormibacterota,Dormibacteria,2.6191091,0.0017098549294427565,Host
+Crocach,Restored-abundant,Bacteria,Patescibacteria,Paceibacteria,1.1519665,7.52047938200787e-4,Host
+Crocach,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,3.2010532,0.0020897703701722504,Host
+Crocach,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,191.60513160000005,0.12508718280303335,Host
+Crocach,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,282.1459684,0.18419571559319167,Host
+Langwell,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,55.726259799999994,0.025303325280210565,Host
+Langwell,Damaged-abundant,Archaea,Thermoproteota,Bathyarchaeia,19.270968,0.008750265557361681,Host
+Langwell,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,480.4082073999999,0.21813638996681883,Host
+Langwell,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,54.37312305000001,0.024688913700163045,Host
+Langwell,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,551.5136761,0.25042287052688567,Host
+Langwell,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,69.35016279999999,0.031489458181149246,Host
+Langwell,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,21.4931624,0.00975928550488492,Host
+Langwell,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,130.8329247,0.05940660763752524,Host
+Langwell,Damaged-abundant,Bacteria,Myxococcota,Polyangia,0.9385757,4.261740573014615e-4,Host
+Langwell,Damaged-abundant,Bacteria,Nitrospirota,UBA9217,1.6928144,7.686471971374703e-4,Host
+Langwell,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,21.926855200000002,0.009956210079214335,Host
+Langwell,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,679.7410051,0.3086463692354708,Host
+Langwell,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,69.83591679999999,0.03171002190662223,Host
+Langwell,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,45.225851999999996,0.020535461169254025,Host
+Langwell,Natural-abundant,Archaea,Halobacteriota,Bog-38,16.8512077,0.006681197170640245,Host
+Langwell,Natural-abundant,Archaea,Halobacteriota,Methanomicrobia,117.37942369999999,0.046538805258202504,Host
+Langwell,Natural-abundant,Archaea,Thermoplasmatota,Thermoplasmata,66.8264343,0.02649546499679879,Host
+Langwell,Natural-abundant,Archaea,Thermoproteota,Bathyarchaeia,51.02370939999999,0.020229972174567047,Host
+Langwell,Natural-abundant,Archaea,Thermoproteota,Nitrososphaeria,12.2259493,0.004847366392116281,Host
+Langwell,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,723.3342143,0.2867888516980563,Host
+Langwell,Natural-abundant,Bacteria,Acidobacteriota,Thermoanaerobaculia,7.4046638,0.002935814436024205,Host
+Langwell,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,143.12961800000002,0.056748288659240684,Host
+Langwell,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,15.9417973,0.006320632497793039,Host
+Langwell,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,22.7713123,0.00902841090199876,Host
+Langwell,Natural-abundant,Bacteria,Bacteroidota,Kryptonia,11.0716032,0.004389689171909707,Host
+Langwell,Natural-abundant,Bacteria,c__BSN033,o__BSN033,1.0304565,4.0855724852693204e-4,Host
+Langwell,Natural-abundant,Bacteria,Chloroflexota,Dehalococcoidia,15.322624999999999,0.0060751419494272495,Host
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,270.9561941,0.1074291997118028,Host
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,78.24417309999998,0.031022390634637152,Host
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Syntrophia,12.8938117,0.005112161678999903,Host
+Langwell,Natural-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,78.3755292,0.031074470937680742,Host
+Langwell,Natural-abundant,Bacteria,Desulfobacterota_B,Binatia,36.0692497,0.014300801066190437,Host
+Langwell,Natural-abundant,Bacteria,Myxococcota,Polyangia,23.563558,0.009342521903626963,Host
+Langwell,Natural-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,30.775676899999997,0.012201995791008993,Host
+Langwell,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,419.98612210000005,0.16651685390375248,Host
+Langwell,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,308.02114229999984,0.12212477711209596,Host
+Langwell,Natural-abundant,Bacteria,Spirochaetota,Spirochaetia,1.2950587,5.134672052171688e-4,Host
+Langwell,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,57.69033400000001,0.022873167499685543,Host
+Langwell,Restored-abundant,Archaea,Halobacteriota,Methanomicrobia,7.6690695,0.005073196499657195,Host
+Langwell,Restored-abundant,Archaea,Halobacteriota,Methanosarcinia,1.5397544,0.0010185690235838605,Host
+Langwell,Restored-abundant,Archaea,Methanobacteriota,Methanobacteria,13.133302,0.008687862554295647,Host
+Langwell,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,9.4771275,0.006269252098941722,Host
+Langwell,Restored-abundant,Archaea,Thermoproteota,Bathyarchaeia,1.6326882,0.0010800460292179654,Host
+Langwell,Restored-abundant,Archaea,Thermoproteota,Nitrososphaeria,1.2183831,8.059774237489285e-4,Host
+Langwell,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,331.4588565,0.21926465923619243,Host
+Langwell,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,77.5221817,0.051282005052402914,Host
+Langwell,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,16.2044314,0.010719457511424972,Host
+Langwell,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,28.672593600000006,0.018967320805687488,Host
+Langwell,Restored-abundant,Bacteria,Bacteroidota,Kryptonia,10.4563266,0.006917005968767453,Host
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,55.7165723,0.03685729012695178,Host
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Desulfomonilia,14.9525975,0.009891351916654677,Host
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,1.3677868,9.048100562965711e-4,Host
+Langwell,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,50.5675887,0.03345116561910735,Host
+Langwell,Restored-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,7.7553424,0.005130267226985364,Host
+Langwell,Restored-abundant,Bacteria,Eremiobacterota,Eremiobacteria,5.706899099999999,0.0037751933970629416,Host
+Langwell,Restored-abundant,Bacteria,Myxococcota,Myxococcia,2.5092886,0.0016599294271814468,Host
+Langwell,Restored-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,53.27970989999999,0.035245271641811404,Host
+Langwell,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,7.4786515,0.004947232335286052,Host
+Langwell,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,524.8982926,0.34722754575302234,Host
+Langwell,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,240.2898887,0.1589551147314361,Host
+Langwell,Restored-abundant,Bacteria,Spirochaetota,Spirochaetia,18.3636835,0.012147832908935379,Host
+Langwell,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,29.812889799999997,0.019721642655347652,Host
+Migneint,Damaged-abundant,Archaea,Thermoproteota,Nitrososphaeria,25.9265079,0.04174788727482976,Host
+Migneint,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,194.03989570000002,0.3124507058084488,Host
+Migneint,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,53.079792299999994,0.08547117853506897,Host
+Migneint,Damaged-abundant,Bacteria,Dependentiae,Babeliae,12.5398665,0.020192188439053682,Host
+Migneint,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,105.24989900000001,0.16947754537892154,Host
+Migneint,Damaged-abundant,Bacteria,Dormibacterota,Dormibacteria,15.257509299999999,0.024568244238980855,Host
+Migneint,Damaged-abundant,Bacteria,Nitrospirota,UBA9217,14.217887300000001,0.02289420382320882,Host
+Migneint,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,57.1551878,0.09203354137199962,Host
+Migneint,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,119.94709259999999,0.1931435471418951,Host
+Migneint,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,23.611989299999998,0.038020957987592544,Host
+Migneint,Natural-abundant,Archaea,Halobacteriota,Methanosarcinia,6.9973994,0.012166400554343747,Host
+Migneint,Natural-abundant,Archaea,Thermoplasmatota,Thermoplasmata,20.587293799999998,0.035795193097132284,Host
+Migneint,Natural-abundant,Archaea,Thermoproteota,Nitrososphaeria,17.245745200000002,0.029985231936503588,Host
+Migneint,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,105.79492979999998,0.18394598035456966,Host
+Migneint,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,175.67930564000002,0.3054541665186671,Host
+Migneint,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,150.1294877,0.26103061694272056,Host
+Migneint,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,28.6636037,0.04983749876349341,Host
+Migneint,Natural-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,3.8535684000000003,0.006700211612611616,Host
+Migneint,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,3.3357223,0.005799830954319515,Host
+Migneint,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,3.0653366,0.005329710479223207,Host
+Migneint,Natural-abundant,Bacteria,Spirochaetota,Spirochaetia,9.5948476,0.01668259198688641,Host
+Migneint,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,50.1940573,0.08727256679952866,Host
+Migneint,Restored-abundant,Archaea,Halobacteriota,Bog-38,697.5567967000001,0.4963038816391206,Host
+Migneint,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,409.0228628000001,0.29101520542432624,Host
+Migneint,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,45.301073599999995,0.03223120866496101,Host
+Migneint,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,32.4281159,0.02307224282173392,Host
+Migneint,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,37.2477215,0.02650133845748094,Host
+Migneint,Restored-abundant,Bacteria,Desulfobacterota,Desulfomonilia,33.4148056,0.023774261539636177,Host
+Migneint,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,38.7256821,0.027552890942038194,Host
+Migneint,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,24.5032709,0.0174338039827817,Host
+Migneint,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,87.30307820000002,0.06211516652792108,Host
+Moor House,Damaged-abundant,Archaea,Halobacteriota,Bog-38,1.6297811,9.002465684942661e-4,Host
+Moor House,Damaged-abundant,Archaea,Halobacteriota,Methanomicrobia,144.813582,0.07999106767581428,Host
+Moor House,Damaged-abundant,Archaea,Halobacteriota,Methanosarcinia,4.5676184,0.0025230276573898606,Host
+Moor House,Damaged-abundant,Archaea,Methanobacteriota,Methanobacteria,7.480174099999999,0.004131843880914244,Host
+Moor House,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,111.00588400000001,0.061316618626680953,Host
+Moor House,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,558.5915959,0.30855074181355446,Host
+Moor House,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,156.74332396,0.08658073131991474,Host
+Moor House,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,46.612078100000005,0.02574723891442338,Host
+Moor House,Damaged-abundant,Bacteria,Dependentiae,Babeliae,3.1952287,0.0017649570686084132,Host
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,63.1130409,0.03486192010538303,Host
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota,Desulfomonilia,14.366886700000002,0.0079358758373262,Host
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophia,17.3544123,0.009586103386098712,Host
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,154.7069941,0.08545591831969808,Host
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,62.47073649999999,0.03450712869687499,Host
+Moor House,Damaged-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,11.7291811,0.006478879302577998,Host
+Moor House,Damaged-abundant,Bacteria,Myxococcota,Polyangia,2.4759123,0.0013676263345842863,Host
+Moor House,Damaged-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,30.441698999999996,0.01681516313073291,Host
+Moor House,Damaged-abundant,Bacteria,Planctomycetota,Brocadiia,4.877051,0.002693949774679268,Host
+Moor House,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,56.8637447,0.031409979559775855,Host
+Moor House,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,156.29109640000001,0.0863309331666115,Host
+Moor House,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,53.7448468,0.029687185540407876,Host
+Moor House,Damaged-abundant,Bacteria,Spirochaetota,Spirochaetia,9.1540852,0.005056466656168825,Host
+Moor House,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,138.14295710000002,0.07630639666328543,Host
+Moor House,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,171.62448320000007,0.15368353202073162,Host
+Moor House,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,172.78593970000003,0.1547235744079266,Host
+Moor House,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,92.291235,0.08264347082010827,Host
+Moor House,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,62.2744923,0.055764560819151536,Host
+Moor House,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,20.2527722,0.018135626729201316,Host
+Moor House,Natural-abundant,Bacteria,Dormibacterota,Dormibacteria,7.079294900000001,0.006339253142458126,Host
+Moor House,Natural-abundant,Bacteria,Eremiobacterota,Eremiobacteria,19.6913905,0.01763292967305191,Host
+Moor House,Natural-abundant,Bacteria,Myxococcota,Myxococcia,50.809498000000005,0.04549807211212798,Host
+Moor House,Natural-abundant,Bacteria,Myxococcota,Polyangia,11.3400883,0.010154639890976659,Host
+Moor House,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,330.6361624900001,0.29607275324482224,Host
+Moor House,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,165.65118650000002,0.14833466035890694,Host
+Moor House,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,12.3030382,0.011016926780537473,Host
+Moor House,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,1.8895414,0.0011074540746053238,Host
+Moor House,Restored-abundant,Archaea,Thermoproteota,Bathyarchaeia,5.7653237,0.0033790374865476044,Host
+Moor House,Restored-abundant,Archaea,Thermoproteota,Nitrososphaeria,4.0227914,0.0023577449677563327,Host
+Moor House,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,361.9776827999998,0.21215394366752338,Host
+Moor House,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,4.9896356,0.002924409211682676,Host
+Moor House,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,727.1060872,0.4261545150267541,Host
+Moor House,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,26.6829914,0.015638814554996685,Host
+Moor House,Restored-abundant,Bacteria,Chloroflexota,Ktedonobacteria,13.526513900000001,0.007927845843314442,Host
+Moor House,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,20.7874528,0.012183458538683434,Host
+Moor House,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,137.4491999,0.08055852942967891,Host
+Moor House,Restored-abundant,Bacteria,Eremiobacterota,Eremiobacteria,9.0845315,0.005324414392590401,Host
+Moor House,Restored-abundant,Bacteria,Methylomirabilota,Methylomirabilia,10.0982332,0.005918541665006524,Host
+Moor House,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,327.89786900000007,0.19217987553935192,Host
+Moor House,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,54.925088,0.03219141560150838,Host
+Stean,Damaged-abundant,Archaea,Methanobacteriota,Methanobacteria,100.652267,0.08523741696589482,Host
+Stean,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,28.6409617,0.024254611122937985,Host
+Stean,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,456.2854817,0.38640556262033393,Host
+Stean,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,108.50651809999998,0.09188879299466858,Host
+Stean,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,177.53082650000002,0.15034205918760313,Host
+Stean,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,52.39392360000001,0.044369817446560225,Host
+Stean,Damaged-abundant,Bacteria,Bacteroidota,Bacteroidia,18.2374917,0.015444427937673238,Host
+Stean,Damaged-abundant,Bacteria,Dependentiae,Babeliae,49.823397,0.04219296585487054,Host
+Stean,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,54.4804632,0.04613680443256672,Host
+Stean,Damaged-abundant,Bacteria,Dormibacterota,Dormibacteria,27.9747385,0.023690419710431076,Host
+Stean,Damaged-abundant,Bacteria,Myxococcota,Polyangia,1.2356384,0.001046400927262484,Host
+Stean,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,13.8749018,0.011749966745283984,Host
+Stean,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,91.20943919999999,0.07724075405391348,Host
+Stean,Natural-abundant,Archaea,Halobacteriota,Methanomicrobia,296.06120020000003,0.09466122094868841,Host
+Stean,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,338.51970009999997,0.10823670276619325,Host
+Stean,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,13.873109,0.004435722868809195,Host
+Stean,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,17.2897092,0.005528130608178797,Host
+Stean,Natural-abundant,Bacteria,Dependentiae,Babeliae,29.481252599999998,0.009426197571067923,Host
+Stean,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,342.2321756,0.10942371228765264,Host
+Stean,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,717.4374724,0.22939009585128659,Host
+Stean,Natural-abundant,Bacteria,Desulfobacterota_B,Binatia,27.5361497,0.008804279483657446,Host
+Stean,Natural-abundant,Bacteria,Dormibacterota,Dormibacteria,132.0681772,0.04222686016868932,Host
+Stean,Natural-abundant,Bacteria,Planctomycetota,Brocadiia,61.8583355,0.01977829435376178,Host
+Stean,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,79.85062810000001,0.025531065686281874,Host
+Stean,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,1066.0411618,0.34085100610744024,Host
+Stean,Natural-abundant,Bacteria,Spirochaetota,Spirochaetia,5.337888,0.0017067112982924147,Host
+All sites,Damaged-abundant,Archaea,Halobacteriota,Bog-38,3.1871048,3.2249954041407294e-4,Host
+All sites,Damaged-abundant,Archaea,Halobacteriota,Methanomicrobia,144.813582,0.01465352304722319,Host
+All sites,Damaged-abundant,Archaea,Halobacteriota,Methanosarcinia,4.5676184,4.6219215470632246e-4,Host
+All sites,Damaged-abundant,Archaea,Methanobacteriota,Methanobacteria,108.1324411,0.010941799767174836,Host
+All sites,Damaged-abundant,Archaea,Thermoplasmatota,Thermoplasmata,217.8940862,0.022048456849754167,Host
+All sites,Damaged-abundant,Archaea,Thermoproteota,Bathyarchaeia,19.270968,0.00195000751884102,Host
+All sites,Damaged-abundant,Archaea,Thermoproteota,Nitrososphaeria,26.9610718,0.0027281604497507647,Host
+All sites,Damaged-abundant,Bacteria,Acidobacteriota,Terriglobia,2251.9296090999997,0.22787021750260383,Host
+All sites,Damaged-abundant,Bacteria,Actinomycetota,Acidimicrobiia,467.49768411000014,0.04730556342863858,Host
+All sites,Damaged-abundant,Bacteria,Actinomycetota,Actinomycetia,1601.9955264599998,0.1621041206516807,Host
+All sites,Damaged-abundant,Bacteria,Actinomycetota,Thermoleophilia,410.1794161,0.04150559253011159,Host
+All sites,Damaged-abundant,Bacteria,Bacteroidota,Bacteroidia,18.2374917,0.0018454312175600466,Host
+All sites,Damaged-abundant,Bacteria,Dependentiae,Babeliae,65.5584922,0.006633789891295568,Host
+All sites,Damaged-abundant,Bacteria,Desulfobacterota,Desulfobaccia,177.207863,0.01793146380855126,Host
+All sites,Damaged-abundant,Bacteria,Desulfobacterota,Desulfomonilia,14.366886700000002,0.0014537690627340076,Host
+All sites,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophia,17.3544123,0.0017560734089780586,Host
+All sites,Damaged-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,353.7891745999999,0.03579952758753781,Host
+All sites,Damaged-abundant,Bacteria,Desulfobacterota_B,Binatia,463.3561224000001,0.04688648346990251,Host
+All sites,Damaged-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,11.7291811,0.0011868626077760072,Host
+All sites,Damaged-abundant,Bacteria,Dormibacterota,Dormibacteria,43.232247799999996,0.004374622399165321,Host
+All sites,Damaged-abundant,Bacteria,Eremiobacterota,Eremiobacteria,31.5185623,0.003189327773677955,Host
+All sites,Damaged-abundant,Bacteria,Gemmatimonadota,Gemmatimonadetes,26.765839999999997,0.002708405164083907,Host
+All sites,Damaged-abundant,Bacteria,Myxococcota,Polyangia,23.9803641,0.00242654599911874,Host
+All sites,Damaged-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,35.8193936,0.003624524042607819,Host
+All sites,Damaged-abundant,Bacteria,Nitrospirota,UBA9217,15.9107017,0.0016099859615270288,Host
+All sites,Damaged-abundant,Bacteria,Planctomycetota,Brocadiia,20.3315433,0.002057325937370752,Host
+All sites,Damaged-abundant,Bacteria,Planctomycetota,Planctomycetia,92.641642,0.009374303276191319,Host
+All sites,Damaged-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,2354.5912984000024,0.2382584380648468,Host
+All sites,Damaged-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,640.7223853999999,0.06483397559581613,Host
+All sites,Damaged-abundant,Bacteria,Spirochaetota,Spirochaetia,9.1540852,9.262915577521225e-4,Host
+All sites,Damaged-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,209.81279129999993,0.021230719732606148,Host
+All sites,Natural-abundant,Archaea,Halobacteriota,Bog-38,16.8512077,0.0015168724281418126,Host
+All sites,Natural-abundant,Archaea,Halobacteriota,Methanomicrobia,450.41162696000004,0.04054409573564983,Host
+All sites,Natural-abundant,Archaea,Halobacteriota,Methanosarcinia,12.425833899999999,0.001118519525433174,Host
+All sites,Natural-abundant,Archaea,Methanobacteriota,Methanobacteria,5.8373151,5.254497177413502e-4,Host
+All sites,Natural-abundant,Archaea,Thermoplasmatota,Thermoplasmata,87.4137281,0.007868603625126239,Host
+All sites,Natural-abundant,Archaea,Thermoproteota,Bathyarchaeia,55.42695399999998,0.004989293337027976,Host
+All sites,Natural-abundant,Archaea,Thermoproteota,Nitrososphaeria,29.471694499999998,0.0026529137610516013,Host
+All sites,Natural-abundant,Bacteria,Acidobacteriota,Terriglobia,2428.0168573999995,0.2185595176097432,Host
+All sites,Natural-abundant,Bacteria,Acidobacteriota,Thermoanaerobaculia,7.4046638,6.665356310265988e-4,Host
+All sites,Natural-abundant,Bacteria,Actinomycetota,Acidimicrobiia,1099.1616125400005,0.098941747904147,Host
+All sites,Natural-abundant,Bacteria,Actinomycetota,Actinomycetia,323.47709480000003,0.029118001212312835,Host
+All sites,Natural-abundant,Bacteria,Actinomycetota,Thermoleophilia,344.4618480000001,0.031006957428812425,Host
+All sites,Natural-abundant,Bacteria,Armatimonadota,Armatimonadia,1.0725299,9.654447696752888e-5,Host
+All sites,Natural-abundant,Bacteria,Bacteroidota,Bacteroidia,7.8891056,7.101429749358067e-4,Host
+All sites,Natural-abundant,Bacteria,Bacteroidota,Kryptonia,11.0716032,9.966175676184125e-4,Host
+All sites,Natural-abundant,Bacteria,c__BSN033,o__BSN033,1.0304565,9.275721248451018e-5,Host
+All sites,Natural-abundant,Bacteria,Chloroflexota,Dehalococcoidia,15.322624999999999,0.0013792760615760756,Host
+All sites,Natural-abundant,Bacteria,Dependentiae,Babeliae,33.608256,0.003025269036612233,Host
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Desulfobaccia,712.5666405,0.06414214989398588,Host
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Desulfomonilia,844.0490314,0.07597762288162072,Host
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Syntrophia,34.0215293,0.003062470101676381,Host
+All sites,Natural-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,78.3755292,0.007055024268943261,Host
+All sites,Natural-abundant,Bacteria,Desulfobacterota_B,Binatia,63.6053994,0.005725481422367597,Host
+All sites,Natural-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,8.5723795,7.71648319729517e-4,Host
+All sites,Natural-abundant,Bacteria,Dormibacterota,Dormibacteria,142.40234900000002,0.012818440122883766,Host
+All sites,Natural-abundant,Bacteria,Eremiobacterota,Eremiobacteria,219.54568746000004,0.019762547940437157,Host
+All sites,Natural-abundant,Bacteria,Myxococcota,Myxococcia,112.4403673,0.01012139284043768,Host
+All sites,Natural-abundant,Bacteria,Myxococcota,Polyangia,78.71844977000002,0.007085892487229817,Host
+All sites,Natural-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,47.903831800000006,0.004312094596030823,Host
+All sites,Natural-abundant,Bacteria,Planctomycetota,Brocadiia,61.8583355,0.005568218328392919,Host
+All sites,Natural-abundant,Bacteria,Planctomycetota,Planctomycetia,564.7428969,0.050835699407855754,Host
+All sites,Natural-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,2511.739940389999,0.2260959054133639,Host
+All sites,Natural-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,495.40230069999996,0.04459396051298147,Host
+All sites,Natural-abundant,Bacteria,Spirochaetota,Spirochaetia,17.208835399999998,0.0015490645183069448,Host
+All sites,Natural-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,185.6707311,0.016713271697346807,Host
+All sites,Restored-abundant,Archaea,Halobacteriota,Bog-38,697.5567967000001,0.08893779823888513,Host
+All sites,Restored-abundant,Archaea,Halobacteriota,Methanomicrobia,35.0649224,0.004470742753030025,Host
+All sites,Restored-abundant,Archaea,Halobacteriota,Methanosarcinia,1.5397544,1.9631715555275533e-4,Host
+All sites,Restored-abundant,Archaea,Methanobacteriota,Methanobacteria,18.9388134,0.002414679884163609,Host
+All sites,Restored-abundant,Archaea,Thermoplasmatota,Thermoplasmata,434.2978955,0.05537255000349911,Host
+All sites,Restored-abundant,Archaea,Thermoproteota,Bathyarchaeia,7.3980119,9.432391639559107e-4,Host
+All sites,Restored-abundant,Archaea,Thermoproteota,Nitrososphaeria,5.2411745,6.682445392561531e-4,Host
+All sites,Restored-abundant,Bacteria,Acidobacteriota,Terriglobia,1824.0912017999997,0.23256981516414757,Host
+All sites,Restored-abundant,Bacteria,Actinomycetota,Acidimicrobiia,326.09451650000017,0.04157672673033509,Host
+All sites,Restored-abundant,Bacteria,Actinomycetota,Actinomycetia,1078.0294044,0.13744767754782125,Host
+All sites,Restored-abundant,Bacteria,Actinomycetota,Thermoleophilia,327.53502305000006,0.04176038988366077,Host
+All sites,Restored-abundant,Bacteria,Bacteroidota,Bacteroidia,1.1716592,1.4938538342297762e-4,Host
+All sites,Restored-abundant,Bacteria,Bacteroidota,Kryptonia,10.4563266,0.0013331712483774121,Host
+All sites,Restored-abundant,Bacteria,Chloroflexota,Ktedonobacteria,13.526513900000001,0.0017246170774980784,Host
+All sites,Restored-abundant,Bacteria,Dependentiae,Babeliae,10.1107125,0.001289105794152423,Host
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Desulfobaccia,208.21082709999996,0.026546673502968094,Host
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Desulfomonilia,48.367403100000004,0.006166795820207119,Host
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Syntrophia,72.5148348,0.009245569360486292,Host
+All sites,Restored-abundant,Bacteria,Desulfobacterota,Syntrophobacteria,124.39581469999999,0.015860342730354676,Host
+All sites,Restored-abundant,Bacteria,Desulfobacterota_B,Binatia,247.1717784,0.031514156068269045,Host
+All sites,Restored-abundant,Bacteria,Desulfobacterota_G,Syntrophorhabdia,7.7553424,9.887984475353204e-4,Host
+All sites,Restored-abundant,Bacteria,Dormibacterota,Dormibacteria,16.7368228,0.0021339282713441193,Host
+All sites,Restored-abundant,Bacteria,Eremiobacterota,Eremiobacteria,16.5974704,0.0021161609788541936,Host
+All sites,Restored-abundant,Bacteria,Methylomirabilota,Methylomirabilia,10.0982332,0.0012875146958062909,Host
+All sites,Restored-abundant,Bacteria,Myxococcota,Myxococcia,27.4531908,0.0035002545397519705,Host
+All sites,Restored-abundant,Bacteria,Myxococcota,Polyangia,1.9399861999999999,2.4734631224018495e-4,Host
+All sites,Restored-abundant,Bacteria,Nitrospirota,Thermodesulfovibrionia,53.27970989999999,0.006793110054593107,Host
+All sites,Restored-abundant,Bacteria,Patescibacteria,Paceibacteria,4.0756072,5.196358670280985e-4,Host
+All sites,Restored-abundant,Bacteria,Planctomycetota,Planctomycetia,23.517941000000004,0.0029985141017148725,Host
+All sites,Restored-abundant,Bacteria,Pseudomonadota,Alphaproteobacteria,1415.9625728999997,0.18053382064106385,Host
+All sites,Restored-abundant,Bacteria,Pseudomonadota,Gammaproteobacteria,690.8345416999998,0.08808071740800695,Host
+All sites,Restored-abundant,Bacteria,Spirochaetota,Spirochaetia,19.844206000000003,0.002530116540743719,Host
+All sites,Restored-abundant,Bacteria,Verrucomicrobiota,Verrucomicrobiae,63.38938899999999,0.008082084091272682,Host

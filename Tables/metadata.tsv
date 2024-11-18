@@ -1,0 +1,67 @@
+sample	id	number	replicate	site	treatment	year_since_rest	location	group
+BAr1A	Sample_28-BAr1A	28	1	Balmoral	NAT			BAr1A1B1C
+BAr1B	Sample_29-BAr1B	29	2	Balmoral	NAT			BAr1A1B1C
+BAr1C	Sample_30-BAr1C	30	3	Balmoral	NAT			BAr1A1B1C
+BAr2D	Sample_31-BAr2D	31	1	Balmoral	REST			BAr2D2E2F
+BAr2E	Sample_32-BAr2E	32	2	Balmoral	REST			BAr2D2E2F
+BAr2F	Sample_33-BAr2F	33	3	Balmoral	REST			BAr2D2E2F
+BAr3G	Sample_34-BAr3G	34	1	Balmoral	DAM			BAr3G3H3I
+BAr3H	Sample_35-BAr3H	35	2	Balmoral	DAM			BAr3G3H3I
+BAr3I	Sample_36-BAr3I	36	3	Balmoral	DAM			BAr3G3H3I
+BOr1A	Sample_37-BOr1A	37	1	Bowness	NAT			BOr1A1B1C
+BOr1B	Sample_38-BOr1B	38	2	Bowness	NAT			BOr1A1B1C
+BOr1C	Sample_39-BOr1C	39	3	Bowness	NAT			BOr1A1B1C
+BOr2D	Sample_40-BOr2D	40	1	Bowness	REST			BOr2D2E2F
+BOr2E	Sample_41-BOr2E	41	2	Bowness	REST			BOr2D2E2F
+BOr2F	Sample_42-BOr2F	42	3	Bowness	REST			BOr2D2E2F
+BOr3G	Sample_43-BOr3G	43	1	Bowness	DAM			BOr3G3H3I
+BOr3H	Sample_44-BOr3H	44	2	Bowness	DAM			BOr3G3H3I
+BOr3I	Sample_45-BOr3I	45	3	Bowness	DAM			BOr3G3H3I
+CRr1A	Sample_19-CRr1A	19	1	Crocach	NAT			CRr1A1B1C
+CRr1B	Sample_20-CRr1B	20	2	Crocach	NAT			CRr1A1B1C
+CRr1C	Sample_21-CRr1C	21	3	Crocach	NAT			CRr1A1B1C
+CRr2D	Sample_22-CRr2D	22	1	Crocach	REST			CRr2D2E2F
+CRr2E	Sample_23-CRr2E	23	2	Crocach	REST			CRr2D2E2F
+CRr2F	Sample_24-CRr2F	24	3	Crocach	REST			CRr2D2E2F
+CRr3G	Sample_25-CRr3G	25	1	Crocach	DAM			CRr3G3H3I
+CRr3H	Sample_26-CRr3H	26	2	Crocach	DAM			CRr3G3H3I
+CRr3I	Sample_27-CRr3I	27	3	Crocach	DAM			CRr3G3H3I
+LABRr1A	Sample_52-LABRr1A	52	1	Langwell	NAT		Braemore	LABRr1A1B1C
+LABRr1B	Sample_53-LABRr1B	53	2	Langwell	NAT		Braemore	LABRr1A1B1C
+LABRr1C	Sample_54-LABRr1C	54	3	Langwell	NAT		Braemore	LABRr1A1B1C
+LASAr3G	Sample_49-LASAr3G	49	1	Langwell	DAM		Salvaich	LASAr3G3H3I
+LASAr3H	Sample_50-LASAr3H	50	2	Langwell	DAM		Salvaich	LASAr3G3H3I
+LASAr3I	Sample_51-LASAr3I	51	3	Langwell	DAM		Salvaich	LASAr3G3H3I
+LASCr2D	Sample_55-LASCr2D	55	1	Langwell	REST	6	Scaraben	LASCr2D2E2F
+LASCr2E	Sample_56-LASCr2E	56	2	Langwell	REST	6	Scaraben	LASCr2D2E2F
+LASCr2F	Sample_57-LASCr2F	57	3	Langwell	REST	6	Scaraben	LASCr2D2E2F
+LASYr2D	Sample_46-LASYr2D	46	1	Langwell	REST	2	Strathy	LASYr2D2E2F
+LASYr2E	Sample_47-LASYr2E	47	2	Langwell	REST	2	Strathy	LASYr2D2E2F
+LASYr2F	Sample_48-LASYr2F	48	3	Langwell	REST	2	Strathy	LASYr2D2E2F
+LAWAr2D	Sample_58-LAWAr2D	58	1	Langwell	REST	3	Wag	LAWAr2D2E2F
+LAWAr2E	Sample_59-LAWAr2E	59	2	Langwell	REST	3	Wag	LAWAr2D2E2F
+LAWAr2F	Sample_60-LAWAr2F	60	3	Langwell	REST	3	Wag	LAWAr2D2E2F
+MGr1A	Sample_1-MGr1A	1	1	Migneint	NAT			MGr1A1B1C
+MGr1B	Sample_2-MGr1B	2	2	Migneint	NAT			MGr1A1B1C
+MGr1C	Sample_3-MGr1C	3	3	Migneint	NAT			MGr1A1B1C
+MGr2D	Sample_4-MGr2D	4	1	Migneint	REST			MGr2D2E2F
+MGr2E	Sample_5-MGr2E	5	2	Migneint	REST			MGr2D2E2F
+MGr2F	Sample_6-MGr2F	6	3	Migneint	REST			MGr2D2E2F
+MGr3G	Sample_7-MGr3G	7	1	Migneint	DAM			MGr3G3H3I
+MGr3H	Sample_8-MGr3H	8	2	Migneint	DAM			MGr3G3H3I
+MGr3I	Sample_9-MGr3I	9	3	Migneint	DAM			MGr3G3H3I
+MHr1A	Sample_10-MHr1A	10	1	Moor_House	NAT			MHr1A1B1C
+MHr1B	Sample_11-MHr1B	11	2	Moor_House	NAT			MHr1A1B1C
+MHr1C	Sample_12-MHr1C	12	3	Moor_House	NAT			MHr1A1B1C
+MHr2D	Sample_13-MHr2D	13	1	Moor_House	REST			MHr2D2E2F
+MHr2E	Sample_14-MHr2E	14	2	Moor_House	REST			MHr2D2E2F
+MHr2F	Sample_15-MHr2F	15	3	Moor_House	REST			MHr2D2E2F
+MHr3G	Sample_16-MHr3G	16	1	Moor_House	DAM			MHr3G3H3I
+MHr3H	Sample_17-MHr3H	17	2	Moor_House	DAM			MHr3G3H3I
+MHr3I	Sample_18-MHr3I	18	3	Moor_House	DAM			MHr3G3H3I
+SEr2D	Sample_61-SEr2D	61	1	Stean	REST			SEr2D2E2F
+SEr2E	Sample_62-SEr2E	62	2	Stean	REST			SEr2D2E2F
+SEr2F	Sample_63-SEr2F	63	3	Stean	REST			SEr2D2E2F
+SEr3G	Sample_64-SEr3G	64	1	Stean	DAM			SEr3G3H3I
+SEr3H	Sample_65-SEr3H	65	2	Stean	DAM			SEr3G3H3I
+SEr3I	Sample_66-SEr3I	66	3	Stean	DAM			SEr3G3H3I

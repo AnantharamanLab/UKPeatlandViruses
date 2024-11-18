@@ -1,0 +1,23 @@
+sample id	site	treatment
+BAr2D2E2F	Balmoral	REST
+LABRr1A1B1C	Langwell	NAT
+LAWAr2D2E2F	Langwell	REST
+MHr3G3H3I	Moor_House	DAM
+MGr1A1B1C	Migneint	NAT
+CRr2D2E2F	Crocach	REST
+MHr2D2E2F	Moor_House	REST
+MHr1A1B1C	Moor_House	NAT
+BOr3G3H3I	Bowness	DAM
+MGr3G3H3I	Migneint	DAM
+LASCr2D2E2F	Langwell	REST
+SEr3G3H3I	Stean	DAM
+BOr1A1B1C	Bowness	NAT
+MGr2D2E2F	Migneint	REST
+LASYr2D2E2F	Langwell	REST
+CRr3G3H3I	Crocach	DAM
+LASAr3G3H3I	Langwell	DAM
+SEr2D2E2F	Stean	REST
+BAr3G3H3I	Balmoral	DAM
+BAr1A1B1C	Balmoral	NAT
+CRr1A1B1C	Crocach	NAT
+BOr2D2E2F	Bowness	REST

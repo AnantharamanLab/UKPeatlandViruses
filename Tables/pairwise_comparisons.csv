@@ -1,0 +1,46 @@
+site,Module,Type,Group_A,Group_B,Group_A_value,Group_B_value,Percent_Change
+All sites,Oxidative phosphorylation,Host,Natural,Restored,1.0778980618674172,0.8162452129904274,-32.05566718344214
+All sites,Oxidative phosphorylation,Host,Natural,Damaged,1.0778980618674172,1.0582687741161314,-1.854848997853143
+All sites,Oxidative phosphorylation,Host,Restored,Damaged,0.8162452129904274,1.0582687741161314,22.869763055027555
+All sites,Oxidative phosphorylation,Virus,Restored,Damaged,1.1221825925597675,0.8946518391426032,-25.432323889840795
+All sites,Oxidative phosphorylation,Virus,Natural,Damaged,0.9953007973239785,0.8946518391426032,-11.250070002408206
+All sites,Oxidative phosphorylation,Virus,Natural,Restored,0.9953007973239785,1.1221825925597675,11.30669786512762
+All sites,Methanogenesis,Host,Restored,Damaged,1.8526884198893603,0.5123929192098983,-261.57572644566915
+All sites,Methanogenesis,Host,Natural,Damaged,0.8317586964052202,0.5123929192098983,-62.32829635658877
+All sites,Methanogenesis,Host,Natural,Restored,0.8317586964052202,1.8526884198893603,55.10531142333737
+All sites,Fermentation,Host,Natural,Damaged,1.1324339829607075,0.8563769777271046,-32.235453826220436
+All sites,Fermentation,Host,Restored,Damaged,0.993385739082231,0.8563769777271046,-15.998650701558908
+All sites,Fermentation,Host,Natural,Restored,1.1324339829607075,0.993385739082231,-13.997406889184894
+All sites,Fermentation,Virus,Restored,Damaged,1.0840421876964252,0.873141621539758,-24.15422205904589
+All sites,Fermentation,Virus,Natural,Damaged,1.0655780294168113,0.873141621539758,-22.039541253078472
+All sites,Fermentation,Virus,Natural,Restored,1.0655780294168113,1.0840421876964252,1.7032693458960282
+All sites,Carbohydrate degradation,Host,Natural,Restored,1.0314647576709495,0.9455360228943585,-9.087833006462995
+All sites,Carbohydrate degradation,Host,Natural,Damaged,1.0314647576709495,1.0078546996963305,-2.342605336040284
+All sites,Carbohydrate degradation,Host,Restored,Damaged,0.9455360228943585,1.0078546996963305,6.183299717781622
+All sites,Carbohydrate degradation,Virus,Restored,Damaged,1.051563287814422,0.9132650752377992,-15.143271797688346
+All sites,Carbohydrate degradation,Virus,Natural,Damaged,1.0514960052337092,0.9132650752377992,-15.135904541177922
+All sites,Carbohydrate degradation,Virus,Natural,Restored,1.0514960052337092,1.051563287814422,0.006398338691788033
+All sites,Aromatics degradation,Host,Restored,Damaged,1.1699145336595522,1.2214447152258041,4.218789514081748
+All sites,Aromatics degradation,Host,Natural,Restored,0.6830456291128358,1.1699145336595522,41.615766839289165
+All sites,Aromatics degradation,Host,Natural,Damaged,0.6830456291128358,1.2214447152258041,44.07887474575027
+All sites,Aromatics degradation,Virus,Natural,Restored,0.8700770485590599,0.9815308457190195,11.35509878737578
+All sites,Aromatics degradation,Virus,Restored,Damaged,0.9815308457190195,1.119192029913803,12.30005043954662
+All sites,Aromatics degradation,Virus,Natural,Damaged,0.8700770485590599,1.119192029913803,22.25846634861483
+All sites,Assimilatory sulfate reduction,Host,Natural,Restored,1.073501833821392,0.4137275666829939,-159.47070494433117
+All sites,Assimilatory sulfate reduction,Host,Natural,Damaged,1.073501833821392,1.382666561532879,22.3600350448003
+All sites,Assimilatory sulfate reduction,Host,Restored,Damaged,0.4137275666829939,1.382666561532879,70.07756040441745
+All sites,Assimilatory sulfate reduction,Virus,Natural,Restored,1.1894815623708772,0.7814237256590021,-52.21979104457644
+All sites,Assimilatory sulfate reduction,Virus,Natural,Damaged,1.1894815623708772,1.0453181154718076,-13.791346841243723
+All sites,Assimilatory sulfate reduction,Virus,Restored,Damaged,0.7814237256590021,1.0453181154718076,25.24536654506327
+All sites,Dissimilatory sulfate reduction,Host,Natural,Damaged,1.3241439394631498,0.717659791463592,-84.50858682812601
+All sites,Dissimilatory sulfate reduction,Host,Natural,Restored,1.3241439394631498,0.8966310340955089,-47.67991393459869
+All sites,Dissimilatory sulfate reduction,Host,Restored,Damaged,0.8966310340955089,0.717659791463592,-24.93817331843599
+All sites,Dissimilatory sulfate reduction,Virus,Natural,Restored,1.1503695703100987,0.8461967144778654,-35.9458800333347
+All sites,Dissimilatory sulfate reduction,Virus,Natural,Damaged,1.1503695703100987,1.0184188947913266,-12.95642453155866
+All sites,Dissimilatory sulfate reduction,Virus,Restored,Damaged,0.8461967144778654,1.0184188947913266,16.910740874338302
+All sites,Thiosulfate oxidation,Host,Natural,Damaged,1.708820528348845,0.543750209566538,-214.2657231729745
+All sites,Thiosulfate oxidation,Host,Natural,Restored,1.708820528348845,0.5708993697743191,-199.32079431517937
+All sites,Thiosulfate oxidation,Host,Restored,Damaged,0.5708993697743191,0.543750209566538,-4.992947079399503
+All sites,Thiosulfate oxidation,Virus,Natural,Restored,0.9156236597849479,0.4330386002453558,-111.44158032705715
+All sites,Thiosulfate oxidation,Virus,Natural,Damaged,0.9156236597849479,1.5727833585328252,41.78323067716779
+All sites,Thiosulfate oxidation,Virus,Restored,Damaged,0.4330386002453558,1.5727833585328252,72.46673561899098

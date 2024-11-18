@@ -22,6 +22,8 @@ library("ggrepel");packageVersion("ggrepel")
 ```
 
 # Load and format data
+*NOTE:* The shapefile and associated data for Scottish peatlands will have to be manually obtained from [ArcGIS Hub](https://hub.arcgis.com/datasets/snh::carbon-and-peatland-2016-map/about) since the files are too large to be stored in this repository.
+
 ```{r load-data-for-map}
 # Get the map data for the UK
 uk_map <- map_data("worldHires") %>%
@@ -30,6 +32,8 @@ uk_map <- map_data("worldHires") %>%
 # Load the shapefiles for England and Wales
 england_peatlands <- st_read("../Data/Peaty_Soils_Location_(England)___BGS_&_NSRI.shp") # Source: https://hub.arcgis.com/datasets/Defra::peaty-soils-location-england/about
 wales_peatlands <- st_read("../Data/Unified_peat_map_for_Wales.shp") # Source: https://hub.arcgis.com/datasets/theriverstrust::unified-peat-map-for-wales/about
+
+# The shapefile and associated data for 
 scotland_peatlands <- st_read("../Data/CARBONPEATLANDMAP_SCOTLAND.shp") # Source: https://hub.arcgis.com/datasets/snh::carbon-and-peatland-2016-map/about
 scotland_peatlands <- scotland_peatlands %>%
   filter(grepl("peat", COMPSOIL) | grepl("Peat", COMPSOIL)) # Only peat areas

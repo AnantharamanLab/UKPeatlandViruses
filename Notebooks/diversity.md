@@ -39,6 +39,11 @@ library("ggrepel");packageVersion("ggrepel")
 
 # Load and format data
 
+*NOTE:* The shapefile and associated data for Scottish peatlands will
+have to be manually obtained from [ArcGIS
+Hub](https://hub.arcgis.com/datasets/snh::carbon-and-peatland-2016-map/about)
+since the files are too large to be stored in this repository.
+
 ``` r
 # Get the map data for the UK
 uk_map <- map_data("worldHires") %>%
@@ -72,6 +77,7 @@ wales_peatlands <- st_read("../Data/Unified_peat_map_for_Wales.shp") # Source: h
     ## Projected CRS: OSGB36 / British National Grid
 
 ``` r
+# The shapefile and associated data for 
 scotland_peatlands <- st_read("../Data/CARBONPEATLANDMAP_SCOTLAND.shp") # Source: https://hub.arcgis.com/datasets/snh::carbon-and-peatland-2016-map/about
 ```
 
@@ -350,7 +356,7 @@ summary(anosim_result)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0428 0.0580 0.0735 0.0913 
+    ## 0.0420 0.0555 0.0719 0.0828 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75%   100%    N
@@ -725,7 +731,7 @@ summary(anosim_result_hosts)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0437 0.0576 0.0734 0.0899 
+    ## 0.0447 0.0604 0.0690 0.0812 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75% 100%    N
@@ -973,7 +979,7 @@ anova(dbrda_host, by = "terms")
     ## Axis.1    1   0.8786  7.0658  0.001 ***
     ## Axis.2    1   1.4362 11.5496  0.001 ***
     ## Axis.3    1   1.1801  9.4899  0.001 ***
-    ## Axis.4    1   0.3081  2.4781  0.001 ***
+    ## Axis.4    1   0.3081  2.4781  0.005 ** 
     ## Residual 47   5.8443                   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1272,16 +1278,16 @@ results_pcoa_stats
     ## 
     ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
     ##           Df SumOfSqs      R2       F Pr(>F)  
-    ## Axis.1     1   184.77 0.13595 12.2435  0.067 .
-    ## Axis.2     1   137.23 0.10097  9.0934  0.092 .
-    ## treatment  2   976.75 0.71867 32.3616  0.013 *
+    ## Axis.1     1   184.77 0.13595 12.2435  0.082 .
+    ## Axis.2     1   137.23 0.10097  9.0934  0.098 .
+    ## treatment  2   976.75 0.71867 32.3616  0.019 *
     ## Residual   4    60.36 0.04441                 
     ## Total      8  1359.11 1.00000                 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## $Balmoral$Adjusted_p_values_BH
-    ## [1] 0.092 0.092 0.039    NA    NA
+    ## [1] 0.098 0.098 0.057    NA    NA
     ## 
     ## $Balmoral$Variance_Partitioning
     ## 
@@ -1320,8 +1326,8 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
     ##           Df Variance       F Pr(>F)
-    ## treatment  1   75.705  2.1681  0.318
-    ## Axis.1     1  -11.395 -0.3263  0.423
+    ## treatment  1   75.705  2.1681  0.325
+    ## Axis.1     1  -11.395 -0.3263  0.417
     ## Axis.2     1  -69.011 -1.9764  0.591
     ## Residual   5  174.590               
     ## 
@@ -1333,8 +1339,8 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
     ##          Df Variance       F Pr(>F)
-    ## Axis.1    1  -11.395 -0.3263  0.351
-    ## Axis.2    1  -69.011 -1.9764  0.624
+    ## Axis.1    1  -11.395 -0.3263  0.353
+    ## Axis.2    1  -69.011 -1.9764  0.606
     ## Residual  5  174.590               
     ## 
     ## 
@@ -1347,14 +1353,14 @@ results_pcoa_stats
     ## 
     ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
     ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   458.61  0.51368 -3.0901  0.725
-    ## Axis.2     1   671.18  0.75178 -4.5225  0.764
-    ## treatment  2   356.64  0.39946 -1.2015  0.568
+    ## Axis.1     1   458.61  0.51368 -3.0901  0.742
+    ## Axis.2     1   671.18  0.75178 -4.5225  0.775
+    ## treatment  2   356.64  0.39946 -1.2015  0.553
     ## Residual   4  -593.64 -0.66493               
     ## Total      8   892.79  1.00000               
     ## 
     ## $Bowness$Adjusted_p_values_BH
-    ## [1] 0.764 0.764 0.764    NA    NA
+    ## [1] 0.775 0.775 0.775    NA    NA
     ## 
     ## $Bowness$Variance_Partitioning
     ## 
@@ -1393,9 +1399,9 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
     ##           Df Variance       F Pr(>F)
-    ## treatment  1  109.088 -7.6974  0.785
-    ## Axis.1     1   -1.827  0.1289  0.506
-    ## Axis.2     1   75.198 -5.3061  0.718
+    ## treatment  1  109.088 -7.6974  0.794
+    ## Axis.1     1   -1.827  0.1289  0.494
+    ## Axis.2     1   75.198 -5.3061  0.709
     ## Residual   5  -70.860               
     ## 
     ## $Bowness$dbRDA_Host
@@ -1406,8 +1412,8 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
     ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   -1.827  0.1289  0.311
-    ## Axis.2    1   75.198 -5.3061  0.806
+    ## Axis.1    1   -1.827  0.1289  0.345
+    ## Axis.2    1   75.198 -5.3061  0.811
     ## Residual  5  -70.860               
     ## 
     ## 
@@ -1420,14 +1426,14 @@ results_pcoa_stats
     ## 
     ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
     ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   -53.64 -0.10150 -0.4738  0.530
-    ## Axis.2     1  -412.65 -0.78080 -3.6445  0.837
-    ## treatment  2   541.88  1.02533  2.3929  0.145
+    ## Axis.1     1   -53.64 -0.10150 -0.4738  0.513
+    ## Axis.2     1  -412.65 -0.78080 -3.6445  0.821
+    ## treatment  2   541.88  1.02533  2.3929  0.158
     ## Residual   4   452.90  0.85697               
     ## Total      8   528.49  1.00000               
     ## 
     ## $Crocach$Adjusted_p_values_BH
-    ## [1] 0.795 0.837 0.435    NA    NA
+    ## [1] 0.7695 0.8210 0.4740     NA     NA
     ## 
     ## $Crocach$Variance_Partitioning
     ## 
@@ -1466,9 +1472,9 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
     ##           Df Variance       F Pr(>F)
-    ## treatment  1  -17.896 -0.9763  0.555
-    ## Axis.1     1   26.535  1.4477  0.202
-    ## Axis.2     1  -34.227 -1.8673  0.716
+    ## treatment  1  -17.896 -0.9763  0.566
+    ## Axis.1     1   26.535  1.4477  0.210
+    ## Axis.2     1  -34.227 -1.8673  0.714
     ## Residual   5   91.649               
     ## 
     ## $Crocach$dbRDA_Host
@@ -1479,8 +1485,8 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
     ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   26.535  1.4477  0.230
-    ## Axis.2    1  -34.227 -1.8673  0.799
+    ## Axis.1    1   26.535  1.4477  0.224
+    ## Axis.2    1  -34.227 -1.8673  0.787
     ## Residual  5   91.649               
     ## 
     ## 
@@ -1493,14 +1499,14 @@ results_pcoa_stats
     ## 
     ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
     ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   233.28  0.53175 -2.8831  0.818
-    ## Axis.2     1   315.83  0.71990 -3.9033  0.839
-    ## treatment  2   213.25  0.48609 -1.3178  0.727
+    ## Axis.1     1   233.28  0.53175 -2.8831  0.817
+    ## Axis.2     1   315.83  0.71990 -3.9033  0.850
+    ## treatment  2   213.25  0.48609 -1.3178  0.708
     ## Residual   4  -323.65 -0.73773               
     ## Total      8   438.71  1.00000               
     ## 
     ## $Langwell$Adjusted_p_values_BH
-    ## [1] 0.839 0.839 0.839    NA    NA
+    ## [1] 0.85 0.85 0.85   NA   NA
     ## 
     ## $Langwell$Variance_Partitioning
     ## 
@@ -1539,9 +1545,9 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
     ##           Df Variance       F Pr(>F)
-    ## treatment  1   36.447 -8.9688  0.923
-    ## Axis.1     1   28.551 -7.0257  0.917
-    ## Axis.2     1   10.160 -2.5001  0.772
+    ## treatment  1   36.447 -8.9688  0.931
+    ## Axis.1     1   28.551 -7.0257  0.910
+    ## Axis.2     1   10.160 -2.5001  0.774
     ## Residual   5  -20.319               
     ## 
     ## $Langwell$dbRDA_Host
@@ -1552,8 +1558,8 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
     ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   28.551 -7.0257  0.846
-    ## Axis.2    1   10.160 -2.5001  0.674
+    ## Axis.1    1   28.551 -7.0257  0.829
+    ## Axis.2    1   10.160 -2.5001  0.667
     ## Residual  5  -20.319               
     ## 
     ## 
@@ -1566,14 +1572,14 @@ results_pcoa_stats
     ## 
     ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
     ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   152.69  0.32345  1.0446  0.334
-    ## Axis.2     1  -248.61 -0.52664 -1.7008  0.750
-    ## treatment  2   -16.70 -0.03538 -0.0571  0.305
+    ## Axis.1     1   152.69  0.32345  1.0446  0.356
+    ## Axis.2     1  -248.61 -0.52664 -1.7008  0.746
+    ## treatment  2   -16.70 -0.03538 -0.0571  0.280
     ## Residual   4   584.69  1.23857               
     ## Total      8   472.07  1.00000               
     ## 
     ## $Migneint$Adjusted_p_values_BH
-    ## [1] 0.501 0.750 0.501    NA    NA
+    ## [1] 0.534 0.746 0.534    NA    NA
     ## 
     ## $Migneint$Variance_Partitioning
     ## 
@@ -1612,9 +1618,9 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
     ##           Df Variance       F Pr(>F)
-    ## treatment  1  -27.781 -1.8741  0.644
-    ## Axis.1     1   43.127  2.9094  0.123
-    ## Axis.2     1  -30.455 -2.0545  0.451
+    ## treatment  1  -27.781 -1.8741  0.622
+    ## Axis.1     1   43.127  2.9094  0.130
+    ## Axis.2     1  -30.455 -2.0545  0.446
     ## Residual   5   74.117               
     ## 
     ## $Migneint$dbRDA_Host
@@ -1625,8 +1631,8 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
     ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   43.127  2.9094  0.195
-    ## Axis.2    1  -30.455 -2.0545  0.684
+    ## Axis.1    1   43.127  2.9094  0.221
+    ## Axis.2    1  -30.455 -2.0545  0.696
     ## Residual  5   74.117               
     ## 
     ## 
@@ -1639,14 +1645,14 @@ results_pcoa_stats
     ## 
     ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
     ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1  136.142  0.93317 17.4611  0.124
-    ## Axis.2     1   14.005  0.09600  1.7962  0.295
-    ## treatment  2  -35.443 -0.24294 -2.2729  0.793
+    ## Axis.1     1  136.142  0.93317 17.4611  0.119
+    ## Axis.2     1   14.005  0.09600  1.7962  0.328
+    ## treatment  2  -35.443 -0.24294 -2.2729  0.822
     ## Residual   4   31.188  0.21377               
     ## Total      8  145.892  1.00000               
     ## 
     ## $Moor_House$Adjusted_p_values_BH
-    ## [1] 0.3720 0.4425 0.7930     NA     NA
+    ## [1] 0.357 0.492 0.822    NA    NA
     ## 
     ## $Moor_House$Variance_Partitioning
     ## 
@@ -1685,9 +1691,9 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
     ##           Df Variance       F Pr(>F)  
-    ## treatment  1  11.7451 24.1381  0.072 .
-    ## Axis.1     1   6.4937 13.3457  0.096 .
-    ## Axis.2     1  -2.4353 -5.0049  0.822  
+    ## treatment  1  11.7451 24.1381  0.065 .
+    ## Axis.1     1   6.4937 13.3457  0.113  
+    ## Axis.2     1  -2.4353 -5.0049  0.809  
     ## Residual   5   2.4329                 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1700,8 +1706,8 @@ results_pcoa_stats
     ## 
     ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
     ##          Df Variance       F Pr(>F)  
-    ## Axis.1    1   6.4937 13.3457  0.050 *
-    ## Axis.2    1  -2.4353 -5.0049  0.806  
+    ## Axis.1    1   6.4937 13.3457  0.054 .
+    ## Axis.2    1  -2.4353 -5.0049  0.792  
     ## Residual  5   2.4329                 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

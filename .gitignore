@@ -1,3 +1,6 @@
+# Custom ignore to avoid tracking files that are too large
+CARBONPEATLANDMAP_SCOTLAND.*
+
 # History files
 .Rhistory
 .Rapp.history

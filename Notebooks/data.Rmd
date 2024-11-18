@@ -1,0 +1,641 @@
+---
+title: "Load and format data"
+author: "James C. Kosmopoulos"
+date: '`r Sys.Date()`'
+output: github_document
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Load packages
+```{r load-packages, message=FALSE, warning=FALSE}
+library("tidyverse");packageVersion("tidyverse")
+```
+
+# Load data
+## Virus data
+### Virus contig to genome table
+```{r contig-to-virus}
+contig2virus <- read.csv("../Tables/virus_contig_to_genome.tsv", header=FALSE, sep="\t")
+colnames(contig2virus) <- c("contig", "Virus")
+contig2virus$Virus <- gsub(".fasta", "", contig2virus$Virus)
+head(contig2virus)
+```
+
+```{r save-contig-to-virus}
+saveRDS(contig2virus, "../Data/virus_contig_to_genome.RDS")
+```
+
+### Virus genome counts
+```{r virus-genome-counts}
+virus_genome_counts <- read.csv("../Tables/virus_genome_counts.tsv", sep = "\t", header = TRUE, row.names = 1)
+colnames(virus_genome_counts) <- sub(".filtered.Read.Count", "", colnames(virus_genome_counts))
+virus_genome_counts <- virus_genome_counts %>% select(-contains(".filtered"))
+virus_genome_counts <- virus_genome_counts[, !(colnames(virus_genome_counts) %in% c("LASYr2D", "LASYr2E", "LASYr2F", "LAWAr2D", "LAWAr2E", "LAWAr2F"))] # remove extra Langwell restored replicates
+saveRDS(virus_genome_counts, "../Data/virus_genome_counts.RDS")
+head(virus_genome_counts)
+```
+
+### Virus trimmed mean genome coverage
+```{r tmeans-virus}
+virus_tmeans <- read.csv("../Tables/virus_genome_trimmed_mean_cov.tsv", sep = "\t", header = TRUE, row.names = 1)
+colnames(virus_tmeans) <-  sub(".filtered.Trimmed.Mean", "", colnames(virus_tmeans))
+virus_tmeans <- virus_tmeans %>% select(-contains(".filtered"))
+virus_tmeans <- virus_tmeans[, !(colnames(virus_tmeans) %in% c("LASYr2D", "LASYr2E", "LASYr2F", "LAWAr2D", "LAWAr2E", "LAWAr2F"))] # remove extra Langwell restored replicates
+saveRDS(virus_tmeans, "../Data/virus_tmeans.RDS")
+head(virus_tmeans)
+```
+
+### Virus genome coverage
+```{r virus-coverage}
+virus_coverage <- read.csv("../Tables/virus_genome_covered_fraction.tsv", sep = "\t", header = TRUE, row.names = 1)
+colnames(virus_coverage) <-  sub(".filtered.Covered.Fraction", "", colnames(virus_coverage))
+virus_coverage <- virus_coverage %>% select(-contains(".filtered"))
+virus_coverage <- virus_coverage[, !(colnames(virus_coverage) %in% c("LASYr2D", "LASYr2E", "LASYr2F", "LAWAr2D", "LAWAr2E", "LAWAr2F"))] # remove extra Langwell restored replicates
+saveRDS(virus_coverage, "../Data/virus_covered_fraction.RDS")
+head(virus_coverage)
+```
+
+### Pre-filter virus genome counts and trimmed means and values to 0 if coverage < 50%
+```{r filter-virus-counts-tmeans}
+virus_genome_counts[virus_coverage < 0.50] <- 0
+saveRDS(virus_genome_counts, "../Data/virus_genome_counts_50.RDS")
+virus_tmeans[virus_coverage < 0.50] <- 0
+virus_tmeans <- virus_tmeans[rowSums(virus_tmeans>0) > 1,] # Remove singletons
+virus_tmeans <- virus_tmeans[, colSums(virus_tmeans)>0] # Remove singletons
+saveRDS(virus_tmeans, "../Data/virus_tmeans_50.RDS")
+head(virus_genome_counts)
+head(virus_tmeans)
+```
+
+### And normalize trimmed means by the sequencing depth per sample (per 100M reads)
+```{r normalize-virus-tmeans}
+seqdepth <- read_csv(file="../Tables/seq_depth.csv", show_col_types = FALSE)
+seqdepth_R1 <- subset(seqdepth, Pair=="R1")
+virus_tmeans_norm <- virus_tmeans
+for(col in colnames(virus_tmeans_norm)) {
+  virus_tmeans_norm[[col]] <- virus_tmeans_norm[[col]] / seqdepth_R1$Hundred.Millions.Reads[seqdepth_R1$Sample == col]
+}
+saveRDS(virus_tmeans_norm, "../Data/virus_tmeans_norm_50.RDS")
+```
+
+## Virus genome level info
+```{r virus-info}
+virus_info <- read_csv(file="../Tables/virus_genome_info.csv", show_col_types = FALSE) %>%
+  dplyr::rename(Virus = Genome) %>%
+  select(-Sample, -site, -treatment)
+saveRDS(virus_info, file = "../Data/virus_info.RDS")
+head(virus_info)
+```
+
+## Virus genus-level genome clusters
+```{r virus-genus-clusters}
+virus_genus_clusters <- read_csv(file="../Tables/virus_genome_genus_clustering.csv", show_col_types = FALSE) %>%
+  dplyr::rename(Virus = genome,
+                Database = database,
+                Cluster = genus_cluster)
+saveRDS(virus_genus_clusters, file = "../Data/virus_genus_clusters.RDS")
+```
+
+## Host data
+### Host contig to genome table
+```{r contig-to-genome-host}
+contig2host <- read.csv("../Tables/host_contig_to_genome.tsv", header=FALSE, sep="\t")
+colnames(contig2host) <- c("contig", "Host")
+contig2host$Host <- gsub(".fasta", "", contig2host$Host)
+head(contig2host)
+```
+
+```{r save-contig-to-host}
+saveRDS(contig2host, "../Data/host_contig_to_genome.RDS")
+```
+
+### Host genome counts
+```{r host-genome-counts}
+host_genome_counts <- read.csv("../Tables/host_genome_counts.tsv", sep = "\t", header = TRUE, row.names = 1)
+colnames(host_genome_counts) <- sub(".filtered.Read.Count", "", colnames(host_genome_counts))
+host_genome_counts <- host_genome_counts %>% select(-contains(".filtered"))
+host_genome_counts <- host_genome_counts[, !(colnames(host_genome_counts) %in% c("LASYr2D", "LASYr2E", "LASYr2F", "LAWAr2D", "LAWAr2E", "LAWAr2F"))] # remove extra Langwell restored replicates
+saveRDS(host_genome_counts, "../Data/host_genome_counts.RDS")
+head(host_genome_counts)
+```
+
+### Host trimmed mean genome coverage
+```{r tmeans-host}
+host_tmeans <- read.csv("../Tables/host_genome_trimmed_mean_cov.tsv", sep = "\t", header = TRUE, row.names = 1)
+colnames(host_tmeans) <-  sub(".filtered.Trimmed.Mean", "", colnames(host_tmeans))
+host_tmeans <- host_tmeans %>% select(-contains(".filtered"))
+host_tmeans <- host_tmeans[, !(colnames(host_tmeans) %in% c("LASYr2D", "LASYr2E", "LASYr2F", "LAWAr2D", "LAWAr2E", "LAWAr2F"))] # remove extra Langwell restored replicates
+saveRDS(host_tmeans, "../Data/host_tmeans.RDS")
+head(host_tmeans)
+```
+
+### Host genome coverage
+```{r host-coverage}
+host_coverage <- read.csv("../Tables/host_genome_covered_fraction.tsv", sep = "\t", header = TRUE, row.names = 1)
+colnames(host_coverage) <-  sub(".filtered.Covered.Fraction", "", colnames(host_coverage))
+host_coverage <- host_coverage %>% select(-contains(".filtered"))
+host_coverage <- host_coverage[, !(colnames(host_coverage) %in% c("LASYr2D", "LASYr2E", "LASYr2F", "LAWAr2D", "LAWAr2E", "LAWAr2F"))] # remove extra Langwell restored replicates
+saveRDS(host_coverage, "../Data/host_covered_fraction.RDS")
+head(host_coverage)
+```
+
+### Pre-filter host genome counts and trimmed means and values to 0 if coverage < 50%
+```{r filter-host-counts-tmeans}
+host_genome_counts[host_coverage < 0.50] <- 0
+saveRDS(host_genome_counts, "../Data/host_genome_counts_50.RDS")
+host_tmeans[host_coverage < 0.50] <- 0
+host_tmeans <- host_tmeans[rowSums(host_tmeans>0) > 1,] # Remove singletons
+host_tmeans <- host_tmeans[, colSums(host_tmeans)>0] # Remove singletons
+saveRDS(host_tmeans, "../Data/host_tmeans_50.RDS")
+head(host_genome_counts)
+head(host_tmeans)
+```
+
+### And normalize trimmed means by the sequencing depth per sample (per 100M reads)
+```{r normalize-host-tmeans}
+seqdepth <- read_csv(file="../Tables/seq_depth.csv", show_col_types = FALSE)
+seqdepth_R1 <- subset(seqdepth, Pair=="R1")
+host_tmeans_norm <- host_tmeans
+for(col in colnames(host_tmeans_norm)) {
+  host_tmeans_norm[[col]] <- host_tmeans_norm[[col]] / seqdepth_R1$Hundred.Millions.Reads[seqdepth_R1$Sample == col]
+}
+saveRDS(host_tmeans_norm, "../Data/host_tmeans_norm_50.RDS")
+```
+
+### Host MAG GTDB taxonomy
+```{r host-gtdb-tax}
+gtdb <- read_csv(file="../Tables/host_MAGs_gtdb_taxonomy.csv", show_col_types = FALSE)
+saveRDS(gtdb, "../Data/host_gtdb.RDS")
+head(gtdb)
+```
+
+### iPHoP host predictions to genome level
+```{r iphop-genome}
+iphop_genome <- read_csv(file="../Tables/iphop_host_genome_by_vmag.csv", show_col_types = FALSE)
+iphop_genome <- iphop_genome[,2:length(iphop_genome)]
+saveRDS(iphop_genome, "../Data/host_virus_genome_level.RDS")
+head(iphop_genome)
+```
+
+### Host metabolic functions
+```{r metabolic-results}
+metabolic_modules <- read.csv("../Tables/METABOLIC_KEGG_module_presence.csv")
+head(metabolic_modules)
+metabolic_result <- read.csv("../Tables/METABOLIC_result.tsv", sep="\t")
+head(metabolic_result)
+```
+
+### Reformat METABOLIC results
+Only retain metabolic categories/functions of interest, remove pathways that are absent in all MAGs, rename categories, and move columns.
+
+```{r filter-metabolic-results}
+modules_of_interest <- c(
+  # Oxygen
+  "M00155", # Cytochrome c oxidase, prokaryotes
+  "M00156", # Cytochrome c oxidase, cbb3-type
+  # Carbon
+  "M00567", # Hydrogenotrophic methanogenesis
+  "M00357", # Acetoclastic methanogenesis
+  "M00356", # Methylotrophic methanogenesis from methanol
+  "M00563", # Methylotrophic methanogenesis from methylamine
+  "M00081", #	Pectin degradation
+  "M00552", #	D-galactonate degradation, De Ley-Doudoroff pathway, D-galactonate => glycerate-3P
+  "M00632", #	Galactose degradation, Leloir pathway, galactose => alpha-D-glucose-1P
+  "M00855", #	Glycogen degradation, glycogen => glucose-6P
+  # Aromatics degradation
+  "M00418",
+  "M00419",
+  "M00534",
+  "M00537",
+  "M00538",
+  "M00539",
+  "M00540",
+  "M00541",
+  "M00543",
+  "M00544",
+  "M00545",
+  "M00547",
+  "M00548",
+  "M00551",
+  "M00568",
+  "M00569",
+  "M00623",
+  "M00624",
+  "M00636",
+  "M00637",
+  "M00638",
+  "M00878",
+  "M00915",
+  # Sulfur
+  "M00596", # Dissimilatory sulfate reduction
+  "M00176", # Assimilatory sulfate reduction
+  "M00595"  # Thiosulfate oxidation
+  )
+
+# Filter the table for the specified categories and rename
+metabolic_filtered <- metabolic_modules %>%
+  dplyr::rename(Category = Module.Category) %>%
+  filter(Module.ID %in% modules_of_interest)
+
+# Identify columns representing bins
+bin_columns <- grep("\\Module\\.presence$", colnames(metabolic_filtered), value = TRUE)
+
+# Remove rows where the function is absent in all bins
+metabolic_filtered <- metabolic_filtered %>%
+  rowwise() %>%
+  filter(any(across(all_of(bin_columns), ~ . == "Present")))
+
+metabolic_filtered <- metabolic_filtered %>%
+  mutate(Module_orig = Module) %>%
+  mutate(Module = case_when(
+    Module.ID %in% c("M00144", "M00149",
+                     "M00150", "M00151",
+                     "M00152", "M00153",
+                     "M00155", "M00156",
+                     "M00157", "M00159",
+                     "M00417") ~ "Oxidative phosphorylation",
+    Module.ID %in% c("M00356", "M00357", "M00563", "M00567") ~ "Methanogenesis",
+    Module.ID %in% c("M00418", "M00419", "M00534",
+                     "M00537", "M00538", "M00539",
+                     "M00540", "M00541", "M00543",
+                     "M00544", "M00545", "M00547",
+                     "M00548", "M00551", "M00568",
+                     "M00569", "M00623", "M00624",
+                     "M00636", "M00637", "M00638",
+                     "M00878", "M00915") ~ "Aromatics degradation",
+    Module.ID == "M00596" ~ "Dissimilatory sulfate reduction",
+    Module.ID == "M00176" ~ "Assimilatory sulfate reduction",
+    Module.ID == "M00595" ~ "Thiosulfate oxidation"
+  )) %>%
+  select(Category, Module, Module_orig, Module.ID, everything())
+
+# Rename Moduel to Pathway and split the Pathway into a Module and Function
+metabolic_filtered <- metabolic_filtered %>%
+  dplyr::rename(Pathway = Module)
+metabolic_filtered[c("Module", "Function")] <- do.call(rbind, lapply(metabolic_filtered$Pathway, function(x) {
+  parts <- unlist(strsplit(x, ", ", fixed = TRUE))
+  if (length(parts) > 1) {
+    c(parts[1], paste(parts[-1], collapse = ", "))
+  } else {
+    c(parts[1], NA)
+  }
+}))
+
+metabolic_filtered <- metabolic_filtered %>%
+  select(Module, everything()) %>%
+  select(-Function) %>%
+  arrange(Category, Module)
+
+# Convert back to data frame if necessary
+metabolic_filtered <- as.data.frame(metabolic_filtered)
+
+head(metabolic_filtered)
+```
+
+### Additional complex carbon degradation functions
+```{r metabolic-complex-carbon}
+# Filter the subset of Complex carbon degradation data
+complex_carbon_deg_subset <- subset(metabolic_result, Category %in% c("Complex carbon degradation", "Fermentation"))
+
+# Rename the columns of the subset to match `metabolic_filtered`
+complex_carbon_deg_subset <- complex_carbon_deg_subset %>%
+  dplyr::rename(Module = Category, Pathway = Function) %>%
+  mutate(Module = case_when(Module == "Complex carbon degradation" ~ "Carbohydrate degradation",
+                            Module == "Fermentation" ~ "Fermentation"),
+         Category = case_when(Module == "Carbohydrate degradation" ~ "Carbohydrate degradation",
+                              Module == "Fermentation" ~ "Fermentation"),
+         Module_orig = Pathway)
+
+# Identify bin columns in both dataframes
+bin_columns_result <- grep("\\.Hmm\\.presence$", colnames(complex_carbon_deg_subset), value = TRUE)
+bin_columns_filtered <- grep("\\.Module\\.presence$", colnames(metabolic_filtered), value = TRUE)
+
+# Ensure presence/absence column names match by renaming Hmm.presence to Module.presence
+colnames(complex_carbon_deg_subset) <- gsub("\\.Hmm\\.presence$", ".Module.presence", colnames(complex_carbon_deg_subset))
+
+# Remove any columns with ".Hits" or ".Hit.numbers" or other unwanted columns
+complex_carbon_deg_subset <- complex_carbon_deg_subset %>%
+  select(-matches("\\.Hits$|\\.Hit\\.numbers$")) %>%
+  select(-Gene.abbreviation, -Corresponding.KO)
+
+# Verify that the columns now match
+bin_columns_result_renamed <- grep("\\.Module\\.presence$", colnames(complex_carbon_deg_subset), value = TRUE)
+
+if(!all(bin_columns_filtered %in% bin_columns_result_renamed)) {
+  stop("Mismatch in bin columns between metabolic_filtered and complex_carbon_deg_subset after renaming.")
+}
+
+# Now, append the complex carbon degradation subset to `metabolic_filtered`
+metabolic_filtered <- bind_rows(metabolic_filtered, complex_carbon_deg_subset)  %>%
+  filter(Module_orig != "Acetogenesis") %>% # Remove 'Acetogenesis' from fermentation
+  filter(Module_orig != "Pyruvate oxidation") %>% # Remove 'Pyruvate oxidation' from fermentation
+  filter(!is.na(Module))
+
+# Clean up and reorder columns in `metabolic_filtered` (optional)
+metabolic_filtered <- metabolic_filtered %>%
+  select(Module, Pathway, everything()) %>%
+  arrange(Category, Module)
+
+# Convert back to data frame if necessary
+metabolic_filtered <- as.data.frame(metabolic_filtered)
+
+saveRDS(metabolic_filtered, file = "../Data/metabolic_filtered.RDS")
+write_csv(metabolic_filtered, file = "../Tables/host_metabolisms.csv")
+# Preview the result
+head(metabolic_filtered)
+```
+
+### Make a long version of the filtered METABOLIC results
+```{r lengthen-metabolic-results}
+metabolic_filtered_long <- metabolic_filtered %>%
+  pivot_longer(
+    cols = ends_with(".Module.presence"),
+    names_to = "Host", 
+    values_to = "Module_presence",
+    ) %>%
+  filter(Module_presence == "Present") %>%
+  select(Module, Category, Module_orig, Pathway, Module.ID, Host, -Module_presence)
+
+metabolic_filtered_long <- metabolic_filtered_long[with(metabolic_filtered_long, order(Category, Module, Pathway, Host)),]
+
+metabolic_filtered_long$Host <- gsub('.Module.presence', '', metabolic_filtered_long$Host)
+
+saveRDS(metabolic_filtered_long, file = "../Data/metabolic_filtered_long.RDS")
+head(metabolic_filtered_long)
+```
+
+## Sample metadata
+```{r metadata}
+metadata <- read.csv("../Tables/metadata.tsv", sep="\t", header = TRUE, row.names = 1)
+metadata$SampleID <- row.names(metadata)
+metadata <- metadata %>%
+  select(SampleID, colnames(metadata)[1:length(colnames(metadata))-1])
+metadata <- metadata[!(row.names(metadata) %in% c("LASYr2D", "LASYr2E", "LASYr2F", "LAWAr2D", "LAWAr2E", "LAWAr2F")), ] # remove extra Langwell restored replicates
+metadata
+```
+
+## Reformat and rename, save
+```{r reformat-save-env-data}
+metadata$site < -as.factor(metadata$site)
+metadata$treatment <- as.factor(metadata$treatment)
+metadata$number <- as.factor(metadata$number)
+metadata$replicate <- as.factor(metadata$replicate)
+metadata$year_since_rest <- as.factor(metadata$year_since_rest)
+metadata$location <- as.factor(metadata$location)
+metadata$group <- as.factor(metadata$group)
+rownames(metadata) <- metadata$SampleID
+saveRDS(metadata, "../Data/metadata_simple.RDS")
+head(metadata)
+```
+
+## Assembly metadata
+```{r assembly-metadata}
+metadata_groups <- read.csv("../Tables/metadata_groups.tsv", sep="\t")
+saveRDS(metadata_groups, "../Data/metadata_groups.RDS")
+```
+
+## AMG data
+```{r amg-data}
+amgs_viruses <- read.csv("../Tables/AMGs.tsv", na = c("", "NA"), sep="\t")
+saveRDS(amgs_viruses, "../Data/amgs_from_vmags.RDS")
+```
+
+## KEGG KO to Meatbolism and Pathway
+```{r kegg-map}
+kegg_map <- read.csv("../Tables/KEGG_map_pathway_KO.csv")
+saveRDS(kegg_map, "../Data/KEGG_map_pathway_KO.RDS")
+```
+
+## All protein annotations
+```{r all-annots}
+virus_gene_annots <- read.csv("../Tables/virus_gene_annotations.tsv", na = c("", "NA"), sep="\t")
+saveRDS(virus_gene_annots, "../Data/virus_gene_annots.RDS")
+```
+
+## PHROG category assignments
+```{r phrog-categories}
+phrog_cats <- read.csv("../Tables/PHROG_cats.tsv", na = c("", "NA"), sep="\t")
+saveRDS(phrog_cats, "../Data/phrog_cats.RDS")
+```
+
+## MMseqs protein clusters
+```{r}
+virus_prot_clusters <- read.csv("../Tables/virus_prot_clusters.csv")
+virus_prot_clusters$Assembly <- sapply(strsplit(virus_prot_clusters$protein, "__"), function(x) x[2])
+virus_prot_clusters$Assembly <- sapply(strsplit(virus_prot_clusters$Assembly, "_"), function(x) x[1])
+virus_prot_clusters <- virus_prot_clusters %>%
+  left_join(metadata_groups, by = join_by("Assembly" == "sample.id"))
+saveRDS(virus_prot_clusters, "../Data/virus_prot_clusters.RDS")
+```
+
+# Merge virus and host abundance data with host and metabolic predictions
+## Virus abundance and host predictions
+This requires the file `virus_clusters.RDS` to have already been generated from hierarchical clustering in the notebook `virus_deseq.Rmd`.
+
+```{r merge-virus-abundance-with-host-predictions-and-clusters}
+virus_clusters <- readRDS("../Data/virus_clusters.RDS") %>%
+  group_by(Virus) %>%
+  select(Virus, site, Title) %>%
+  dplyr::rename(c(`Virus Trend Group` = Title)) %>%
+  distinct()
+
+virus_abundance_long_all <- virus_tmeans %>%
+  rownames_to_column(var = "Virus") %>%
+  gather(key = "Sample", value = "Virus_Abundance", -Virus)
+saveRDS(virus_abundance_long_all, file = "../Data/virus_abundance_long_all.RDS")
+
+host_virus_predictions <- readRDS("../Data/host_virus_genome_level.RDS")
+
+virus_abundance_with_hosts <- virus_abundance_long_all %>%
+  left_join(metadata %>%
+              select(SampleID, site, treatment) %>%
+              dplyr::rename(Sample = SampleID))  %>%
+  left_join(virus_clusters, by = join_by("Virus", "site")) %>% # Cluster assignment isn't the same across all sites!
+  left_join(host_virus_predictions %>%
+              select(-`Confidence score`, -`Main method`, -`Additional methods`) %>%
+              dplyr::rename(Host = `Host genome`)) %>%
+  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+
+virus_abundance_with_hosts$Virus_Abundance[is.na(virus_abundance_with_hosts$Virus_Abundance)] <- 0
+
+# List the columns from "Host Domain" through "Host Genus"
+host_columns <- c("Host Domain", "Host Phylum", "Host Class", "Host Order", "Host Family", "Host Genus")
+
+# Replace NA values with "Unknown" and refactor to make "Unknown" the last level
+virus_abundance_with_hosts <- virus_abundance_with_hosts %>%
+  mutate(across(all_of(host_columns), ~ ifelse(is.na(.), "Unknown", .))) %>%
+  mutate(across(all_of(host_columns), ~ factor(., levels = c(setdiff(levels(factor(.)), "Unknown"), "Unknown"))))
+
+saveRDS(virus_abundance_with_hosts, "../Data/virus_abundance_with_hosts.RDS")
+head(virus_abundance_with_hosts)
+```
+
+## Add a 'all sites' factor to viruses
+```{r merge-virus-abundance-get-all-sites}
+virus_abundance_with_hosts_and_all_sites <- virus_abundance_with_hosts %>%
+  mutate(site = "All sites") %>%
+  bind_rows(virus_abundance_with_hosts) %>%
+  mutate(site = case_when(site == "Moor_House" ~ "Moor House",
+                          !is.na(site) ~ site)) %>%
+  mutate(site = factor(site, levels = c(
+    "Balmoral", "Bowness", "Crocach", "Langwell",
+    "Migneint", "Moor House", "Stean", "All sites"))) %>%
+  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+
+saveRDS(virus_abundance_with_hosts_and_all_sites, "../Data/virus_abundance_with_hosts_and_all_sites.RDS")
+head(virus_abundance_with_hosts_and_all_sites)
+```
+
+## Merge virus abundance data with host metabolic predictions
+```{r merge-virus-abundance-with-host-metabolism}
+virus_abundance_with_hosts_and_all_sites_and_metabolism <- virus_abundance_with_hosts_and_all_sites %>%
+  inner_join(metabolic_filtered_long, by = "Host") %>%
+  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+
+saveRDS(virus_abundance_with_hosts_and_all_sites_and_metabolism,
+        "../Data/virus_abundance_with_hosts_and_all_sites_and_metabolism.RDS")
+head(virus_abundance_with_hosts_and_all_sites_and_metabolism)
+```
+
+## Host abundance with taxonomy and metabolic functions
+This requires the file `host_clusters.RDS` to have already been generated from hierarchical clustering in the notebook `host_deseq.Rmd`.
+
+```{r merge-host-abundance-with-taxonomy-and-metabolism}
+host_clusters <- readRDS("../Data/host_clusters.RDS") %>%
+  group_by(Host) %>%
+  select(Host, site,  Title) %>%
+  dplyr::rename(c(`Host Trend Group` = Title)) %>%
+  distinct()
+
+host_abundance_long_all <- host_tmeans %>%
+  rownames_to_column(var = "Host") %>%
+  gather(key = "Sample", value = "Host_Abundance", -Host) %>%
+  left_join(metadata %>%
+              select(SampleID, site, treatment) %>%
+              dplyr::rename(Sample = SampleID))  %>%
+  left_join(host_clusters, by = join_by("Host", "site")) %>% # Cluster assignment isn't the same across all sites!
+  left_join(gtdb %>%
+              dplyr::rename(Host = `Genome`)) %>%
+  filter(Host_Abundance > 0) # ) is non-detection not actual 0
+
+host_abundance_long_all$Host_Abundance[is.na(host_abundance_long_all$Host_Abundance)] <- 0
+
+# List the columns from "Domain" through "Genus"
+tax_columns <- c("Domain", "Phylum", "Class", "Order", "Family", "Genus")
+
+# Replace NA values with "Unknown" and refactor to make "Unknown" the last level
+host_abundance_long_all <- host_abundance_long_all %>%
+  mutate(across(all_of(tax_columns), ~ ifelse(is.na(.), "Unknown", .))) %>%
+  mutate(across(all_of(tax_columns), ~ factor(., levels = c(setdiff(levels(factor(.)), "Unknown"), "Unknown"))))
+
+saveRDS(host_abundance_long_all, "../Data/host_abundance_long_all.RDS")
+head(host_abundance_long_all)
+```
+
+## Add a 'all sites' factor to hosts
+```{r merge-host-abundance-get-all-sites}
+host_abundance_long_all_and_all_sites <- host_abundance_long_all %>%
+  mutate(site = "All sites") %>%
+  bind_rows(host_abundance_long_all) %>%
+  mutate(site = case_when(site == "Moor_House" ~ "Moor House",
+                          !is.na(site) ~ site)) %>%
+  mutate(site = factor(site, levels = c(
+    "Balmoral", "Bowness", "Crocach", "Langwell",
+    "Migneint", "Moor House", "Stean", "All sites")))  %>%
+  filter(Host_Abundance > 0) # 0 is non-detection not actual 0
+
+saveRDS(host_abundance_long_all_and_all_sites, "../Data/host_abundance_long_all_and_all_sites.RDS")
+head(host_abundance_long_all_and_all_sites)
+```
+
+## Merge host abundance data with metabolic predictions
+```{r merge-host-abundance-get-with-metabolism}
+host_abundance_long_all_and_all_sites_and_metabolism <- host_abundance_long_all_and_all_sites %>%
+  inner_join(metabolic_filtered_long, by = "Host") %>%
+  filter(Host_Abundance > 0) # 0 is non-detection not actual 0
+
+saveRDS(host_abundance_long_all_and_all_sites_and_metabolism,
+        "../Data/host_abundance_long_all_and_all_sites_and_metabolism.RDS")
+head(host_abundance_long_all_and_all_sites_and_metabolism)
+```
+
+# Virus and Host abaundance together
+```{r virus-host-abundance}
+virus_host_abundance <- virus_abundance_with_hosts %>%
+  mutate(treatment = case_when(treatment == "DAM" ~ "Damaged",
+                               treatment == "NAT" ~ "Natural",
+                               treatment == "REST" ~ "Restored")) %>%
+  mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged"))) %>%
+  inner_join(host_abundance_long_all %>%
+               select(Host, Host_Abundance, Sample),
+             by = join_by("Host", "Sample")) %>%
+  filter(Virus_Abundance > 0 & Host_Abundance > 0) %>%
+  mutate(Label = paste0(`Host Domain`, "_", `Host Phylum`)) %>%
+  mutate(Label = str_replace(Label, "^Bacteria", "b"),
+         Label = str_replace(Label, "^Archaea", "a")) %>%
+  left_join(host_clusters, by = join_by("Host", "site"))
+
+saveRDS(virus_host_abundance, "../Data/virus_host_abundance.RDS")
+head(virus_host_abundance)
+```
+
+# Merge host predictions with AMG data
+```{r amgs-viruses-hosts}
+amgs_virus_host <- amgs_viruses %>%
+  dplyr::rename(Virus = Genome) %>%
+  left_join(host_virus_predictions)
+saveRDS(amgs_virus_host, "../Data/amgs_virus_host.RDS")
+head(amgs_virus_host)
+```
+
+# Combine virus and host genome counts, breadths, and tmeans into one matrix for each
+```{r combine-genome-map-data}
+# Virus
+temp_virus_tmeans <- virus_tmeans %>%
+  mutate(rownames = rownames(virus_tmeans)) %>%
+  rename_with(~ paste0(., " Trimmed Mean"), -rownames)
+temp_virus_coverage <- virus_coverage %>%
+  mutate(rownames = rownames(virus_coverage)) %>%
+  rename_with(~ paste0(., " Covered Fraction"), -rownames)
+temp_virus_genome_counts <- virus_genome_counts %>%
+  mutate(rownames = rownames(virus_genome_counts)) %>%
+  rename_with(~ paste0(., " Read Count"), -rownames)
+
+virus_map_data_combined <- full_join(temp_virus_tmeans, temp_virus_coverage, by = "rownames") %>%
+  full_join(., temp_virus_genome_counts, by = "rownames")
+
+rownames(virus_map_data_combined) <- virus_map_data_combined$rownames
+virus_map_data_combined$rownames <- NULL
+virus_map_data_combined <- virus_map_data_combined[, order(colnames(virus_map_data_combined))]
+head(virus_map_data_combined)
+
+write.csv(virus_map_data_combined, file = "../Tables/virus_map_data_combined.csv", row.names = TRUE)
+
+# Host
+temp_host_tmeans <- host_tmeans %>%
+  mutate(rownames = rownames(host_tmeans)) %>%
+  rename_with(~ paste0(., " Trimmed Mean"), -rownames)
+temp_host_coverage <- host_coverage %>%
+  mutate(rownames = rownames(host_coverage)) %>%
+  rename_with(~ paste0(., " Covered Fraction"), -rownames)
+temp_host_genome_counts <- host_genome_counts %>%
+  mutate(rownames = rownames(host_genome_counts)) %>%
+  rename_with(~ paste0(., " Read Count"), -rownames)
+
+host_map_data_combined <- full_join(temp_host_tmeans, temp_host_coverage, by = "rownames") %>%
+  full_join(., temp_host_genome_counts, by = "rownames")
+
+rownames(host_map_data_combined) <- host_map_data_combined$rownames
+host_map_data_combined$rownames <- NULL
+host_map_data_combined <- host_map_data_combined[, order(colnames(host_map_data_combined))]
+head(host_map_data_combined)
+
+write.csv(host_map_data_combined, file = "../Tables/host_map_data_combined.csv", row.names = TRUE)
+```
+
+

@@ -1,0 +1,376 @@
+---
+title: "Virus Genes"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: github_document
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Load packages
+```{r load-packages, message=FALSE, warning=FALSE}
+library("tidyverse");packageVersion("tidyverse")
+library("ComplexUpset");packageVersion("ComplexUpset")
+library("RColorBrewer");packageVersion("RColorBrewer")
+library("ComplexHeatmap");packageVersion("ComplexHeatmap")
+library("viridis");packageVersion("viridis")
+```
+
+# Load data
+```{r load-data}
+metadata <- readRDS("../Data/metadata_simple.RDS")
+metadata_groups <- readRDS("../Data/metadata_groups.RDS")
+amgs_viruses <- readRDS("../Data/amgs_from_vmags.RDS") %>%
+  mutate(Viral_Flanking_Genes = as.logical(Viral_Flanking_Genes))
+gene_annots <- readRDS("../Data/virus_gene_annots.RDS") %>%
+  mutate(Viral_Flanking_Genes = as.logical(Viral_Flanking_Genes))
+gene_annots$Assembly <- sapply(strsplit(gene_annots$Genome, "_"), `[`, 1)
+gene_annots <- gene_annots %>%
+  left_join(metadata_groups, by = join_by("Assembly" == "sample.id")) %>%
+  distinct()
+virus_prot_clusters <- readRDS("../Data/virus_prot_clusters.RDS")
+kegg_map <- readRDS("../Data/KEGG_map_pathway_KO.RDS")
+phrog_cats <- readRDS("../Data/phrog_cats.RDS")
+```
+
+# AMG presence
+## All identified AMGs (with verified viral flanking genes)
+### Format data
+```{r load-amgs-and-filter}
+amgs_viruses <- amgs_viruses %>%
+  filter(Viral_Flanking_Genes == TRUE)
+
+amgs_viruses$Assembly <- sapply(strsplit(amgs_viruses$Genome, "_"), `[`, 1)
+amgs_viruses <- amgs_viruses %>%
+  left_join(metadata_groups, by = join_by("Assembly" == "sample.id")) %>%
+  distinct()
+head(amgs_viruses)
+```
+
+## Upset plot of AMG annotations
+### Format data for the UpSet plot
+```{r format-amg-kegg-for-upset}
+amgs_viruses_kegg <- amgs_viruses %>%
+  filter(!is.na(KEGG_hmm_id)) %>%
+  left_join(kegg_map %>%
+              distinct(),
+            by = join_by("KEGG_hmm_id" == "KOs"))
+
+upset_data_kegg_metab <- amgs_viruses_kegg %>%
+  select(KEGG_hmm_id, treatment, Metabolism) %>%
+  distinct() %>%
+  filter(!is.na(Metabolism)) %>%
+  mutate(present = 1) %>% 
+  pivot_wider(names_from = treatment, values_from = present, values_fill = list(present = 0)) %>%
+  mutate(across(c('NAT', 'REST', 'DAM'), ~ . > 0)) %>%
+  dplyr::rename(Natural = NAT,
+                Damaged = DAM,
+                Restored = REST) %>%
+  select(KEGG_hmm_id, Metabolism, Restored, Natural, Damaged) # To set manual order of set axis
+```
+
+### UpSet plot with annotations
+```{r plot-upset-amg-kegg, fig.height=8, fig.width=6}
+# Updated Metabolism labels with line breaks
+metabolism_labels <- c(
+  "Amino acid\nmetabolism",
+  "Biosynthesis of other\nsecondary metabolites",
+  "Carbohydrate\nmetabolism",
+  "Energy\nmetabolism",
+  "Folding, sorting\nand degradation",
+  "Glycan biosynthesis\nand metabolism",
+  "Lipid\nmetabolism",
+  "Metabolism of cofactors\nand vitamins",
+  "Metabolism of other\namino acids",
+  "Metabolism of terpenoids\nand polyketides",
+  "Xenobiotics biodegradation\nand metabolism"
+)
+
+upset.amgs.treatment.KEGG <- ComplexUpset::upset(
+  upset_data_kegg_metab,
+  intersect = c('Natural', 'Damaged', 'Restored'),
+  sort_sets = FALSE,
+  sort_intersections = FALSE,
+  intersections = list(
+    'Restored',
+    'Damaged',
+    'Natural',
+    c('Restored', 'Natural', 'Damaged'),
+    c('Damaged', 'Restored'),
+    c('Natural', 'Restored'),
+    c('Damaged', 'Natural')
+    ),
+  name = 'AMG families per health status',
+  annotations = list(
+    'KEGG metabolism distribution' = (
+      ggplot(mapping = aes(fill = Metabolism)) +
+        geom_bar(stat = 'count', position = 'fill') +
+        scale_y_continuous(labels = scales::percent_format()) +
+        scale_fill_brewer(palette = "Spectral",
+                          na.value="grey",
+                          name = "KEGG metabolism",
+                          labels = metabolism_labels) +  # Apply custom labels
+        theme_minimal() +
+        theme(axis.text.x = element_blank(),
+              axis.title.x = element_blank(),
+              axis.text.y = element_text(color = 'black',
+                                         size = 11),
+              axis.title.y = element_text(color = 'black',
+                                          size = 12),
+              legend.text = element_text(color = 'black',
+                                         size = 11),
+              legend.title = element_text(color = 'black',
+                                          size = 12),
+              legend.position = c(1, 0.2), # Move legend down
+              legend.justification = c("right", "bottom"),  # Adjust justification
+              legend.margin = margin(0, 0, -130, 0), # Add margin to move it down
+              legend.key.spacing.y = unit(5, 'pt') # Increase space between legend items
+              ) +
+        ylab('KEGG metabolism distribution')
+    )
+  ),
+  base_annotations = list(
+      'Intersection size' = (
+        intersection_size(text = list(size = 3)) +
+          ylab("Ecosystem health intersections")
+        )
+    ),
+    themes = upset_modify_themes(
+      list(
+        'overall_sizes' = theme(axis.text.x = element_text(color = 'black', size = 11),
+                                axis.title.x = element_text(color = 'black', size = 12)
+                                ),
+        'intersections_matrix' = theme(axis.text.x = element_blank(),
+                                       axis.title.x = element_blank(),
+                                       axis.text.y = element_text(color = 'black', size = 12)
+                                       ),
+        'Intersection size' = theme(axis.text.y = element_text(color = 'black', size = 11),
+                                    axis.title.y = element_text(size = 12)
+                                    )
+        )
+    ),
+  set_sizes=(
+        upset_set_size(
+            geom=geom_bar(
+                aes(fill=Metabolism, x=group),
+                show.legend = FALSE,
+                width=0.8,
+                height = 4,
+            ),
+            position='right'
+        )) +
+    ylab("AMG protein families per\nhealth status") +
+    scale_fill_brewer(palette = "Spectral", na.value="grey",
+                      labels = metabolism_labels),  # Apply custom labels
+  # moves legends over the set sizes
+  guides='over',
+  width_ratio = 0.45,
+  wrap = F,
+  min_size = 1 # Ensure even small intersections are shown
+)
+
+# Plot the UpSet plot
+upset.amgs.treatment.KEGG
+```
+
+### Save the plot
+```{r save-upset-amg-kegg-treatment}
+ggsave(upset.amgs.treatment.KEGG, file="../Plots/virus_genes/upset_AMGs_KEGG_treatment.png", device = "png", width = 6, height = 8, units = "in", dpi = 600, bg = "white")
+```
+
+### Gather unique annotations
+```{r get-unique-kegg-amgs}
+# NAT unique subset
+nat_unique_ids <- setdiff(amgs_viruses_kegg[amgs_viruses_kegg$treatment == "NAT",]$top_hit_hmm_id, 
+                          union(amgs_viruses_kegg[amgs_viruses_kegg$treatment == "DAM",]$top_hit_hmm_id, 
+                                amgs_viruses_kegg[amgs_viruses_kegg$treatment == "REST",]$top_hit_hmm_id))
+nat_unique_subset <- amgs_viruses_kegg[amgs_viruses_kegg$treatment == "NAT" & amgs_viruses_kegg$top_hit_hmm_id %in% nat_unique_ids,]
+
+# DAM unique subset
+dam_unique_ids <- setdiff(amgs_viruses_kegg[amgs_viruses_kegg$treatment == "DAM",]$top_hit_hmm_id, 
+                          union(amgs_viruses_kegg[amgs_viruses_kegg$treatment == "NAT",]$top_hit_hmm_id, 
+                                amgs_viruses_kegg[amgs_viruses_kegg$treatment == "REST",]$top_hit_hmm_id))
+dam_unique_subset <- amgs_viruses_kegg[amgs_viruses_kegg$treatment == "DAM" & amgs_viruses_kegg$top_hit_hmm_id %in% dam_unique_ids,]
+
+# REST unique subset
+rest_unique_ids <- setdiff(amgs_viruses_kegg[amgs_viruses_kegg$treatment == "REST",]$top_hit_hmm_id, 
+                           union(amgs_viruses_kegg[amgs_viruses_kegg$treatment == "NAT",]$top_hit_hmm_id, 
+                                 amgs_viruses_kegg[amgs_viruses_kegg$treatment == "DAM",]$top_hit_hmm_id))
+rest_unique_subset <- amgs_viruses_kegg[amgs_viruses_kegg$treatment == "REST" & amgs_viruses_kegg$top_hit_hmm_id %in% rest_unique_ids,]
+
+# Summarize NAT unique subset
+nat_summary <- nat_unique_subset %>%
+  group_by(top_hit_hmm_id, top_hit_description, Metabolism, treatment) %>%
+  summarize(count = n()) %>%
+  mutate(unique = "NAT")
+
+# Summarize DAM unique subset
+dam_summary <- dam_unique_subset %>%
+  group_by(top_hit_hmm_id, top_hit_description, Metabolism, treatment) %>%
+  summarize(count = n()) %>%
+  mutate(unique = "DAM")
+
+# Summarize REST unique subset
+rest_summary <- rest_unique_subset %>%
+  group_by(top_hit_hmm_id, top_hit_description, Metabolism, treatment) %>%
+  summarize(count = n()) %>%
+  mutate(unique = "REST")
+
+# Combine all summaries into one dataframe
+amg_unique_summary <- bind_rows(nat_summary, dam_summary, rest_summary)
+
+amg_unique_summary <- amg_unique_summary %>%
+  select(top_hit_hmm_id, top_hit_description, treatment, count, unique)
+
+amg_unique_summary <- as.data.frame(amg_unique_summary)
+amg_unique_summary
+```
+
+## All proteins PHROG annots
+```{r merge-phrog-annots-with-prot-clusters}
+virus_prot_clusters_annotated <- virus_prot_clusters %>%
+  dplyr::rename(Protein = protein) %>%
+  left_join(gene_annots) %>%
+  left_join(phrog_cats %>%
+              select(phrog, category) %>%
+              dplyr::rename(PHROG_hmm_id = phrog,
+                            PHROG_Category = category),
+            by = "PHROG_hmm_id") %>%
+  mutate(PHROG_Category = ifelse(is.na(PHROG_Category), "unknown function", PHROG_Category)) %>%
+  distinct()
+write_csv(virus_prot_clusters_annotated, file = "../Tables/virus_protein_clusters_annotated.csv")
+head(virus_prot_clusters_annotated)
+```
+
+```{r plot-upset-prot-clusters-PHROG, fig.height=8, fig.width=6}
+phrog_labels <- c(
+  "Connector",
+  "DNA, RNA, and nucleotide\nmetabolism",
+  "Head and packaging",
+  "Integration and excision",
+  "Lysis",
+  "Moron, auxiliary metabolic\ngene, and host takeover",
+  "Other",
+  "Tail",
+  "Transcription regulation",
+  "Unknown function"
+)
+
+# Pivot the data to create the intersection columns
+upset_data_prot_clusters <- virus_prot_clusters_annotated %>%
+  select(cluster_rep, treatment, PHROG_Category) %>%
+  distinct() %>%
+  mutate(present = 1) %>%
+  pivot_wider(names_from = treatment, values_from = present, values_fill = list(present = 0)) %>%
+  mutate(across(c('NAT', 'REST', 'DAM'), ~ . > 0))  %>%
+  dplyr::rename(Natural = NAT,
+                Damaged = DAM,
+                Restored = REST) %>%
+  filter(Natural != FALSE | Damaged != FALSE | Restored != FALSE)
+
+# Create the UpSet plot
+upset.virus_clusters <- ComplexUpset::upset(
+  upset_data_prot_clusters,
+  intersect = c('Natural', 'Restored', 'Damaged'),  # Use the actual treatment column names
+  name = 'Cluster replication across treatments',
+  annotations = list(
+    'PHROG category distribution' = (
+      ggplot(virus_prot_clusters_annotated, mapping = aes(fill = PHROG_Category)) +
+        geom_bar(stat = 'count', position = 'fill') +
+        scale_y_continuous(labels = scales::percent_format()) +
+        coord_cartesian(ylim=c(0.7,1)) + # Set y-axis limits from 70% to 100%
+        scale_fill_brewer(palette = "Set3",
+                          na.value="grey",
+                          name = "PHROG category",
+                          labels = phrog_labels) +  # Apply custom labels with capitalized first letters
+        theme_minimal() +
+        theme(axis.text.x = element_blank(),
+              axis.title.x = element_blank(),
+              axis.text.y = element_text(color = 'black', size = 11),
+              axis.title.y = element_text(color = 'black', size = 12),
+              legend.text = element_text(color = 'black', size = 11),
+              legend.title = element_text(color = 'black', size = 12),
+              legend.position = c(1, 0.2), # Move legend down
+              legend.justification = c("right", "bottom"),  # Adjust justification
+              legend.margin = margin(0, 0, -65, 0), # Add margin to move it down
+              legend.key.spacing.y = unit(5, 'pt')) +  # Increase space between legend items
+        ylab('PHROG category distribution')
+    )
+  ),
+  base_annotations = list(
+      'Intersection size' = (
+        intersection_size(text = list(size = 3)) +
+          ylab("Ecosystem health intersections")
+        )
+    ),
+    themes = upset_modify_themes(
+      list(
+        'overall_sizes' = theme(axis.text.x = element_text(color = 'black', size = 11),
+                                axis.title.x = element_text(color = 'black', size = 12)
+                                ),
+        'intersections_matrix' = theme(axis.text.x = element_blank(),
+                                       axis.title.x = element_blank(),
+                                       axis.text.y = element_text(color = 'black', size = 12)
+                                       ),
+        'Intersection size' = theme(axis.text.y = element_text(color = 'black', size = 11),
+                                    axis.title.y = element_text(size = 12)
+                                    )
+        )
+    ),
+  set_sizes = (
+    upset_set_size(
+      geom = geom_bar(
+        aes(fill = PHROG_Category, x = group),
+        show.legend = FALSE,
+        width = 0.8,
+        height = 4,
+      ),
+      position = 'right'
+    )) +
+    ylab("Protein clusters per\nhealth status") +
+    scale_fill_brewer(palette = "Set3", na.value = "grey",
+                      labels = c(phrog_labels, "Unknown function")),  # Include "Unknown function" in intersection plot
+  # moves legends over the set sizes
+  guides = 'over',
+  width_ratio = 0.45,
+  wrap = F,
+  min_size = 1 # Ensure even small intersections are shown
+)
+
+# Plot the UpSet plot
+upset.virus_clusters
+```
+
+```{r save-upset-prot-clusters-phrog-treatment}
+ggsave(upset.virus_clusters, file="../Plots/virus_genes/upset_virus_proteins_treatment.png", device = "png", width = 6, height = 8, units = "in", dpi = 600, bg = "white")
+```
+
+# Combine the two upset plots
+```{r combine-upset-plots, fig.height=8, fig.width=12}
+upset.combined <- cowplot::plot_grid(upset.virus_clusters,
+                                     upset.amgs.treatment.KEGG,
+                                     ncol = 2,
+                                     labels = c("A", "B"),
+                                     label_fontfamily = "sans",
+                                     label_fontface = "bold",
+                                     label_size = 16,
+                                     rel_widths = c(1, 1)
+                                     )
+upset.combined
+```
+
+## Save the plot
+```{r save-combined-plot}
+ggsave(upset.combined,
+       file = "../Plots/virus_genes/Fig4.png",
+       width = 12,
+       height = 8,
+       units = "in",
+       dpi = 600,
+       bg = "white")
+```
+

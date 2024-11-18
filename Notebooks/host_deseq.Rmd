@@ -1,0 +1,1029 @@
+---
+title: "Host Genome DESeq and Abundance Clustering"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: github_document
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+# Load packages
+```{r load-packages, message=FALSE, warning=FALSE}
+library("dplyr");packageVersion("dplyr")
+library("reshape2");packageVersion("reshape2")
+library("tidyverse");packageVersion("tidyverse")
+library("DESeq2");packageVersion("DESeq2")
+library("biobroom");packageVersion("biobroom")
+```
+
+# Load data
+```{r load-data}
+host_genome_counts <- readRDS("../Data/host_genome_counts.RDS")
+metadata <- readRDS("../Data/metadata_simple.RDS")
+row.names(metadata) <- metadata$SampleID
+metadata <- metadata[,-1]
+tmeans <- readRDS("../Data/host_tmeans_norm_50.RDS")
+```
+
+# Run models and retrieve results, site by site
+## Balmoral
+### DESeq
+```{r deseq-balmoral}
+metadata_balmoral <- subset(metadata, site=="Balmoral")
+dds_balmoral <- DESeqDataSetFromMatrix(countData = host_genome_counts %>%
+                                         select(all_of(rownames(metadata_balmoral))),
+                                       colData = metadata_balmoral,
+                                       design =  ~ treatment)
+dds_balmoral <- DESeq(dds_balmoral, test = "LRT", reduced = ~1)
+res_balmoral <- results(dds_balmoral) %>% tidy() %>% dplyr::rename("Host" = "gene")
+res_balmoral
+```
+
+### Save Balmoral results
+```{r aggregate-results-balmoral}
+res_balmoral <- res_balmoral %>%
+  filter(!is.na(p.value))
+saveRDS(res_balmoral, "../Data/host_deseq_results_balmoral.RDS")
+write.csv(res_balmoral, "../Tables/host_deseq_results_balmoral.csv")
+head(res_balmoral)
+```
+
+### Subset to return genomes with padj < 0.05 in Balmoral
+```{r sig-genomes-balmoral}
+padj.cutoff <- 0.05 # Set alpha to 0.05
+sig_host_balmoral <- res_balmoral %>%
+  filter(p.adjusted < padj.cutoff)
+saveRDS(sig_host_balmoral, "../Data/sig_host_deseq_balmoral.RDS")
+write.csv(sig_host_balmoral, "../Tables/sig_host_deseq_balmoral.csv")
+insig_host_balmoral <- res_balmoral %>%
+  filter(p.adjusted >= padj.cutoff)
+```
+
+### Get number of significant genomes in Balmoral
+```{r n-sig-genomes-balmoral}
+length(unique(sig_host_balmoral$Host))
+```
+
+### Get number of insignificant genomes in Balmoral
+```{r n-insig-genomes-balmoral}
+length(unique(insig_host_balmoral$Host))
+```
+
+### Subset tmeans with just significant hosts in Balmoral
+```{r subset-tables-sig-balmoral}
+tmeans_balmoral <- tmeans %>%
+  select(all_of(rownames(metadata_balmoral)))
+tmeans_sig_balmoral <- tmeans_balmoral[rownames(tmeans_balmoral) %in% sig_host_balmoral$Host, ]
+saveRDS(tmeans_sig_balmoral, "../Data/host_tmeans_50_norm_sig_balmoral.RDS")
+```
+
+## Bowness
+### DESeq
+```{r deseq-bowness}
+metadata_bowness <- subset(metadata, site=="Bowness")
+dds_bowness <- DESeqDataSetFromMatrix(countData = host_genome_counts %>%
+                                         select(all_of(rownames(metadata_bowness))),
+                                       colData = metadata_bowness,
+                                       design =  ~ treatment)
+dds_bowness <- DESeq(dds_bowness, test = "LRT", reduced = ~1)
+res_bowness <- results(dds_bowness) %>% tidy() %>% dplyr::rename("Host" = "gene")
+res_bowness
+```
+
+### Save Bowness results
+```{r aggregate-results-bowness}
+res_bowness <- res_bowness %>%
+  filter(!is.na(p.value))
+saveRDS(res_bowness, "../Data/host_deseq_results_bowness.RDS")
+write.csv(res_bowness, "../Tables/host_deseq_results_bowness.csv")
+head(res_bowness)
+```
+
+### Subset to return genomes with padj < 0.05 in Bowness
+```{r sig-genomes-bowness}
+padj.cutoff <- 0.05 # Set alpha to 0.05
+sig_host_bowness <- res_bowness %>%
+  filter(p.adjusted < padj.cutoff)
+saveRDS(sig_host_bowness, "../Data/sig_host_deseq_bowness.RDS")
+write.csv(sig_host_bowness, "../Tables/sig_host_deseq_bowness.csv")
+insig_host_bowness <- res_bowness %>%
+  filter(p.adjusted >= padj.cutoff)
+```
+
+### Get number of significant genomes in Bowness
+```{r n-sig-genomes-bowness}
+length(unique(sig_host_bowness$Host))
+```
+
+### Get number of insignificant genomes in Bowness
+```{r n-insig-genomes-bowness}
+length(unique(insig_host_bowness$Host))
+```
+
+### Subset tmeans with just significant hosts in Bowness
+```{r subset-tables-sig-bowness}
+tmeans_bowness <- tmeans %>%
+  select(all_of(rownames(metadata_bowness)))
+tmeans_sig_bowness <- tmeans_bowness[rownames(tmeans_bowness) %in% sig_host_bowness$Host, ]
+saveRDS(tmeans_sig_bowness, "../Data/host_tmeans_50_norm_sig_bowness.RDS")
+```
+
+## Crocach
+### DESeq
+```{r deseq-crocach}
+metadata_crocach <- subset(metadata, site=="Crocach")
+dds_crocach <- DESeqDataSetFromMatrix(countData = host_genome_counts %>%
+                                         select(all_of(rownames(metadata_crocach))),
+                                       colData = metadata_crocach,
+                                       design =  ~ treatment)
+dds_crocach <- DESeq(dds_crocach, test = "LRT", reduced = ~1)
+res_crocach <- results(dds_crocach) %>% tidy() %>% dplyr::rename("Host" = "gene")
+res_crocach
+```
+
+### Save Crocach results
+```{r aggregate-results-crocach}
+res_crocach <- res_crocach %>%
+  filter(!is.na(p.value))
+saveRDS(res_crocach, "../Data/host_deseq_results_crocach.RDS")
+write.csv(res_crocach, "../Tables/host_deseq_results_crocach.csv")
+head(res_crocach)
+```
+
+### Subset to return genomes with padj < 0.05 in Crocach
+```{r sig-genomes-crocach}
+padj.cutoff <- 0.05 # Set alpha to 0.05
+sig_host_crocach <- res_crocach %>%
+  filter(p.adjusted < padj.cutoff)
+saveRDS(sig_host_crocach, "../Data/sig_host_deseq_crocach.RDS")
+write.csv(sig_host_crocach, "../Tables/sig_host_deseq_crocach.csv")
+insig_host_crocach <- res_crocach %>%
+  filter(p.adjusted >= padj.cutoff)
+```
+
+### Get number of significant genomes in Crocach
+```{r n-sig-genomes-crocach}
+length(unique(sig_host_crocach$Host))
+```
+
+### Get number of insignificant genomes in Crocach
+```{r n-insig-genomes-crocach}
+length(unique(insig_host_crocach$Host))
+```
+
+### Subset tmeans with just significant hosts in Crocach
+```{r subset-tables-sig-crocach}
+tmeans_crocach <- tmeans %>%
+  select(all_of(rownames(metadata_crocach)))
+tmeans_sig_crocach <- tmeans_crocach[rownames(tmeans_crocach) %in% sig_host_crocach$Host, ]
+saveRDS(tmeans_sig_crocach, "../Data/host_tmeans_50_norm_sig_crocach.RDS")
+```
+
+## Langwell
+### DESeq
+```{r deseq-langwell}
+metadata_langwell <- subset(metadata, site=="Langwell")
+dds_langwell <- DESeqDataSetFromMatrix(countData = host_genome_counts %>%
+                                         select(all_of(rownames(metadata_langwell))),
+                                       colData = metadata_langwell,
+                                       design =  ~ treatment)
+dds_langwell <- DESeq(dds_langwell, test = "LRT", reduced = ~1)
+res_langwell <- results(dds_langwell) %>% tidy() %>% dplyr::rename("Host" = "gene")
+res_langwell
+```
+
+### Save Langwell results
+```{r aggregate-results-langwell}
+res_langwell <- res_langwell %>%
+  filter(!is.na(p.value))
+saveRDS(res_langwell, "../Data/host_deseq_results_langwell.RDS")
+write.csv(res_langwell, "../Tables/host_deseq_results_langwell.csv")
+head(res_langwell)
+```
+
+### Subset to return genomes with padj < 0.05 in Langwell
+```{r sig-genomes-langwell}
+padj.cutoff <- 0.05 # Set alpha to 0.05
+sig_host_langwell <- res_langwell %>%
+  filter(p.adjusted < padj.cutoff)
+saveRDS(sig_host_langwell, "../Data/sig_host_deseq_langwell.RDS")
+write.csv(sig_host_langwell, "../Tables/sig_host_deseq_langwell.csv")
+insig_host_langwell <- res_langwell %>%
+  filter(p.adjusted >= padj.cutoff)
+```
+
+### Get number of significant genomes in Langwell
+```{r n-sig-genomes-langwell}
+length(unique(sig_host_langwell$Host))
+```
+
+### Get number of insignificant genomes in Langwell
+```{r n-insig-genomes-langwell}
+length(unique(insig_host_langwell$Host))
+```
+
+### Subset tmeans with just significant hosts in Langwell
+```{r subset-tables-sig-langwell}
+tmeans_langwell <- tmeans %>%
+  select(all_of(rownames(metadata_langwell)))
+tmeans_sig_langwell <- tmeans_langwell[rownames(tmeans_langwell) %in% sig_host_langwell$Host, ]
+saveRDS(tmeans_sig_langwell, "../Data/host_tmeans_50_norm_sig_langwell.RDS")
+```
+
+## Migneint
+### DESeq
+```{r deseq-migneint}
+metadata_migneint <- subset(metadata, site=="Migneint")
+dds_migneint <- DESeqDataSetFromMatrix(countData = host_genome_counts %>%
+                                         select(all_of(rownames(metadata_migneint))),
+                                       colData = metadata_migneint,
+                                       design =  ~ treatment)
+dds_migneint <- DESeq(dds_migneint, test = "LRT", reduced = ~1)
+res_migneint <- results(dds_migneint) %>% tidy() %>% dplyr::rename("Host" = "gene")
+res_migneint
+```
+
+### Save Migneint results
+```{r aggregate-results-migneint}
+res_migneint <- res_migneint %>%
+  filter(!is.na(p.value))
+saveRDS(res_migneint, "../Data/host_deseq_results_migneint.RDS")
+write.csv(res_migneint, "../Tables/host_deseq_results_migneint.csv")
+head(res_migneint)
+```
+
+### Subset to return genomes with padj < 0.05 in Migneint
+```{r sig-genomes-migneint}
+padj.cutoff <- 0.05 # Set alpha to 0.05
+sig_host_migneint <- res_migneint %>%
+  filter(p.adjusted < padj.cutoff)
+saveRDS(sig_host_migneint, "../Data/sig_host_deseq_migneint.RDS")
+write.csv(sig_host_migneint, "../Tables/sig_host_deseq_migneint.csv")
+insig_host_migneint <- res_migneint %>%
+  filter(p.adjusted >= padj.cutoff)
+```
+
+### Get number of significant genomes in Migneint
+```{r n-sig-genomes-migneint}
+length(unique(sig_host_migneint$Host))
+```
+
+### Get number of insignificant genomes in Migneint
+```{r n-insig-genomes-migneint}
+length(unique(insig_host_migneint$Host))
+```
+
+### Subset tmeans with just significant hosts in Migneint
+```{r subset-tables-sig-migneint}
+tmeans_migneint <- tmeans %>%
+  select(all_of(rownames(metadata_migneint)))
+tmeans_sig_migneint <- tmeans_migneint[rownames(tmeans_migneint) %in% sig_host_migneint$Host, ]
+saveRDS(tmeans_sig_migneint, "../Data/host_tmeans_50_norm_sig_migneint.RDS")
+```
+
+## Moor House
+### DESeq
+```{r deseq-moor_house}
+metadata_moor_house <- subset(metadata, site=="Moor_House")
+dds_moor_house <- DESeqDataSetFromMatrix(countData = host_genome_counts %>%
+                                         select(all_of(rownames(metadata_moor_house))),
+                                       colData = metadata_moor_house,
+                                       design =  ~ treatment)
+dds_moor_house <- DESeq(dds_moor_house, test = "LRT", reduced = ~1)
+res_moor_house <- results(dds_moor_house) %>% tidy() %>% dplyr::rename("Host" = "gene")
+res_moor_house
+```
+
+### Save Moor House results
+```{r aggregate-results-moor_house}
+res_moor_house <- res_moor_house %>%
+  filter(!is.na(p.value))
+saveRDS(res_moor_house, "../Data/host_deseq_results_moor_house.RDS")
+write.csv(res_moor_house, "../Tables/host_deseq_results_moor_house.csv")
+head(res_moor_house)
+```
+
+### Subset to return genomes with padj < 0.05 in Moor House
+```{r sig-genomes-moor_house}
+padj.cutoff <- 0.05 # Set alpha to 0.05
+sig_host_moor_house <- res_moor_house %>%
+  filter(p.adjusted < padj.cutoff)
+saveRDS(sig_host_moor_house, "../Data/sig_host_deseq_moor_house.RDS")
+write.csv(sig_host_moor_house, "../Tables/sig_host_deseq_moor_house.csv")
+insig_host_moor_house <- res_moor_house %>%
+  filter(p.adjusted >= padj.cutoff)
+```
+
+### Get number of significant genomes in Moor House
+```{r n-sig-genomes-moor_house}
+length(unique(sig_host_moor_house$Host))
+```
+
+### Get number of insignificant genomes in Moor House
+```{r n-insig-genomes-moor_house}
+length(unique(insig_host_moor_house$Host))
+```
+
+### Subset tmeans with just significant hosts in Moor House
+```{r subset-tables-sig-moor_house}
+tmeans_moor_house <- tmeans %>%
+  select(all_of(rownames(metadata_moor_house)))
+tmeans_sig_moor_house <- tmeans_moor_house[rownames(tmeans_moor_house) %in% sig_host_moor_house$Host, ]
+saveRDS(tmeans_sig_moor_house, "../Data/host_tmeans_50_norm_sig_moor_house.RDS")
+```
+
+## Stean
+### DESeq
+```{r deseq-stean}
+metadata_stean <- subset(metadata, site=="Stean")
+dds_stean <- DESeqDataSetFromMatrix(countData = host_genome_counts %>%
+                                         select(all_of(rownames(metadata_stean))),
+                                       colData = metadata_stean,
+                                       design =  ~ treatment)
+dds_stean <- DESeq(dds_stean, test = "LRT", reduced = ~1)
+res_stean <- results(dds_stean) %>% tidy() %>% dplyr::rename("Host" = "gene")
+res_stean
+```
+
+### Save Stean results
+```{r aggregate-results-stean}
+res_stean <- res_stean %>%
+  filter(!is.na(p.value))
+saveRDS(res_stean, "../Data/host_deseq_results_stean.RDS")
+write.csv(res_stean, "../Tables/host_deseq_results_stean.csv")
+head(res_stean)
+```
+
+### Subset to return genomes with padj < 0.05 in Stean
+```{r sig-genomes-stean}
+padj.cutoff <- 0.05 # Set alpha to 0.05
+sig_host_stean <- res_stean %>%
+  filter(p.adjusted < padj.cutoff)
+saveRDS(sig_host_stean, "../Data/sig_host_deseq_stean.RDS")
+write.csv(sig_host_stean, "../Tables/sig_host_deseq_stean.csv")
+insig_host_stean <- res_stean %>%
+  filter(p.adjusted >= padj.cutoff)
+```
+
+### Get number of significant genomes in Stean
+```{r n-sig-genomes-stean}
+length(unique(sig_host_stean$Host))
+```
+
+### Get number of insignificant genomes in Stean
+```{r n-insig-genomes-stean}
+length(unique(insig_host_stean$Host))
+```
+
+### Subset tmeans with just significant hosts in Stean
+```{r subset-tables-sig-stean}
+tmeans_stean <- tmeans %>%
+  select(all_of(rownames(metadata_stean)))
+tmeans_sig_stean <- tmeans_stean[rownames(tmeans_stean) %in% sig_host_stean$Host, ]
+saveRDS(tmeans_sig_stean, "../Data/host_tmeans_50_norm_sig_stean.RDS")
+```
+
+# Combine DESeq2 result tables and write
+```{r combine-deseq-site-results}
+combined_deseq_results <- rbind(res_balmoral %>% mutate(site = "Balmoral"),
+                                res_bowness %>% mutate(site = "Bowness"),
+                                res_crocach %>% mutate(site = "Crocach"),
+                                res_langwell %>% mutate(site = "Langwell"),
+                                res_migneint %>% mutate(site = "Migneint"),
+                                res_moor_house %>% mutate(site = "Moor House"),
+                                res_stean %>% mutate(site = "Stean")
+                                )
+write_csv(combined_deseq_results, file = "../Tables/host_deseq_results_combined.csv")
+head(combined_deseq_results)
+```
+
+# Cluster viral genomes by their abundance patterns across treatments
+## General functions and format metadata
+```{r general-functions}
+tidy_otu <- function(otu) {
+  as.data.frame(otu) %>%
+    mutate(Host = row.names(otu)) %>%
+    tidyr::gather(key = "Sample", value = "Count", -Host)
+}
+rel_ab <- function(otu, total = 100) {
+  t(t(otu)/colSums(otu)) * 100
+}
+
+metadata$Sample <- rownames(metadata)
+```
+
+## Balmoral
+### Calculate the zscores of each genome across samples and then calculate the mean zvalue for each treatment
+```{r zscores-balmoral}
+host.zs.balmoral <- tmeans_sig_balmoral %>%
+  filter(row.names(.) %in% sig_host_balmoral$Host) %>% # Only include hosts significant from DESeq
+  rel_ab() %>% 
+  tidy_otu %>%
+  group_by(Host) %>%
+  mutate(zValue = (Count - mean(Count))/sd(Count)) %>%
+  inner_join(metadata, by = "Sample") %>%
+  group_by(treatment, Host) %>%
+  summarise(MeanZS = mean(zValue)) 
+```
+
+### Format zscores as a matrix
+```{r matrix-zscores-balmoral}
+host.zs.matrix.balmoral <- host.zs.balmoral %>%
+  spread(key = Host, value = MeanZS) %>%
+  as.data.frame()
+row.names(host.zs.matrix.balmoral) <- host.zs.matrix.balmoral$Treatment
+host.zs.matrix.balmoral <- host.zs.matrix.balmoral[,-1]
+host.zs.matrix.balmoral <- as.matrix(host.zs.matrix.balmoral)
+
+# Check for NA, NaN, or Inf values and handle them
+host.zs.matrix.balmoral[is.na(host.zs.matrix.balmoral)] <- 0
+host.zs.matrix.balmoral[is.nan(host.zs.matrix.balmoral)] <- 0
+host.zs.matrix.balmoral[is.infinite(host.zs.matrix.balmoral)] <- 0
+
+host.dist.balmoral <- dist(t(host.zs.matrix.balmoral))
+```
+
+### Perform the hierarchical clustering
+```{r cluster-balmoral}
+host.hc.balmoral <- hclust(as.dist(host.dist.balmoral), method = "ward.D")
+host.ord.balmoral <- host.hc.balmoral$labels[host.hc.balmoral$order]
+host.ord.balmoral <- data.frame(Host = host.ord.balmoral, order = 1:length(host.ord.balmoral))
+host.cut.balmoral <- cutree(host.hc.balmoral[c(1,2,4)],k = 3) # k = 3 for three treatments
+host.clusters.balmoral <- data.frame(Host = names(host.cut.balmoral),
+                                      Cluster = host.cut.balmoral) %>%
+  inner_join(host.ord.balmoral, by = "Host") %>%
+  inner_join(host.zs.balmoral, by = "Host") %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.balmoral <- host.clusters.balmoral %>%
+  group_by(Cluster) %>%
+  mutate(Cluster.size = n_distinct(Host)) %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.balmoral$Title <- paste("Group: ", host.clusters.balmoral$Cluster, " - ", host.clusters.balmoral$Cluster.size, " hosts", sep = "")
+
+head(host.clusters.balmoral)
+```
+
+### Plot Z-Score clusters
+```{r plot-zscores-balmoral, fig.height=3, fig.width=5}
+plot.clusters.balmoral <-
+ggplot(data = host.clusters.balmoral, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+  geom_boxplot(aes(color = treatment), outlier.shape = NA) +
+  scale_color_brewer(palette = "Dark2") +
+  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
+  xlab("Restoration status") +
+  ylab("Abundance\n(mean Z-Score)") +
+  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
+  theme_linedraw() +
+  theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
+  ylim(-1,1) +
+  ggtitle("Balmoral")
+plot.clusters.balmoral
+```
+
+### Manually rename cluster titles based on abundance trends
+```{r rename-clusters-balmoral}
+host.clusters.balmoral <- host.clusters.balmoral %>%
+  mutate(Title = case_when(Cluster == 1 ~ "Natural-abundant",
+                           Cluster == 2 ~ "Restored-abundant",
+                           Cluster == 3 ~ "Damaged-abundant"))
+host.clusters.balmoral$site <- "Balmoral"
+saveRDS(host.clusters.balmoral, file = "../Data/host_clusters_balmoral.RDS")
+head(host.clusters.balmoral)
+```
+
+## Bowness
+### Calculate the zscores of each genome across samples and then calculate the mean zvalue for each treatment
+```{r zscores-bowness}
+host.zs.bowness <- tmeans_sig_bowness %>%
+  filter(row.names(.) %in% sig_host_bowness$Host) %>% # Only include hosts significant from DESeq
+  rel_ab() %>% 
+  tidy_otu %>%
+  group_by(Host) %>%
+  mutate(zValue = (Count - mean(Count))/sd(Count)) %>%
+  inner_join(metadata, by = "Sample") %>%
+  group_by(treatment, Host) %>%
+  summarise(MeanZS = mean(zValue)) 
+```
+
+### Format zscores as a matrix
+```{r matrix-zscores-bowness}
+host.zs.matrix.bowness <- host.zs.bowness %>%
+  spread(key = Host, value = MeanZS) %>%
+  as.data.frame()
+row.names(host.zs.matrix.bowness) <- host.zs.matrix.bowness$Treatment
+host.zs.matrix.bowness <- host.zs.matrix.bowness[,-1]
+host.zs.matrix.bowness <- as.matrix(host.zs.matrix.bowness)
+
+# Check for NA, NaN, or Inf values and handle them
+host.zs.matrix.bowness[is.na(host.zs.matrix.bowness)] <- 0
+host.zs.matrix.bowness[is.nan(host.zs.matrix.bowness)] <- 0
+host.zs.matrix.bowness[is.infinite(host.zs.matrix.bowness)] <- 0
+
+host.dist.bowness <- dist(t(host.zs.matrix.bowness))
+```
+
+### Perform the hierarchical clustering
+```{r cluster-bowness}
+host.hc.bowness <- hclust(as.dist(host.dist.bowness), method = "ward.D")
+host.ord.bowness <- host.hc.bowness$labels[host.hc.bowness$order]
+host.ord.bowness <- data.frame(Host = host.ord.bowness, order = 1:length(host.ord.bowness))
+host.cut.bowness <- cutree(host.hc.bowness[c(1,2,4)],k = 3) # k = 3 for three treatments
+host.clusters.bowness <- data.frame(Host = names(host.cut.bowness),
+                                      Cluster = host.cut.bowness) %>%
+  inner_join(host.ord.bowness, by = "Host") %>%
+  inner_join(host.zs.bowness, by = "Host") %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.bowness <- host.clusters.bowness %>%
+  group_by(Cluster) %>%
+  mutate(Cluster.size = n_distinct(Host)) %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.bowness$Title <- paste("Group: ", host.clusters.bowness$Cluster, " - ", host.clusters.bowness$Cluster.size, " hosts", sep = "")
+
+head(host.clusters.bowness)
+```
+
+### Plot Z-Score clusters
+```{r plot-zscores-bowness, fig.height=3, fig.width=5}
+plot.clusters.bowness <-
+ggplot(data = host.clusters.bowness, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+  geom_boxplot(aes(color = treatment), outlier.shape = NA) +
+  scale_color_brewer(palette = "Dark2") +
+  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
+  xlab("Restoration status") +
+  ylab("Abundance\n(mean Z-Score)") +
+  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
+  theme_linedraw() +
+  theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
+  ylim(-1,1) +
+  ggtitle("Bowness")
+plot.clusters.bowness
+```
+
+### Manually rename cluster titles based on abundance trends
+```{r rename-clusters-bowness}
+host.clusters.bowness <- host.clusters.bowness %>%
+  mutate(Title = case_when(Cluster == 1 ~ "Restored-abundant",
+                           Cluster == 2 ~ "Damaged-abundant",
+                           Cluster == 3 ~ "Natural-abundant"))
+host.clusters.bowness$site <- "Bowness"
+saveRDS(host.clusters.bowness, file = "../Data/host_clusters_bowness.RDS")
+head(host.clusters.bowness)
+```
+
+## Crocach
+### Calculate the zscores of each genome across samples and then calculate the mean zvalue for each treatment
+```{r zscores-crocach}
+host.zs.crocach <- tmeans_sig_crocach %>%
+  filter(row.names(.) %in% sig_host_crocach$Host) %>% # Only include hosts significant from DESeq
+  rel_ab() %>% 
+  tidy_otu %>%
+  group_by(Host) %>%
+  mutate(zValue = (Count - mean(Count))/sd(Count)) %>%
+  inner_join(metadata, by = "Sample") %>%
+  group_by(treatment, Host) %>%
+  summarise(MeanZS = mean(zValue)) 
+```
+
+### Format zscores as a matrix
+```{r matrix-zscores-crocach}
+host.zs.matrix.crocach <- host.zs.crocach %>%
+  spread(key = Host, value = MeanZS) %>%
+  as.data.frame()
+row.names(host.zs.matrix.crocach) <- host.zs.matrix.crocach$Treatment
+host.zs.matrix.crocach <- host.zs.matrix.crocach[,-1]
+host.zs.matrix.crocach <- as.matrix(host.zs.matrix.crocach)
+
+# Check for NA, NaN, or Inf values and handle them
+host.zs.matrix.crocach[is.na(host.zs.matrix.crocach)] <- 0
+host.zs.matrix.crocach[is.nan(host.zs.matrix.crocach)] <- 0
+host.zs.matrix.crocach[is.infinite(host.zs.matrix.crocach)] <- 0
+
+host.dist.crocach <- dist(t(host.zs.matrix.crocach))
+```
+
+### Perform the hierarchical clustering
+```{r cluster-crocach}
+host.hc.crocach <- hclust(as.dist(host.dist.crocach), method = "ward.D")
+host.ord.crocach <- host.hc.crocach$labels[host.hc.crocach$order]
+host.ord.crocach <- data.frame(Host = host.ord.crocach, order = 1:length(host.ord.crocach))
+host.cut.crocach <- cutree(host.hc.crocach[c(1,2,4)],k = 3) # k = 3 for three treatments
+host.clusters.crocach <- data.frame(Host = names(host.cut.crocach),
+                                      Cluster = host.cut.crocach) %>%
+  inner_join(host.ord.crocach, by = "Host") %>%
+  inner_join(host.zs.crocach, by = "Host") %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.crocach <- host.clusters.crocach %>%
+  group_by(Cluster) %>%
+  mutate(Cluster.size = n_distinct(Host)) %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.crocach$Title <- paste("Group: ", host.clusters.crocach$Cluster, " - ", host.clusters.crocach$Cluster.size, " hosts", sep = "")
+
+head(host.clusters.crocach)
+```
+
+### Plot Z-Score clusters
+```{r plot-zscores-crocach, fig.height=3, fig.width=5}
+plot.clusters.crocach <-
+ggplot(data = host.clusters.crocach, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+  geom_boxplot(aes(color = treatment), outlier.shape = NA) +
+  scale_color_brewer(palette = "Dark2") +
+  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
+  xlab("Restoration status") +
+  ylab("Abundance\n(mean Z-Score)") +
+  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
+  theme_linedraw() +
+  theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
+  ylim(-1,1) +
+  ggtitle("Crocach")
+plot.clusters.crocach
+```
+
+### Manually rename cluster titles based on abundance trends
+```{r rename-clusters-crocach}
+host.clusters.crocach <- host.clusters.crocach %>%
+  mutate(Title = case_when(Cluster == 1 ~ "Natural-abundant",
+                           Cluster == 2 ~ "Restored-abundant",
+                           Cluster == 3 ~ "Damaged-abundant"))
+host.clusters.crocach$site <- "Crocach"
+saveRDS(host.clusters.crocach, file = "../Data/host_clusters_crocach.RDS")
+head(host.clusters.crocach)
+```
+
+## Langwell
+### Calculate the zscores of each genome across samples and then calculate the mean zvalue for each treatment
+```{r zscores-langwell}
+host.zs.langwell <- tmeans_sig_langwell %>%
+  filter(row.names(.) %in% sig_host_langwell$Host) %>% # Only include hosts significant from DESeq
+  rel_ab() %>% 
+  tidy_otu %>%
+  group_by(Host) %>%
+  mutate(zValue = (Count - mean(Count))/sd(Count)) %>%
+  inner_join(metadata, by = "Sample") %>%
+  group_by(treatment, Host) %>%
+  summarise(MeanZS = mean(zValue)) 
+```
+
+### Format zscores as a matrix
+```{r matrix-zscores-langwell}
+host.zs.matrix.langwell <- host.zs.langwell %>%
+  spread(key = Host, value = MeanZS) %>%
+  as.data.frame()
+row.names(host.zs.matrix.langwell) <- host.zs.matrix.langwell$Treatment
+host.zs.matrix.langwell <- host.zs.matrix.langwell[,-1]
+host.zs.matrix.langwell <- as.matrix(host.zs.matrix.langwell)
+
+# Check for NA, NaN, or Inf values and handle them
+host.zs.matrix.langwell[is.na(host.zs.matrix.langwell)] <- 0
+host.zs.matrix.langwell[is.nan(host.zs.matrix.langwell)] <- 0
+host.zs.matrix.langwell[is.infinite(host.zs.matrix.langwell)] <- 0
+
+host.dist.langwell <- dist(t(host.zs.matrix.langwell))
+```
+
+### Perform the hierarchical clustering
+```{r cluster-langwell}
+host.hc.langwell <- hclust(as.dist(host.dist.langwell), method = "ward.D")
+host.ord.langwell <- host.hc.langwell$labels[host.hc.langwell$order]
+host.ord.langwell <- data.frame(Host = host.ord.langwell, order = 1:length(host.ord.langwell))
+host.cut.langwell <- cutree(host.hc.langwell[c(1,2,4)],k = 3) # k = 3 for three treatments
+host.clusters.langwell <- data.frame(Host = names(host.cut.langwell),
+                                      Cluster = host.cut.langwell) %>%
+  inner_join(host.ord.langwell, by = "Host") %>%
+  inner_join(host.zs.langwell, by = "Host") %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.langwell <- host.clusters.langwell %>%
+  group_by(Cluster) %>%
+  mutate(Cluster.size = n_distinct(Host)) %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.langwell$Title <- paste("Group: ", host.clusters.langwell$Cluster, " - ", host.clusters.langwell$Cluster.size, " hosts", sep = "")
+
+head(host.clusters.langwell)
+```
+
+### Plot Z-Score clusters
+```{r plot-zscores-langwell, fig.height=3, fig.width=5}
+plot.clusters.langwell <-
+ggplot(data = host.clusters.langwell, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+  geom_boxplot(aes(color = treatment), outlier.shape = NA) +
+  scale_color_brewer(palette = "Dark2") +
+  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
+  xlab("Restoration status") +
+  ylab("Abundance\n(mean Z-Score)") +
+  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
+  theme_linedraw() +
+  theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
+  ylim(-1,1) +
+  ggtitle("Langwell")
+plot.clusters.langwell
+```
+
+### Manually rename cluster titles based on abundance trends
+```{r rename-clusters-langwell}
+host.clusters.langwell <- host.clusters.langwell %>%
+  mutate(Title = case_when(Cluster == 1 ~ "Restored-abundant",
+                           Cluster == 2 ~ "Natural-abundant",
+                           Cluster == 3 ~ "Damaged-abundant"))
+host.clusters.langwell$site <- "Langwell"
+saveRDS(host.clusters.langwell, file = "../Data/host_clusters_langwell.RDS")
+head(host.clusters.langwell)
+```
+
+## Migneint
+### Calculate the zscores of each genome across samples and then calculate the mean zvalue for each treatment
+```{r zscores-migneint}
+host.zs.migneint <- tmeans_sig_migneint %>%
+  filter(row.names(.) %in% sig_host_migneint$Host) %>% # Only include hosts significant from DESeq
+  rel_ab() %>% 
+  tidy_otu %>%
+  group_by(Host) %>%
+  mutate(zValue = (Count - mean(Count))/sd(Count)) %>%
+  inner_join(metadata, by = "Sample") %>%
+  group_by(treatment, Host) %>%
+  summarise(MeanZS = mean(zValue)) 
+```
+
+### Format zscores as a matrix
+```{r matrix-zscores-migneint}
+host.zs.matrix.migneint <- host.zs.migneint %>%
+  spread(key = Host, value = MeanZS) %>%
+  as.data.frame()
+row.names(host.zs.matrix.migneint) <- host.zs.matrix.migneint$Treatment
+host.zs.matrix.migneint <- host.zs.matrix.migneint[,-1]
+host.zs.matrix.migneint <- as.matrix(host.zs.matrix.migneint)
+
+# Check for NA, NaN, or Inf values and handle them
+host.zs.matrix.migneint[is.na(host.zs.matrix.migneint)] <- 0
+host.zs.matrix.migneint[is.nan(host.zs.matrix.migneint)] <- 0
+host.zs.matrix.migneint[is.infinite(host.zs.matrix.migneint)] <- 0
+
+host.dist.migneint <- dist(t(host.zs.matrix.migneint))
+```
+
+### Perform the hierarchical clustering
+```{r cluster-migneint}
+host.hc.migneint <- hclust(as.dist(host.dist.migneint), method = "ward.D")
+host.ord.migneint <- host.hc.migneint$labels[host.hc.migneint$order]
+host.ord.migneint <- data.frame(Host = host.ord.migneint, order = 1:length(host.ord.migneint))
+host.cut.migneint <- cutree(host.hc.migneint[c(1,2,4)],k = 3) # k = 3 for three treatments
+host.clusters.migneint <- data.frame(Host = names(host.cut.migneint),
+                                      Cluster = host.cut.migneint) %>%
+  inner_join(host.ord.migneint, by = "Host") %>%
+  inner_join(host.zs.migneint, by = "Host") %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.migneint <- host.clusters.migneint %>%
+  group_by(Cluster) %>%
+  mutate(Cluster.size = n_distinct(Host)) %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.migneint$Title <- paste("Group: ", host.clusters.migneint$Cluster, " - ", host.clusters.migneint$Cluster.size, " hosts", sep = "")
+
+head(host.clusters.migneint)
+```
+
+### Plot Z-Score clusters
+```{r plot-zscores-migneint, fig.height=3, fig.width=5}
+plot.clusters.migneint <-
+ggplot(data = host.clusters.migneint, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+  geom_boxplot(aes(color = treatment), outlier.shape = NA) +
+  scale_color_brewer(palette = "Dark2") +
+  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
+  xlab("Restoration status") +
+  ylab("Abundance\n(mean Z-Score)") +
+  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
+  theme_linedraw() +
+  theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
+  ylim(-1,1) +
+  ggtitle("Migneint")
+plot.clusters.migneint
+```
+
+### Manually rename cluster titles based on abundance trends
+```{r rename-clusters-migneint}
+host.clusters.migneint <- host.clusters.migneint %>%
+  mutate(Title = case_when(Cluster == 1 ~ "Damaged-abundant",
+                           Cluster == 2 ~ "Natural-abundant",
+                           Cluster == 3 ~ "Restored-abundant"))
+host.clusters.migneint$site <- "Migneint"
+saveRDS(host.clusters.migneint, file = "../Data/host_clusters_migneint.RDS")
+head(host.clusters.migneint)
+```
+
+## Moor House
+### Calculate the zscores of each genome across samples and then calculate the mean zvalue for each treatment
+```{r zscores-moor_house}
+host.zs.moor_house <- tmeans_sig_moor_house %>%
+  filter(row.names(.) %in% sig_host_moor_house$Host) %>% # Only include hosts significant from DESeq
+  rel_ab() %>% 
+  tidy_otu %>%
+  group_by(Host) %>%
+  mutate(zValue = (Count - mean(Count))/sd(Count)) %>%
+  inner_join(metadata, by = "Sample") %>%
+  group_by(treatment, Host) %>%
+  summarise(MeanZS = mean(zValue)) 
+```
+
+### Format zscores as a matrix
+```{r matrix-zscores-moor_house}
+host.zs.matrix.moor_house <- host.zs.moor_house %>%
+  spread(key = Host, value = MeanZS) %>%
+  as.data.frame()
+row.names(host.zs.matrix.moor_house) <- host.zs.matrix.moor_house$Treatment
+host.zs.matrix.moor_house <- host.zs.matrix.moor_house[,-1]
+host.zs.matrix.moor_house <- as.matrix(host.zs.matrix.moor_house)
+
+# Check for NA, NaN, or Inf values and handle them
+host.zs.matrix.moor_house[is.na(host.zs.matrix.moor_house)] <- 0
+host.zs.matrix.moor_house[is.nan(host.zs.matrix.moor_house)] <- 0
+host.zs.matrix.moor_house[is.infinite(host.zs.matrix.moor_house)] <- 0
+
+host.dist.moor_house <- dist(t(host.zs.matrix.moor_house))
+```
+
+### Perform the hierarchical clustering
+```{r cluster-moor_house}
+host.hc.moor_house <- hclust(as.dist(host.dist.moor_house), method = "ward.D")
+host.ord.moor_house <- host.hc.moor_house$labels[host.hc.moor_house$order]
+host.ord.moor_house <- data.frame(Host = host.ord.moor_house, order = 1:length(host.ord.moor_house))
+host.cut.moor_house <- cutree(host.hc.moor_house[c(1,2,4)],k = 3) # k = 3 for three treatments
+host.clusters.moor_house <- data.frame(Host = names(host.cut.moor_house),
+                                      Cluster = host.cut.moor_house) %>%
+  inner_join(host.ord.moor_house, by = "Host") %>%
+  inner_join(host.zs.moor_house, by = "Host") %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.moor_house <- host.clusters.moor_house %>%
+  group_by(Cluster) %>%
+  mutate(Cluster.size = n_distinct(Host)) %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+host.clusters.moor_house$Title <- paste("Group: ", host.clusters.moor_house$Cluster, " - ", host.clusters.moor_house$Cluster.size, " hosts", sep = "")
+
+head(host.clusters.moor_house)
+```
+
+### Plot Z-Score clusters
+```{r plot-zscores-moor_house, fig.height=3, fig.width=5}
+plot.clusters.moor_house <-
+ggplot(data = host.clusters.moor_house, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+  geom_boxplot(aes(color = treatment), outlier.shape = NA) +
+  scale_color_brewer(palette = "Dark2") +
+  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
+  xlab("Restoration status") +
+  ylab("Abundance\n(mean Z-Score)") +
+  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
+  theme_linedraw() +
+  theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
+  ylim(-1,1) +
+  ggtitle("Moor House")
+plot.clusters.moor_house
+```
+
+### Manually rename cluster titles based on abundance trends
+```{r rename-clusters-moor_house}
+host.clusters.moor_house <- host.clusters.moor_house %>%
+  mutate(Title = case_when(Cluster == 1 ~ "Natural-abundant",
+                           Cluster == 2 ~ "Damaged-abundant",
+                           Cluster == 3 ~ "Restored-abundant"))
+host.clusters.moor_house$site <- "Moor_House"
+saveRDS(host.clusters.moor_house, file = "../Data/host_clusters_moor_house.RDS")
+head(host.clusters.moor_house)
+```
+
+## Stean
+### Calculate the zscores of each genome across samples and then calculate the mean zvalue for each treatment
+```{r zscores-stean}
+host.zs.stean <- tmeans_sig_stean %>%
+  filter(row.names(.) %in% sig_host_stean$Host) %>% # Only include hosts significant from DESeq
+  rel_ab() %>% 
+  tidy_otu %>%
+  group_by(Host) %>%
+  mutate(zValue = (Count - mean(Count))/sd(Count)) %>%
+  inner_join(metadata, by = "Sample") %>%
+  group_by(treatment, Host) %>%
+  summarise(MeanZS = mean(zValue)) 
+```
+
+### Format zscores as a matrix
+```{r matrix-zscores-stean}
+host.zs.matrix.stean <- host.zs.stean %>%
+  spread(key = Host, value = MeanZS) %>%
+  as.data.frame()
+row.names(host.zs.matrix.stean) <- host.zs.matrix.stean$Treatment
+host.zs.matrix.stean <- host.zs.matrix.stean[,-1]
+host.zs.matrix.stean <- as.matrix(host.zs.matrix.stean)
+
+# Check for NA, NaN, or Inf values and handle them
+host.zs.matrix.stean[is.na(host.zs.matrix.stean)] <- 0
+host.zs.matrix.stean[is.nan(host.zs.matrix.stean)] <- 0
+host.zs.matrix.stean[is.infinite(host.zs.matrix.stean)] <- 0
+
+host.dist.stean <- dist(t(host.zs.matrix.stean))
+```
+
+### Perform the hierarchical clustering
+```{r cluster-stean}
+host.hc.stean <- hclust(as.dist(host.dist.stean), method = "ward.D")
+host.ord.stean <- host.hc.stean$labels[host.hc.stean$order]
+host.ord.stean <- data.frame(Host = host.ord.stean, order = 1:length(host.ord.stean))
+host.cut.stean <- cutree(host.hc.stean[c(1,2,4)],k = 2) # k = 2 for TWO treatments (stean has no Restored treatment)
+host.clusters.stean <- data.frame(Host = names(host.cut.stean),
+                                      Cluster = host.cut.stean) %>%
+  inner_join(host.ord.stean, by = "Host") %>%
+  inner_join(host.zs.stean, by = "Host") %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM")))
+host.clusters.stean <- host.clusters.stean %>%
+  group_by(Cluster) %>%
+  mutate(Cluster.size = n_distinct(Host)) %>%
+  mutate(Title = factor(treatment, levels = c("NAT", "DAM")))
+host.clusters.stean$Title <- paste("Group: ", host.clusters.stean$Cluster, " - ", host.clusters.stean$Cluster.size, " hosts", sep = "")
+
+head(host.clusters.stean)
+```
+
+### Plot Z-Score clusters
+```{r plot-zscores-stean, fig.height=3, fig.width=5}
+plot.clusters.stean <-
+ggplot(data = host.clusters.stean, aes(x = factor(treatment, levels = c("NAT", "DAM")), y = MeanZS)) +
+  geom_boxplot(aes(color = treatment), outlier.shape = NA) +
+  scale_color_brewer(palette = "Dark2") +
+  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
+  xlab("Restoration status") +
+  ylab("Abundance\n(mean Z-Score)") +
+  scale_x_discrete(labels = c("Natural", "Damaged")) +
+  facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
+  theme_linedraw() +
+  theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
+  ylim(-1,1) +
+  ggtitle("Stean")
+plot.clusters.stean
+```
+
+### Manually rename cluster titles based on abundance trends
+```{r rename-clusters-stean}
+host.clusters.stean <- host.clusters.stean %>%
+  mutate(Title = case_when(Cluster == 1 ~ "Damaged-abundant",
+                           Cluster == 2 ~ "Natural-abundant"))
+host.clusters.stean$site <- "Stean"
+saveRDS(host.clusters.stean, file = "../Data/host_clusters_stean.RDS")
+head(host.clusters.stean)
+```
+
+## Combine cluster dataframes into one
+```{r combine-cluster-dfs}
+host.clusters <- rbind(host.clusters.balmoral,
+                        host.clusters.bowness,
+                        host.clusters.crocach,
+                        host.clusters.langwell,
+                        host.clusters.migneint,
+                        host.clusters.moor_house,
+                        host.clusters.stean)
+saveRDS(host.clusters, file = "../Data/host_clusters.RDS")
+write_csv(host.clusters, file = "../Tables/host_clusters.csv")
+head(host.clusters)
+unique(host.clusters$site)
+```
+
+## Combine cluster barplots
+```{r plot-clusters-combined, fig.height=10, fig.width=10}
+plot.clusters.combined <- cowplot::plot_grid(plot.clusters.balmoral,
+                                             plot.clusters.bowness,
+                                             plot.clusters.crocach,
+                                             plot.clusters.langwell,
+                                             plot.clusters.migneint,
+                                             plot.clusters.moor_house,
+                                             plot.clusters.stean,
+                                             nrow = 4,
+                                             ncol = 2,
+                                             label_size = 16,
+                                             label_fontfamily = "sans",
+                                             label_fontface = "bold")
+ggsave(plot = plot.clusters.combined,
+       filename = "../Plots/DESeq/host_trend_groups.png",
+       device = "png",
+       dpi = 600,
+       width = 10,
+       height = 10,
+       units = "in",
+       bg = "white")
+plot.clusters.combined
+```
+
+# Merge and Save DESeq2 Results and Cluster Results
+```{r merge-deseq-and-cluster-results}
+combined_deseq_clusters <- combined_deseq_results %>%
+  full_join(host.clusters, by = join_by("Host", "site"))
+head(combined_deseq_clusters)
+write_csv(combined_deseq_clusters, file = "../Tables/host_deseq_and_clusters_combined.csv")
+```
+

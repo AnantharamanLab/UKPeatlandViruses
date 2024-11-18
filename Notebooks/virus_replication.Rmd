@@ -1,0 +1,720 @@
+---
+title: "Virus Replication"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: github_document
+editor_options:
+    chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Load packages
+```{r load-packages, message=FALSE, warning=FALSE}
+library("tidyverse");packageVersion("tidyverse")
+library("RColorBrewer");packageVersion("RColorBrewer")
+library("ggpubr");packageVersion("ggpubr")
+library("cowplot");packageVersion("cowplot")
+library("lme4");packageVersion("lme4")
+library("car");packageVersion("car")
+library("emmeans");packageVersion("emmeans")
+library("dplyr");packageVersion("dplyr")
+library("FSA");packageVersion("FSA")
+library("ComplexHeatmap");packageVersion("ComplexHeatmap")
+library("viridis");packageVersion("viridis")
+```
+
+# Load and format data
+```{r load-and-format-data}
+virus_info <- readRDS("../Data/virus_info.RDS")
+virus_abundance_with_hosts <- readRDS("../Data/virus_abundance_with_hosts.RDS")
+virus_abundance_with_hosts_and_all_sites <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites.RDS")
+virus_abundance_with_hosts_and_all_sites_and_metabolism <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites_and_metabolism.RDS")
+virus_host_abundance <- readRDS("../Data/virus_host_abundance.RDS")
+```
+
+# Virus abundance over Host abundance
+## Format data
+### Summarize a the phylum level
+```{r summarize-virus-host-abund-phylum}
+virus_host_abundance_by_phylum <- virus_host_abundance  %>% # Cluster assignment isn't the same across all sites!
+  filter(`Virus Trend Group` == `Host Trend Group`) %>%
+  group_by(Sample, site, treatment, `Host Phylum`) %>%
+  summarize(mean_virus_abundance = mean(Virus_Abundance),
+            mean_host_abundance = mean(Host_Abundance),
+            sd_virus_abundance = sd(Virus_Abundance),
+            sd_host_abundance = sd(Host_Abundance),
+            se_virus_abundance = sd(Virus_Abundance) / sqrt(n()),
+            se_host_abundance = sd(Host_Abundance) / sqrt(n()),
+            total_virus_abundance = sum(Virus_Abundance),
+            total_host_abundance = sum(Host_Abundance))
+write_csv(virus_host_abundance_by_phylum, file = "../Tables/virus_host_abundance_totals_by_phylum.csv")
+```
+
+```{r fig.height=4, fig.width=9}
+# Step 1: Compute the slopes, R-squared, and p-values for each combination of Host Phylum and treatment
+annotation_data <- virus_host_abundance_by_phylum %>%
+  filter(`Host Phylum` %in% c("Pseudomonadota", "Planctomycetota", "Desulfobacterota",
+                              "Desulfobacterota_B", "Actinomycetota", "Acidobacteriota")) %>%
+  group_by(`Host Phylum`, treatment) %>%
+  summarize(
+    slope = coef(lm(total_virus_abundance ~ total_host_abundance))[2],
+    r_squared = summary(lm(total_virus_abundance ~ total_host_abundance))$r.squared,
+    p_value = summary(lm(total_virus_abundance ~ total_host_abundance))$coefficients[2, 4],
+    .groups = 'drop'
+  )
+
+# Step 2: Create a combined annotation text
+annotation_data <- annotation_data %>%
+  mutate(
+    annotation = paste0(
+      "p = ", signif(p_value, 3), "\n",
+      "R² = ", round(r_squared, 2), "\n",
+      "m = ", round(slope, 3)
+    )
+  )
+
+# Step 3: Use the annotation data to add the text to the plot
+plot.virus.over.host.abundance.phylum <- ggplot(virus_host_abundance_by_phylum %>%
+                                           filter(`Host Phylum` %in% c("Pseudomonadota",
+                                                                       "Planctomycetota",
+                                                                       "Desulfobacterota",
+                                                                       "Desulfobacterota_B",
+                                                                       "Actinomycetota",
+                                                                       "Acidobacteriota")),
+                                         aes(x = total_host_abundance, y = total_virus_abundance, color = treatment)) +
+  geom_abline(slope = 1, linetype = 3, color = "grey40") +
+  geom_point() +
+  geom_smooth(method = lm, formula = y ~ x, se = FALSE) +
+  geom_text(data = annotation_data, aes(label = annotation),
+            x = -Inf, y = Inf,
+            hjust = -0.05, vjust = 1.1,
+            size = 3.5,
+            inherit.aes = FALSE, color = "black") +
+  scale_color_manual(values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
+                     name = "Ecosystem health") +
+  facet_grid(treatment ~ `Host Phylum`, scales = "free") +
+  cowplot::theme_cowplot() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 10),
+        strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        axis.title = element_text(size = 12)) +
+  xlab("Total Host Abundance") +
+  ylab("Total Virus Abundance")
+
+plot.virus.over.host.abundance.phylum
+```
+
+```{r save-virus-over-host-phylum}
+ggsave(plot = plot.virus.over.host.abundance.phylum,
+       file = "../Plots/virus_replication/virus_over_host_abundance_by_phylum.png",
+       device = "png",
+       dpi = 600,
+       width = 12,
+       height = 4,
+       units = "in",
+       bg = "white")
+```
+
+# Lysogenic phage abundance
+## Get lysogenic phages
+```{r load-lysogenic-phages}
+lysogenic_phages <- virus_info %>%
+  filter(lytic_state == "integrated_prophage" | lytic_state == "lysogenic_virus" | lytic_state == "lysogenic_scaffold")
+
+lysogenic_phages_info <- virus_abundance_with_hosts_and_all_sites_and_metabolism %>%
+  filter(Virus %in% lysogenic_phages$Virus) %>%
+  dplyr::rename(Trend_Group = `Virus Trend Group`,
+                Abundance = Virus_Abundance) %>%
+  mutate(Trend_Group = case_when(Trend_Group == "Natural-abundant" ~ "Natural",
+                                 Trend_Group == "Restored-abundant" ~ "Restored",
+                                 Trend_Group == "Damaged-abundant" ~ "Damaged")) %>%
+  mutate(Trend_Group = factor(Trend_Group, levels = c("Natural", "Restored", "Damaged")))
+head(lysogenic_phages_info)
+```
+
+```{r lysogenic-non-redundant}
+lysogenic_phages_non_redundant <- lysogenic_phages_info %>%
+  select(Virus, Sample, site, treatment, Trend_Group, Abundance) %>%
+  distinct()
+head(lysogenic_phages_non_redundant)
+```
+
+```{r summarize-lysogenic}
+lysogenic_phages_non_redundant_total_by_sample <- lysogenic_phages_non_redundant %>%
+  group_by(site, treatment) %>%
+  summarize(total_abundance = sum(Abundance),
+            mean_abundance = mean(Abundance),
+            sd_abundance = sd(Abundance),
+            n = n(),
+            se_abundance = sd_abundance / sqrt(n)) %>%
+  ungroup()  %>%
+  mutate(treatment = case_when(treatment == "NAT" ~ "Natural",
+                               treatment == "REST" ~ "Restored",
+                               treatment == "DAM" ~ "Damaged")) %>%
+  mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged")))
+  
+head(lysogenic_phages_non_redundant_total_by_sample)
+```
+
+## Perform Kruskal-Wallis and Dunn's test for each site
+```{r Kruskal-Wallis}
+# Perform Kruskal-Wallis and Dunn's test for sites with three treatments
+results <- lysogenic_phages_non_redundant %>%
+  mutate(treatment = case_when(
+    treatment == "NAT" ~ "Natural",
+    treatment == "REST" ~ "Restored",
+    treatment == "DAM" ~ "Damaged"
+  )) %>%
+  mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged"))) %>%
+  group_by(site) %>%
+  do({
+    # Perform Kruskal-Wallis test
+    kruskal_test <- kruskal.test(Abundance ~ treatment, data = .)
+    
+    # Safely perform Dunn's test
+    dunn_test <- tryCatch({
+      dunnTest(Abundance ~ treatment, data = ., method = "bh")$res %>%
+        mutate(treatment1 = sub(" - .*", "", Comparison),
+               treatment2 = sub(".* - ", "", Comparison)) %>%
+        select(-Comparison)
+    }, error = function(e) {
+      tibble(treatment1 = NA, treatment2 = NA, Z = NA, P.unadj = NA, P.adj = NA)
+    })
+    
+    # Add Kruskal-Wallis results to Dunn's test dataframe
+    dunn_test <- dunn_test %>%
+      mutate(KW_statistic = kruskal_test$statistic,  # H value
+             KW_p_value = kruskal_test$p.value)      # p-value
+    
+    dunn_test
+  })
+results
+```
+
+```{r plot-lysogenic-tmeans, fig.height=4.5, fig.width=5}
+plot.lysogenic.tmeans.mean <-
+ggplot(lysogenic_phages_non_redundant_total_by_sample,
+       aes(x = treatment, y = mean_abundance, group = site)) +
+  facet_wrap(~site, ncol = 2, scales = "free_y") +
+  geom_point(size = 2, position = position_dodge(width = 0.3)) +
+  geom_line(size = 0.5, alpha = 0.75, position = position_dodge(width = 0.3)) +
+  geom_errorbar(aes(x = treatment, ymin = mean_abundance - se_abundance,
+                    ymax = mean_abundance + se_abundance), 
+                width = 0.2, position = position_dodge(width = 0.3)) +
+  labs(x = "Ecosystem Health", y = "Mean lysogenic virus abundance") +
+  cowplot::theme_cowplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+      axis.text.y = element_text(size = 9),
+      axis.title = element_text(size=12),
+      strip.text.x = element_text(size = 10))
+plot.lysogenic.tmeans.mean
+```
+
+### Add test results
+```{r plot-lysogenic-tmeans-with-tests, fig.height=6.5, fig.width=5}
+# Map treatments to numerical positions based on their order in lysogenic_phages_non_redundant_total_by_sample
+treatment_order <- lysogenic_phages_non_redundant_total_by_sample %>%
+  distinct(treatment) %>%
+  arrange(treatment) %>%
+  mutate(position = row_number()) %>%
+  select(treatment, position)
+
+# Join this order with the annotation data and filter for significant results only
+annotation_data <- results %>%
+  rename(group1 = treatment1, group2 = treatment2) %>%
+  left_join(treatment_order, by = c("group1" = "treatment")) %>%
+  rename(x = position) %>%
+  left_join(treatment_order, by = c("group2" = "treatment")) %>%
+  rename(xend = position) %>%
+  group_by(site) %>%
+  mutate(
+    y_base = 1.2 * max(lysogenic_phages_non_redundant_total_by_sample$mean_abundance[
+      lysogenic_phages_non_redundant_total_by_sample$site == first(site)], na.rm = TRUE),
+    y_position = y_base + 1 * (row_number() - 1),  # Increase spacing between bars
+    label_position = (x + xend) / 2,               # Midpoint of segment for label
+    y_position_star = y_position + 0.2,            # Offset label above bar
+    label = case_when(
+      P.adj <= 0.0001 ~ "****",
+      P.adj <= 0.001  ~ "***",
+      P.adj <= 0.01   ~ "**",
+      P.adj <= 0.05   ~ "*",
+      TRUE            ~ NA_character_  # Use NA for non-significant labels
+    )
+  ) %>%
+  filter(!is.na(label)) %>%  # Keep only significant comparisons
+  ungroup()
+
+# Step 2: Add only significant bars and annotations to the plot
+plot.lysogenic.tmeans.mean.annotated <- plot.lysogenic.tmeans.mean +
+  geom_segment(data = annotation_data, 
+               aes(x = x, xend = xend,
+                   y = y_position,
+                   yend = y_position),
+               size = 0.5, color = "black") +
+  geom_text(data = annotation_data, 
+            aes(x = label_position,
+                y = y_position_star,
+                label = label),
+            size = 4) +
+  theme(legend.position = "none")
+plot.lysogenic.tmeans.mean.annotated
+```
+
+```{r save-plot-lysogenic}
+ggsave(plot.lysogenic.tmeans.mean,
+       file="../Plots/virus_replication/lysogenic_phage_abundance.png",
+       device = "png",
+       width = 5, height = 6.5, units = "in",
+       dpi = 600, bg = "white")
+```
+
+## Normalize by total virus abundance
+```{r normalize-lysogenic-abundance}
+total_virus_abundance_per_site_treatment <- virus_abundance_with_hosts_and_all_sites %>%
+  select(Virus, Sample, site, treatment, Virus_Abundance) %>%
+  distinct() %>%
+  group_by(site, treatment) %>%
+  summarize(total_virus_abundance_in_site_treatment = sum(Virus_Abundance)) %>%
+  ungroup()
+
+lysogenic_phages_non_redundant_total_per_site_treatment_normalized <- lysogenic_phages_non_redundant %>%
+  left_join(total_virus_abundance_per_site_treatment, by = join_by("site", "treatment")) %>%
+  mutate(Abundance_norm = Abundance / total_virus_abundance_in_site_treatment) %>%
+  group_by(site, treatment) %>%
+  summarize(total_abundance = sum(Abundance),
+            total_abundance_norm = sum(Abundance_norm),
+            mean_abundance = mean(Abundance),
+            mean_abundance_norm = mean(Abundance_norm),
+            sd_abundance = sd(Abundance),
+            sd_abundance_norm = sd(Abundance_norm),
+            n = n(),
+            se_abundance = sd_abundance / sqrt(n),
+            se_abundance_norm = sd_abundance_norm / sqrt(n)) %>%
+  ungroup() %>%
+  mutate(treatment = case_when(treatment == "NAT" ~ "Natural",
+                               treatment == "REST" ~ "Restored",
+                               treatment == "DAM" ~ "Damaged")) %>%
+  mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged")))
+write_csv(lysogenic_phages_non_redundant_total_per_site_treatment_normalized, file = "../Tables/lysogenic_virus_abundance.csv")
+head(lysogenic_phages_non_redundant_total_per_site_treatment_normalized)
+```
+
+## Perform Kruskal-Wallis and Dunn's test for each site on the normalized data
+```{r Kruskal-Wallis-norm}
+# Perform Kruskal-Wallis and Dunn's test for sites with three treatments
+results_norm <- lysogenic_phages_non_redundant %>%
+  left_join(total_virus_abundance_per_site_treatment, by = join_by("site", "treatment")) %>%
+  mutate(Abundance_norm = Abundance / total_virus_abundance_in_site_treatment) %>%
+  select(-Trend_Group) %>%
+  filter(site != "Stean") %>%
+  mutate(treatment = case_when(
+    treatment == "NAT" ~ "Natural",
+    treatment == "REST" ~ "Restored",
+    treatment == "DAM" ~ "Damaged"
+  )) %>%
+  mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged"))) %>%
+  group_by(site) %>%
+  do({
+    kruskal_test <- kruskal.test(Abundance_norm ~ treatment, data = .)
+    
+    # Safely perform Dunn's test
+    dunn_test <- tryCatch({
+      dunnTest(Abundance_norm ~ treatment, data = ., method = "bh")$res %>%
+        mutate(treatment1 = sub(" - .*", "", Comparison),
+               treatment2 = sub(".* - ", "", Comparison)) %>%
+        select(-Comparison)
+    }, error = function(e) {
+      tibble(treatment1 = NA, treatment2 = NA, Z = NA, P.unadj = NA, P.adj = NA)
+    })
+    
+    # Add Kruskal-Wallis results to Dunn's test dataframe
+    dunn_test <- dunn_test %>%
+      mutate(KW_statistic = kruskal_test$statistic,  # H value
+             KW_p_value = kruskal_test$p.value)      # p-value
+    
+    dunn_test
+  })
+results_norm
+```
+
+## Plot the normnalized total lysogenic phage abundance
+```{r plot-normalized-lysogenic-abundance, fig.height=4.5, fig.width=5}
+plot.lysogenic.tmeans.mean.norm <-
+ggplot(lysogenic_phages_non_redundant_total_per_site_treatment_normalized,
+       aes(x = treatment, y = mean_abundance_norm * 1000, group = site)) +
+  facet_wrap(~site, ncol = 2, scales = "free_y") +
+  geom_point(size = 2, position = position_dodge(width = 0.3)) +
+  geom_line(size = 0.5, alpha = 0.75, position = position_dodge(width = 0.3)) +
+  geom_errorbar(aes(x = treatment, ymin = mean_abundance_norm * 1000 - se_abundance_norm * 1000,
+                    ymax = mean_abundance_norm * 1000 + se_abundance_norm * 1000), 
+                width = 0.2, position = position_dodge(width = 0.3)) +
+  labs(x = "Ecosystem Health", y = "Normalized lysogenic virus abundance") +
+  cowplot::theme_cowplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+      axis.text.y = element_text(size = 9),
+      axis.title = element_text(size=12),
+      strip.text.x = element_text(size = 10))
+plot.lysogenic.tmeans.mean.norm
+```
+
+### Add test results
+```{r plot-normalized-lysogenic-abundance-with-tests, fig.height=6.5, fig.width=5}
+treatment_order_norm <- lysogenic_phages_non_redundant_total_per_site_treatment_normalized %>%
+  distinct(treatment) %>%
+  arrange(treatment) %>%
+  mutate(position = row_number()) %>%
+  select(treatment, position)
+
+max_values <- lysogenic_phages_non_redundant_total_per_site_treatment_normalized %>%
+  group_by(site) %>%
+  summarize(max_y = max(mean_abundance_norm * 1000, na.rm = TRUE))
+
+annotation_data_norm <- results_norm %>%
+  rename(group1 = treatment1, group2 = treatment2) %>%
+  left_join(treatment_order_norm, by = c("group1" = "treatment")) %>%
+  rename(x = position) %>%
+  left_join(treatment_order_norm, by = c("group2" = "treatment")) %>%
+  rename(xend = position) %>%
+  left_join(max_values, by = "site") %>%  # Add the max_y value for each site
+  group_by(site) %>%
+  mutate(
+    # Set a y_base that scales with the maximum y-value for each site
+    y_base = max_y * 1.3,
+    
+    # Dynamically set y_position with incremental spacing
+    y_position = y_base + (0.2 * max_y * (row_number() - 1)),
+    label_position = (x + xend) / 2,           # Midpoint of segment for label
+    y_position_star = y_position + (0.05 * max_y),  # Offset for label above bar
+    label = case_when(
+      P.adj <= 0.0001 ~ "****",
+      P.adj <= 0.001  ~ "***",
+      P.adj <= 0.01   ~ "**",
+      P.adj <= 0.05   ~ "*",
+      TRUE            ~ NA_character_  # Use NA for non-significant labels
+    )
+  ) %>%
+  filter(!is.na(label)) %>%  # Keep only significant comparisons
+  distinct(site, x, xend, .keep_all = TRUE) %>%  # Remove duplicate comparisons
+  ungroup()
+
+plot.lysogenic.tmeans.mean.norm.annotated <- plot.lysogenic.tmeans.mean.norm +
+  geom_segment(data = annotation_data_norm, 
+               aes(x = x, xend = xend,
+                   y = y_position,
+                   yend = y_position),
+               size = 0.5, color = "black") +
+  geom_text(data = annotation_data_norm, 
+            aes(x = label_position,
+                y = y_position_star,
+                label = label),
+            size = 4) +
+  theme(legend.position = "none")
+
+plot.lysogenic.tmeans.mean.norm.annotated
+```
+
+
+```{r save-plot-lysogenic-norm}
+ggsave(plot.lysogenic.tmeans.mean.norm.annotated,
+       file="../Plots/virus_replication/lysogenic_phage_abundance_normalized.png",
+       device = "png",
+       width = 5, height = 6.5, units = "in",
+       dpi = 600, bg = "white")
+```
+
+## Combine the plots
+```{r combine-lysogenic-plots, fig.height=6.5, fig.width=9}
+plot.combined.lysogenic <- cowplot::plot_grid(plot.lysogenic.tmeans.mean.annotated,
+                                              plot.lysogenic.tmeans.mean.norm.annotated,
+                                              ncol = 2,
+                                              align = "hv",
+                                              axis = "l",
+                                              labels = c("B", "C"),
+                                              label_size = 16,
+                                              label_fontfamily = "sans",
+                                              label_fontface = "bold")
+plot.combined.lysogenic
+```
+
+## Combine the KW adn Dunn test results
+```{r combine-KW-dunn}
+results_KW_Dunn_combined <- rbind(
+  results_norm %>%
+    mutate(Data = "normalized"),
+  results %>%
+    filter(site != "Stean") %>%
+    mutate(Data = "non-normalized")
+)
+results_KW_Dunn_combined
+```
+
+```{r save-combined-test-results}
+write_csv(results_KW_Dunn_combined, file = "../Tables/lysogenic_virus_abundance_KW_Dunn_tests.csv")
+```
+
+# "Active" viruses
+## Get virus-host ratios for individual virus-host pairs
+```{r format-virus-host-ratios}
+virus_host_abundance_indiv <- virus_host_abundance %>%
+  mutate(virus_host_ratio = Virus_Abundance / Host_Abundance) %>%
+  mutate(Label = paste0(`Host Domain`, "; ", `Host Phylum`, "; ", `Host Family`)) %>%
+  mutate(Label = sub("^Bacteria; ", "B; ", Label),
+         Label = sub("^Archaea; ", "A; ", Label)) %>%
+  mutate(lysogenic = case_when(Virus %in% lysogenic_phages_non_redundant$Virus ~ TRUE,
+                               Virus %in% lysogenic_phages_non_redundant$Virus == FALSE ~ FALSE))
+write_csv(virus_host_abundance_indiv, file = "../Tables/virus_host_abundance_individual.csv")
+```
+
+### Get the numebr and distribution of active viruses (virus/host ratio >=10)
+```{r count-active-viruses}
+print("Number of active viruses:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10)$Virus))
+print("Number of all viruses with host predictions and abundances > 0:")
+length(unique(virus_host_abundance_indiv$Virus))
+print("Fraction of active viruses out of all viruses with host predictions and abundances > 0:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10)$Virus))/length(unique(virus_host_abundance_indiv$Virus))
+print("Number of lysogenic viruses:")
+length(unique(lysogenic_phages_non_redundant$Virus))
+print("Fraction of lysogenic viruses out of all identified viruses:")
+length(unique(lysogenic_phages_non_redundant$Virus))/length(unique(virus_info$Virus))
+print("Number of active viruses that are lysogenic:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10 & lysogenic == TRUE)$Virus))
+print("Fraction of active, lysogenic viruses out of all active viruses:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10 & lysogenic == TRUE)$Virus))/length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10)$Virus))
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10)$Virus))
+print("Fraction of active, lysogenic viruses out of all lysogenic viruses:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10 & lysogenic == TRUE)$Virus))/
+length(unique(lysogenic_phages_non_redundant$Virus))
+print("Number of hosts with active viruses:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10)$Host))
+print("Fraction of hosts with active viruses:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10)$Host))/length(unique(virus_host_abundance_indiv$Host))
+print("Number of samples with active viruses:")
+length(unique(subset(virus_host_abundance_indiv, virus_host_ratio >= 10)$Sample))
+```
+
+```{r active-lysogens}
+active_lysogens <- subset(virus_host_abundance_indiv, virus_host_ratio >= 10 & lysogenic == TRUE)
+active_lysogens
+
+print("Number of samples with active lysogens:")
+length(unique(active_lysogens$Sample))
+
+print("Number of active lysogens in natural samples:")
+length(unique(subset(active_lysogens, treatment == "Natural")$Virus))
+print("Fraction of active lysogens in natural samples:")
+length(unique(subset(active_lysogens, treatment == "Natural")$Virus)) / length(unique(active_lysogens$Virus))
+print("Number of restored samles with active lysogens:")
+length(unique(subset(active_lysogens, treatment == "Restored")$Virus))
+print("Fraction of active lysogens in restored samples:")
+length(unique(subset(active_lysogens, treatment == "Restored")$Virus)) / length(unique(active_lysogens$Virus))
+print("Number of damaged samles with active lysogens:")
+length(unique(subset(active_lysogens, treatment == "Damaged")$Virus))
+print("Fraction of active lysogens in damaged samples:")
+length(unique(subset(active_lysogens, treatment == "Damaged")$Virus)) / length(unique(active_lysogens$Virus))
+print("Number of active lysogens active in > 1 sample:")
+active_lysogens_virus_count <- active_lysogens %>%
+  count(Virus)
+length(subset(active_lysogens_virus_count, n > 1)$Virus)
+```
+
+```{r active-viruses}
+active_viruses <- subset(virus_host_abundance_indiv, virus_host_ratio >= 10)
+```
+
+## Summarize the ratios for each family and sample
+```{r summarize-virus-host-ratios}
+virus_host_abundance_indiv_summary <- subset(virus_host_abundance_indiv, lysogenic == TRUE) %>%
+  filter(`Host Family` != "Unknown") %>%
+  group_by(Label, Sample, treatment, site) %>%
+  summarize(total_virus_abundance = sum(Virus_Abundance),
+            total_host_abundance = sum(Host_Abundance),
+            ratio_of_totals = total_virus_abundance/total_host_abundance,
+            mean_ratio = mean(virus_host_ratio, na.rm = TRUE),
+            sd_ratio = sd(virus_host_ratio, na.rm = TRUE),
+            n = n(),
+            se_ratio = sd_ratio / sqrt(n),
+            ) %>%
+  ungroup()
+virus_host_abundance_indiv_summary
+```
+
+## Format the summay as a matrix
+```{r format-ratios-as-matrix}
+# Pivot the data to make it suitable for heatmap
+data_matrix <- virus_host_abundance_indiv_summary %>%
+  mutate(site = case_when(site == "Moors_House" ~ "Moor House",
+                          !is.na(site) ~ site)) %>%
+  select(Label, Sample, mean_ratio) %>%
+  pivot_wider(names_from = Sample, values_from = mean_ratio) %>%
+  column_to_rownames("Label")
+
+# Cap the maximum value at 10 to avoid color skew
+data_matrix <- pmin(data_matrix, 10)
+data_matrix[is.na(data_matrix)] <- 0 # Heatmap wont do NA
+head(data_matrix)
+```
+
+## Set up annotations for the heatmap
+```{r heatmap-annots}
+# Create the annotation for columns based on treatment and site
+annotation_col_df <- virus_host_abundance_indiv_summary  %>%
+  mutate(site = case_when(site == "Moors_House" ~ "Moor House",
+                          !is.na(site) ~ site)) %>%
+  select(Sample, treatment, site) %>%
+  distinct() %>%
+  column_to_rownames("Sample")
+
+# Map the colors for treatment (Ecosystem Health) and site
+# Set1 palette for treatment (Ecosystem Health)
+treatment_colors <- c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C")
+
+# Dark2 palette for site in alphabetical order
+site_levels <- sort(unique(annotation_col_df$site))
+site_colors <- setNames(brewer.pal(n = length(site_levels), name = "Dark2"), site_levels)
+
+# Create annotation objects with nrow adjustment
+annotation_col <- HeatmapAnnotation(
+  "Ecosystem Health" = annotation_col_df$treatment,
+  "Site" = annotation_col_df$site,
+  col = list(
+    "Ecosystem Health" = treatment_colors,
+    "Site" = site_colors
+  ),
+  annotation_legend_param = list(
+    Site = list(nrow = 3)  # Set number of rows in site legend to 3
+  )
+)
+```
+
+## Generate the heatmap
+```{r ratio-heatmap, fig.height=9, fig.width=9}
+# Filter rows where no mean_ratio is greater than 0
+filtered_data_matrix <- data_matrix[rowSums(data_matrix > 0) > 0, ]
+set.seed(123)
+# Generate the heatmap without row and column titles
+heatmap <- Heatmap(
+  matrix = filtered_data_matrix,
+  name = "Mean Ratio",
+  col = viridis(10),
+  top_annotation = annotation_col,
+  cluster_rows = TRUE,  # Or FALSE if you don't want to cluster rows
+  cluster_columns = TRUE,  # Or FALSE if you don't want to cluster columns
+  show_row_names = TRUE,
+  show_column_names = FALSE,
+  row_title = NULL,  # Remove row title
+  column_title = NULL,  # Remove column title
+  width = unit(350, "pt"),
+  height = unit(510, "pt"),
+  heatmap_legend_param = list(
+    title = "Mean Virus/Host Ratio", 
+    at = c(0, 5, 10), 
+    labels = c("0", "5", ">10"),
+    legend_height = unit(30, "pt"),  # Set fixed height to 30 pt
+    legend_direction = "vertical"  # Set legend direction to vertical
+  ),
+  use_raster = TRUE,
+  raster_quality = 5
+)
+
+draw(
+  heatmap,
+  padding = unit(c(0, 0, 0, 60), "pt"),  # Adjust padding: top, right, bottom, left
+  heatmap_legend_side = "bottom", 
+  annotation_legend_side = "bottom",
+  merge_legends = TRUE  # Merge legends together at the bottom
+)
+```
+
+### Save the heatmap as a PNG
+```{r save-heatmap-png}
+png("../Plots/virus_replication/FigS4.png", width = 9, height = 9, res = 600, units = "in") 
+
+draw(
+  heatmap,
+  padding = unit(c(0, 0, 0, 60), "pt"),
+  heatmap_legend_side = "bottom", 
+  annotation_legend_side = "bottom",
+  merge_legends = TRUE
+)
+
+dev.off()
+```
+
+## Model the virus host ratios and their relationships with restoration status and taxonomy (host family)
+```{r model-virus-host-ratios-fam}
+model <- lmer(virus_host_ratio ~ treatment * `Host Family` +
+              (1 | Virus) + (1 | Host) + (1 | site) + (1 | Sample),
+              data = virus_host_abundance_indiv %>%
+              filter(`Host Family` != "Unknown"))
+anova_ii <- Anova(model, type = "II")
+anova_ii
+anova_iii <- Anova(model, type = "III")
+anova_iii
+
+anova_combined<- rbind(as.data.frame(anova_ii) %>% mutate(Test = "Type II ANOVA"),
+                       as.data.frame(anova_iii) %>% mutate(Test = "Type III ANOVA"))
+write.csv(anova_combined, file = "../Tables/virus_host_abundance_anova.csv", row.names = TRUE)
+```
+
+Here’s how to interpret the results from your ANOVA (both Type II and Type III):
+
+### **Type II ANOVA Interpretation:**
+
+- **treatment** (`p = 0.29659`): The effect of treatment alone is not significant. This means that when considering the main effect of treatment across all host families, without accounting for interactions, the treatment does not significantly influence the `virus_host_ratio`.
+  
+- **`Host Family`** (`p = 0.01389`): The effect of host family is significant, indicating that different host families have different average `virus_host_ratio`, regardless of the treatment.
+
+- **treatment:`Host Family` Interaction** (`p < 0.0001`): The interaction between treatment and host family is highly significant. This means that the effect of treatment on `virus_host_ratio` differs depending on the host family, which is crucial for understanding how specific treatments affect different host families.
+
+### **Type III ANOVA Interpretation:**
+
+- **(Intercept)** (`p = 0.1465326`): The intercept is not significant, which is typical and generally less informative in the context of understanding treatment and host family effects.
+
+- **treatment** (`p = 0.0002903`): The treatment effect is significant in the Type III ANOVA. This indicates that after accounting for the interaction with host family, the treatment significantly affects the `virus_host_ratio`. This is an important finding because it suggests that some of the treatment effects were masked when not considering the interaction.
+
+- **`Host Family`** (`p = 0.0075189`): The host family effect remains significant, reinforcing the idea that different host families have inherently different `virus_host_ratio` values.
+
+- **treatment:`Host Family` Interaction** (`p < 0.0001`): The interaction between treatment and host family is still highly significant, confirming that the impact of treatment varies by host family.
+
+### **Key Takeaways:**
+
+1. **Significant Interaction (treatment × Host Family):** The most critical finding is the highly significant interaction between treatment and host family. This indicates that the effect of treatment on the `virus_host_ratio` is not uniform across all host families. Different treatments impact different host families in varied ways.
+
+2. **Treatment Effect (from Type III ANOVA):** The treatment effect is significant when considering the interaction with host families. This suggests that, overall, treatments do influence the `virus_host_ratio`, but this effect is modulated by the specific host family involved.
+
+3. **Host Family Effect:** Different host families have different average `virus_host_ratio` values, suggesting intrinsic differences in how these families interact with viruses.
+
+# Combine the virus over host abundance and lysogenic phage abundance plots
+```{r combine-lysogenic-and-virus-host, fig.height=10.5, fig.width=9}
+plot.combined.lysogenic.virus.host <- cowplot::plot_grid(plot.virus.over.host.abundance.phylum,
+                                                      plot.combined.lysogenic,
+                                                      ncol = 1,
+                                                      labels = c("A", ""),
+                                                      label_size = 16,
+                                                      label_fontface = "bold",
+                                                      label_fontfamily = "sans",
+                                                      hjust = -0.5,
+                                                      rel_heights = c(4, 6.5)
+                                                      )
+plot.combined.lysogenic.virus.host
+```
+
+## Save
+```{r save-combined-plot}
+ggsave(plot.combined.lysogenic.virus.host,
+       file = "../Plots/virus_replication/Fig5.png",
+       width = 9,
+       height = 10.5,
+       units = "in",
+       dpi = 600,
+       bg = "white")
+```
+
+
+

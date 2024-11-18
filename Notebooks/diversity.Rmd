@@ -1,0 +1,711 @@
+---
+title: "Peatland Map and Virus/Host Diversity"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: github_document
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Map
+# Load packages
+```{r load-packages-for-map, message=FALSE, warning=FALSE}
+library("tidyverse");packageVersion("tidyverse")
+library("maps");packageVersion("maps")
+library("mapdata");packageVersion("mapdata")
+library("sf");packageVersion("sf")
+library("ggrepel");packageVersion("ggrepel")
+```
+
+# Load and format data
+```{r load-data-for-map}
+# Get the map data for the UK
+uk_map <- map_data("worldHires") %>%
+  filter(subregion == "Great Britain" | subregion == "Scotland")
+
+# Load the shapefiles for England and Wales
+england_peatlands <- st_read("../Data/Peaty_Soils_Location_(England)___BGS_&_NSRI.shp") # Source: https://hub.arcgis.com/datasets/Defra::peaty-soils-location-england/about
+wales_peatlands <- st_read("../Data/Unified_peat_map_for_Wales.shp") # Source: https://hub.arcgis.com/datasets/theriverstrust::unified-peat-map-for-wales/about
+scotland_peatlands <- st_read("../Data/CARBONPEATLANDMAP_SCOTLAND.shp") # Source: https://hub.arcgis.com/datasets/snh::carbon-and-peatland-2016-map/about
+scotland_peatlands <- scotland_peatlands %>%
+  filter(grepl("peat", COMPSOIL) | grepl("Peat", COMPSOIL)) # Only peat areas
+```
+
+## Ensure all data are in the same coordinate system
+```{r st-transform-geo-data}
+england_peatlands <- st_transform(england_peatlands, crs = st_crs(4326))
+wales_peatlands <- st_transform(wales_peatlands, crs = st_crs(4326))
+scotland_peatlands <- st_transform(scotland_peatlands, crs = st_crs(4326))
+```
+
+## Create a data frame for the labels
+```{r labels-for-map}
+labels <- data.frame(
+  name = c("Balmoral", "Bowness", "Crocach", "Langwell", "Migneint", "Moor House", "Stean"),
+  lat = c(56.92341, 54.93297, 58.39304, 58.19629, 52.99565, 54.69166, 54.1308),
+  lon = c(-3.15831, -3.23945, -4.00182, -3.61489, -3.81652, -2.38228, -1.95015)
+)
+```
+
+## Plot the map
+```{r plot-map, fig.height=4, fig.width=8*(2/3)}
+peat_soil_map <- ggplot() +
+  geom_polygon(data = uk_map, aes(x = long, y = lat, group = group), fill = "grey90", color = "black") +
+  geom_sf(data = england_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
+  geom_sf(data = wales_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
+  geom_sf(data = scotland_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
+  coord_sf(xlim = c(-8, 2), ylim = c(50, 60.75)) +
+  theme_void() +
+  geom_point(data = labels,
+             aes(x = lon, y = lat),
+             color = "#E41A1C",
+             size = 2) +
+  geom_text_repel(data = labels,
+                  aes(x = lon, y = lat, label = name),
+                  fontface = "bold",
+                  size = 4,
+                  color = "white",
+                  bg.color = "black",
+                  bg.r = .15,
+                  box.padding = 0.5,
+                  segment.color = "#E41A1C",
+                  force = 4
+                  )
+peat_soil_map
+```
+
+## Save the plot
+```{r save-plot-map}
+ggsave(filename = "../Plots/map/sample_sites.png", plot = peat_soil_map, device = "png", dpi = 600, height = 6, width = 4, units = "in")
+```
+
+# Diversity
+# Load packages
+```{r load-packages, message=FALSE, warning=FALSE}
+library("tidyverse");packageVersion("tidyverse")
+library("vegan");packageVersion("vegan")
+library("ape");packageVersion("ape")
+library("RColorBrewer");packageVersion("RColorBrewer")
+library("cowplot");packageVersion("cowplot")
+```
+
+# Load data
+```{r load-data}
+tmeans <- readRDS("../Data/virus_tmeans_norm_50.RDS")
+metadata <- readRDS("../Data/metadata_simple.RDS") %>%
+  mutate(treatment = factor(treatment, levels = c("NAT", "REST", "DAM")))
+```
+
+# PCoA
+## Plot everything, together
+### Standardize (transform) data and create a dissimilarity matrix
+```{r xform-for-PCoA}
+tmeans.xform <- decostand(tmeans, method="hellinger")
+bray_curtis_dist <- as.matrix(vegdist(t(tmeans.xform), method='bray'))
+saveRDS(bray_curtis_dist, file="../Data/bray_curtis_hellinger.RDS")
+```
+
+### Perform pcoa
+```{r PCoA}
+pcoa <- pcoa(as.dist(bray_curtis_dist))
+```
+
+### Store pcoa data
+```{r store-PCoA-data}
+axes <- as.data.frame(pcoa$vectors) # make a dataframe named axes, put pcoa values in there
+axes$SampleID <- rownames(axes) # Give df extra column with the rownames in it 
+axes <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes, by.x = "SampleID", by.y = "SampleID")
+saveRDS(axes, "../Data/pcoa_axes_all.RDS")
+head(axes)
+```
+
+#### Store eigenvalues
+```{r store-PCoA-eigenvals}
+eigval <- round(pcoa$values$Relative_eig * 100, digits = 2) # calculate the eigenvalues for each pcoa axes 
+eigval <- data.frame(PC = 1:length(eigval), Eigval = eigval)
+head(eigval) # see top eigenvalues
+eigval[[1,2]] # see first axes percentage
+eigval[[2,2]] # second axes
+eigval[[3,2]] # third axes
+eigval[[4,2]] # fourth axes
+```
+
+#### Run ANOSIM on matrix to plot with PCoA
+An R-value close to 1 means that the dissimilarities between groups are much greater than the dissimilarities within groups, suggesting strong differences between the groups.
+
+```{r ANOSIM}
+anosim_result <- anosim(bray_curtis_dist, metadata$site)
+r_statistic <- anosim_result$statistic
+p_value <- anosim_result$signif
+summary(anosim_result)
+```
+
+Moderately high R-value (0.656) and low p-value (0.001): There is a moderately high and statistically significant separation between sample sites. This separation suggests that the groups defined by sample site are meaningfully different in terms of their Bray-Curtis dissimilarities.
+
+#### Plot PCoA: treatment and site
+```{r plot-PCoA, fig.height=4, fig.width=5}
+plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
+  geom_point(aes(shape=as.character(treatment),
+                 fill=as.character(site)),
+             color = "black",
+             size = 4,
+             alpha=0.8,
+             stroke=0.5) +
+  xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
+  ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
+  annotate("text", x = Inf, y = -Inf, 
+           label = bquote(atop(italic(R) == .(round(r_statistic, 3)), italic(P) == .(format(p_value, scientific = TRUE)))), 
+           hjust = 1.1, vjust = -0.5, size = 4) +
+  scale_shape_manual(name = "Ecosystem\nhealth",
+                     #values=c(16,17,18),
+                     values=c(21,24,23),
+                     breaks = c("NAT", "REST", "DAM"),
+                     labels=c("Natural", "Restored", "Damaged")) +
+  scale_fill_brewer(name = "Sample site",
+                    palette = "Dark2",
+                    labels=c("Balmoral", "Bowness", "Crocach",
+                             "Langwell", "Migneint", "Moor House",
+                             "Stean")) +
+  guides(fill = guide_legend(title.position = "top",
+                             title.hjust = 0.5,
+                             override.aes = list(shape = 21, color = "black")),
+         shape = guide_legend(title.position = "top",
+                              title.hjust = 0.5)) +
+  theme_linedraw() +
+  theme(text = element_text(size = 12),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "right")
+ggsave("../Plots/diversity/pcoa_all_site_treat.png", plot.pcoa, device="png", dpi=600, width=5, height=4, units="in")
+plot.pcoa
+```
+
+## Plot PCoA for for each site, separately
+### Define a function that will plot PCoA for each site, separately
+```{r PCoA-function}
+# Function to calculate the sum of distances from a candidate position to all points
+total_distance_to_points <- function(x, y, points) {
+  dists <- sqrt((points$Axis.1 - x)^2 + (points$Axis.2 - y)^2)
+  return(sum(dists))
+}
+
+# Function to dynamically position the annotation
+find_best_annotation_position <- function(points) {
+  # Define candidate positions (bottom-left, bottom-right, top-left, top-right)
+  candidate_positions <- data.frame(
+    x = c(min(points$Axis.1), max(points$Axis.1), min(points$Axis.1), max(points$Axis.1)),
+    y = c(min(points$Axis.2), min(points$Axis.2), max(points$Axis.2), max(points$Axis.2)),
+    hjust = c(-0.1, 1.1, -0.1, 1.1),
+    vjust = c(-1.1, -1.1, 1.1, 1.1)
+  )
+  
+  # Calculate the total distance from each candidate position to all points
+  distances <- apply(candidate_positions, 1, function(pos) {
+    total_distance_to_points(pos["x"], pos["y"], points)
+  })
+  
+  # Select the candidate position with the maximum total distance to all points
+  best_position <- candidate_positions[which.max(distances), ]
+  
+  return(best_position)
+}
+
+pcoa_plot_by_site <- function(metadata, tmeans) {
+  plots <- list()
+  
+  for(site in unique(metadata$site)) {
+    # Filter data for the specific site
+    site_metadata <- metadata[metadata$site == site, , drop = FALSE]
+    site_tmeans <- tmeans[, colnames(tmeans) %in% rownames(site_metadata), drop = FALSE]
+
+    # Standardize (transform) data and create a dissimilarity matrix
+    tmeans_xform <- decostand(site_tmeans, method = "hellinger")
+    bray_curtis_dist <- as.matrix(vegdist(t(tmeans_xform), method = 'bray'))
+    
+    # Perform pcoa
+    pcoa <- pcoa(as.dist(bray_curtis_dist))
+    
+    # Store pcoa data
+    axes <- as.data.frame(pcoa$vectors)
+    axes$SampleID <- rownames(axes)
+    axes <- merge(site_metadata[, c("site", "treatment")] %>% mutate(SampleID = row.names(.)), axes, by = "SampleID")
+    
+    # Save the axes data for the current site
+    saveRDS(axes, paste0("../Data/pcoa_axes_", site, ".RDS"))
+    
+    # Store eigenvalues
+    eigval <- round(pcoa$values$Relative_eig * 100, digits = 2)
+    eigval <- data.frame(PC = 1:length(eigval), Eigval = eigval)
+    
+    # Perform ANOSIM using treatment as the grouping variable
+    anosim_result <- anosim(bray_curtis_dist, site_metadata$treatment)
+    r_statistic <- anosim_result$statistic
+    p_value <- anosim_result$signif
+    
+    # Find the best position for the annotation
+    best_position <- find_best_annotation_position(axes)
+    
+    # Plot PCoA: treatment and site
+    plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
+      geom_point(aes(fill = as.character(treatment)), size = 1.5, stroke = 0.75, color="black", shape=21) +
+      xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
+      ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
+      annotate("text", x = best_position$x,
+               y = best_position$y, 
+               label = bquote(atop(italic(R) == .(round(r_statistic, 4)), italic(P) == .(format(p_value, scientific = TRUE)))), 
+               hjust = best_position$hjust,
+               vjust = best_position$vjust, 
+               size = 2.5,
+               lineheight = 0.5) +
+      scale_fill_manual(values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"), name = "Ecosystem\nhealth", breaks = c("NAT", "REST", "DAM"), labels = c("Natural", "Restored", "Damaged")) +
+      guides(fill = guide_legend(title.position = "top", title.hjust = 0.5)) +
+      theme_linedraw() +
+      ggtitle(ifelse(site == "Moor_House", "Moor House", site)) + # Change title for "Moor_House"
+      theme(text = element_text(size = 9),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = "right",
+            plot.title = element_text(hjust = 0.5))
+    
+    # Print or save the plot as needed
+    ggsave(paste0("../Plots/diversity/pcoa_", site, "_treat.png"), plot.pcoa, device="png", dpi=600, width=3, height=3, units="in")
+    
+    plots[[site]] <- plot.pcoa
+  }
+  return(plots)
+}
+
+# Usage:
+# pcoa_plot_by_site(metadata, tmeans)
+```
+
+### Call the function and make plots
+```{r plot-PCoA-separated}
+pcoa_list <- pcoa_plot_by_site(metadata, tmeans)
+pcoa_list
+```
+
+### Combine into one plot with cowplot
+```{r combine-pcoa-cowplot, fig.height=3.5, fig.width=7.08661}
+legend_plot <- cowplot::get_legend(pcoa_list[[1]] + theme(legend.title = element_text(size = 14), legend.text = element_text(size = 12), legend.title.align=0.5) + guides(fill = guide_legend(override.aes = list(size=3))))
+for(name in names(pcoa_list)){
+  pcoa_list[[name]] <- pcoa_list[[name]] + theme(legend.position = "none")
+}
+combined_pcoa_plots <- cowplot::plot_grid(plotlist = c(pcoa_list, list(legend_plot)), nrow = 2)
+combined_pcoa_plots
+```
+
+```{r save-combined-pcoa-plot}
+ggsave("../Plots/diversity/pcoa_treat.png", combined_pcoa_plots, device="png", dpi=600, width=7.08661, height=3.5, units="in", bg = "white")
+```
+
+# Combine map and virus PCoA plots
+## First combine the map and all sites PCoA
+```{r combine-map-pcoa-all, fig.height=4, fig.width=8}
+combined_map_pcoa_all <- cowplot::plot_grid(peat_soil_map, plot.pcoa,
+                                           ncol = 2,
+                                           rel_widths = c(6, 13),
+                                           labels = c("A", "B"),
+                                           label_fontface = "bold",
+                                           label_fontfamily = "sans",
+                                           label_size = 16)
+combined_map_pcoa_all
+```
+
+## Then combine with the per-site PCoA
+```{r combine-all-plots, fig.height=8, fig.width=8}
+combined_map_pcoas <- cowplot::plot_grid(combined_map_pcoa_all, combined_pcoa_plots,
+                                           nrow = 2,
+                                           rel_heights = c(8, 9),
+                                           labels = c("", "C"),
+                                           label_fontface = "bold",
+                                           label_fontfamily = "sans",
+                                           label_size = 16)
+combined_map_pcoas
+```
+
+```{r save-combined-map-pcoas}
+ggsave("../Plots/diversity/Fig1.png",
+       combined_map_pcoas,
+       device = "png",
+       dpi = 600,
+       width = 8, height = 8, units="in",
+       bg = "white")
+```
+
+# Is virus community composition influenced by host community composition?
+## Create host dissimilarity matrix
+```{r host-bray}
+tmeans.host <- readRDS("../Data/host_tmeans_norm_50.RDS")
+tmeans.xform.host <- decostand(tmeans.host, method="hellinger")
+bray_curtis_dist_host <- as.matrix(vegdist(t(tmeans.xform.host), method='bray'))
+saveRDS(bray_curtis_dist_host, file="../Data/bray_curtis_hellinger_host.RDS")
+```
+
+## Perform PCoA on hosts for all sites
+```{r perform-pcoa-hosts}
+pcoa_host <- pcoa(as.dist(bray_curtis_dist_host))
+axes_host <- as.data.frame(pcoa_host$vectors) # make a dataframe named axes, put pcoa values in there
+axes_host$SampleID <- rownames(axes_host) # Give df extra column with the rownames in it 
+axes_host <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes_host, by.x = "SampleID", by.y = "SampleID")
+saveRDS(axes_host, "../Data/pcoa_axes_host_all.RDS")
+head(axes_host)
+```
+
+### Store eigenvalues
+```{r store-PCoA-eigenvals-hosts}
+eigval_host <- round(pcoa_host$values$Relative_eig * 100, digits = 2)
+eigval_host <- data.frame(PC = 1:length(eigval_host), Eigval = eigval_host)
+```
+
+## ANOSIM for hosts
+```{r ANOSIM-host-all-sites}
+anosim_result_hosts <- anosim(bray_curtis_dist_host, metadata$site)
+r_statistic_host <- anosim_result_hosts$statistic
+p_value_host <- anosim_result_hosts$signif
+summary(anosim_result_hosts)
+```
+
+## Plot PCoA for hosts
+```{r plot-PCoA-host, fig.height=4, fig.width=5}
+plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
+  geom_point(aes(shape=as.character(treatment),
+                 fill=as.character(site)),
+             color = "black",
+             size = 4,
+             alpha=0.8,
+             stroke=0.5) +
+  xlab(paste("PCo1 (", eigval_host$Eigval[1], " %)", sep = "")) +
+  ylab(paste("PCo2 (", eigval_host$Eigval[2], " %)", sep = "")) +
+  annotate("text", x = Inf, y = -Inf, 
+           label = bquote(atop(italic(R) == .(round(r_statistic_host, 3)), italic(P) == .(format(p_value_host, scientific = TRUE)))), 
+           hjust = 1.1, vjust = -0.5, size = 4) +
+  scale_shape_manual(name = "Ecosystem\nhealth",
+                     #values=c(16,17,18),
+                     values=c(21,24,23),
+                     breaks = c("NAT", "REST", "DAM"),
+                     labels=c("Natural", "Restored", "Damaged")) +
+  scale_fill_brewer(name = "Sample site",
+                    palette = "Dark2",
+                    labels=c("Balmoral", "Bowness", "Crocach",
+                             "Langwell", "Migneint", "Moor House",
+                             "Stean")) +
+  guides(fill = guide_legend(title.position = "top",
+                             title.hjust = 0.5,
+                             override.aes = list(shape = 21, color = "black")),
+         shape = guide_legend(title.position = "top",
+                              title.hjust = 0.5)) +
+  theme_linedraw() +
+  theme(text = element_text(size = 12),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "right")
+ggsave("../Plots/diversity/pcoa_host_all_site_treat.png", plot.pcoa, device="png", dpi=600, width=5, height=4, units="in")
+plot.pcoa.host
+```
+
+## Run PERMANOVA
+```{r permanova-virus-host-metadata}
+permanova_reduced <- adonis2(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + treatment * site, data = axes_host, method = "bray")
+write.csv(permanova_reduced, file = "../Tables/virus_host_bray_permanova.csv", row.names = TRUE)
+permanova_reduced
+```
+
+## Adjust p-values
+```{r p-adjust-virus-host}
+p_values <- c(permanova_reduced$`Pr(>F)`)
+p_values_bh <- p.adjust(p_values, method = "BH")
+p_values_bh
+```
+
+## Variance partitioning
+```{r variance-partition}
+# Host composition matrix
+host_matrix <- axes_host[, c("Axis.1", "Axis.2", "Axis.3", "Axis.4")]
+
+# Site matrix
+site_matrix <- model.matrix(~ site - 1, data = axes_host)
+
+# Treatment matrix
+treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
+
+# Perform variance partitioning with separate and interaction terms
+varpart_result <- varpart(
+  Y = bray_curtis_dist,            # Response matrix (virus composition)
+  X = host_matrix,                 # Explanatory set 1: Host composition
+  X1 = site_matrix,                # Explanatory set 2: Site
+  X2 = treatment_matrix           # Explanatory set 3: Treatment
+)
+write.csv(rbind(varpart_result[["part"]]$fract %>% mutate(Fraction = "basic fractions"),
+                varpart_result[["part"]]$indfract %>% mutate(Fraction = "individual fractions"),
+                varpart_result[["part"]]$contr1 %>% mutate(Fraction = "controlled")),
+          file = "../Tables/virus_host_bray_varpart.csv", row.names = TRUE)
+varpart_result
+```
+
+## Test significance of the unique contributions
+```{r}
+# Replace row names of host_matrix, site_matrix, and treatment_matrix
+rownames(host_matrix) <- rownames(bray_curtis_dist)
+rownames(site_matrix) <- rownames(bray_curtis_dist)
+rownames(treatment_matrix) <- rownames(bray_curtis_dist)
+all(rownames(bray_curtis_dist) == rownames(host_matrix))
+all(rownames(bray_curtis_dist) == rownames(site_matrix))
+all(rownames(bray_curtis_dist) == rownames(treatment_matrix))
+# Convert any factors to characters
+axes_host_clean <- data.frame(lapply(axes_host, function(x) if (is.factor(x)) as.character(x) else x))
+
+# Ensure the row names are correctly set
+rownames(axes_host_clean) <- rownames(axes_host)
+```
+
+```{r dbra}
+site_matrix <- model.matrix(~ site - 1, data = axes_host)
+treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
+combined_data <- cbind(axes_host, site_matrix, treatment_matrix)
+
+# Run dbRDA for site
+dbrda_site <- dbrda(bray_curtis_dist ~ site + Condition(treatment + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
+anova(dbrda_site, by = "terms")
+
+# Run dbRDA for treatment
+dbrda_treatment <- dbrda(bray_curtis_dist ~ treatment + Condition(site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
+anova(dbrda_treatment, by = "terms")
+
+# Run dbRDA for host community axes (if Axis.1, Axis.2, etc. represent host community)
+dbrda_host <- dbrda(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + Condition(site + treatment), data = combined_data)
+anova(dbrda_host, by = "terms")
+```
+
+# Run the PCoA/PERMANOVA/VarPart/dbra analysis for each site
+## Define a function that will plot PCoA for each site, separately, for hosts
+```{r PCoA-function-hosts}
+pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
+  plots <- list()
+  
+  for(site in unique(metadata$site)) {
+    # Filter data for the specific site
+    site_metadata <- metadata[metadata$site == site, , drop = FALSE]
+    site_tmeans <- tmeans[, colnames(tmeans) %in% rownames(site_metadata), drop = FALSE]
+
+    # Standardize (transform) data and create a dissimilarity matrix
+    tmeans_xform <- decostand(site_tmeans, method = "hellinger")
+    bray_curtis_dist <- as.matrix(vegdist(t(tmeans_xform), method = 'bray'))
+    
+    # Perform pcoa
+    pcoa <- pcoa(as.dist(bray_curtis_dist))
+    
+    # Store pcoa data
+    axes <- as.data.frame(pcoa$vectors)
+    axes$SampleID <- rownames(axes)
+    axes <- merge(site_metadata[, c("site", "treatment")] %>% mutate(SampleID = row.names(.)), axes, by = "SampleID")
+    
+    # Save the axes data for the current site
+    saveRDS(axes, paste0("../Data/pcoa_axes_host_", site, ".RDS"))
+    
+    # Store eigenvalues
+    eigval <- round(pcoa$values$Relative_eig * 100, digits = 2)
+    eigval <- data.frame(PC = 1:length(eigval), Eigval = eigval)
+    
+    # Perform ANOSIM using treatment as the grouping variable
+    anosim_result <- anosim(bray_curtis_dist, site_metadata$treatment)
+    r_statistic <- anosim_result$statistic
+    p_value <- anosim_result$signif
+    
+    # Find the best position for the annotation
+    best_position <- find_best_annotation_position(axes)
+    
+    # Plot PCoA: treatment and site
+    plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
+      geom_point(aes(fill = as.character(treatment)), size = 1.5, stroke = 0.75, color="black", shape=21) +
+      xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
+      ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
+      annotate("text", x = best_position$x,
+               y = best_position$y, 
+               label = bquote(atop(italic(R) == .(round(r_statistic, 4)), italic(P) == .(format(p_value, scientific = TRUE)))), 
+               hjust = best_position$hjust,
+               vjust = best_position$vjust, 
+               size = 3.5,
+               lineheight = 0.5) +
+      scale_fill_manual(values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"), name = "Ecosystem\nhealth", breaks = c("NAT", "REST", "DAM"), labels = c("Natural", "Restored", "Damaged")) +
+      guides(fill = guide_legend(title.position = "top", title.hjust = 0.5)) +
+      theme_linedraw() +
+      ggtitle(ifelse(site == "Moor_House", "Moor House", site)) + # Change title for "Moor_House"
+      theme(text = element_text(size = 9),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = "right",
+            plot.title = element_text(hjust = 0.5))
+    
+    # Print or save the plot as needed
+    ggsave(paste0("../Plots/diversity/pcoa_host_", site, "_treat.png"), plot.pcoa, device="png", dpi=600, width=3, height=3, units="in")
+    
+    plots[[site]] <- plot.pcoa
+  }
+  return(plots)
+}
+
+# Usage:
+# pcoa_plot_by_site_hosts(metadata, tmeans)
+```
+
+## Host PCoA for each site
+```{r plot-PCoA-separated-host}
+pcoa_list_hosts <- pcoa_plot_by_site_hosts(metadata, tmeans.host)
+pcoa_list_hosts
+```
+
+## Combine into one plot with cowplot
+```{r combine-pcoa-cowplot-hosts, fig.height=3.5, fig.width=7.08661}
+legend_plot_hosts <- cowplot::get_legend(pcoa_list_hosts[[1]] + theme(legend.title = element_text(size = 14), legend.text = element_text(size = 12), legend.title.align=0.5) + guides(fill = guide_legend(override.aes = list(size=3))))
+for(name in names(pcoa_list_hosts)){
+  pcoa_list_hosts[[name]] <- pcoa_list_hosts[[name]] + theme(legend.position = "none")
+}
+combined_pcoa_plots_host <- cowplot::plot_grid(plotlist = c(pcoa_list_hosts, list(legend_plot_hosts)), nrow = 2)
+combined_pcoa_plots_host
+```
+
+```{r save-combined-pcoa-plot-hosts}
+ggsave("../Plots/diversity/pcoa_treat_hosts.png", combined_pcoa_plots_host, device="png", dpi=600, width=7.08661, height=3.5, units="in", bg = "white")
+```
+
+## Combine each pcoa plot
+```{r combine-host-pcoa-and-combined-host-pcoa, fig.height=8, fig.width=8}
+combined_pcoas_host <- cowplot::plot_grid(
+   ggplot() + cowplot::theme_cowplot(),
+   plot.pcoa.host,
+   combined_pcoa_plots_host,
+   nrow = 3,
+   rel_heights = c(0.2, 6, 7),
+   labels = c("", "A", "B"),
+   label_fontface = "bold",
+   label_fontfamily = "sans",
+   label_size = 16)
+combined_pcoas_host
+```
+
+```{r save-combined-host-pcoa-and-combined-host-pcoa}
+ggsave("../Plots/diversity/FigS1",
+       combined_pcoas_host,
+       device="png",
+       dpi=600,
+       width=8, height=8, units="in",
+       bg = "white")
+```
+
+```{r pcoa-analysis-per-site}
+# Load virus and host PCoA axes and metadata for each site
+virus_pcoa_files <- list(
+    Balmoral = "../Data/pcoa_axes_Balmoral.RDS",
+    Bowness = "../Data/pcoa_axes_Bowness.RDS",
+    Crocach = "../Data/pcoa_axes_Crocach.RDS",
+    Langwell = "../Data/pcoa_axes_Langwell.RDS",
+    Migneint = "../Data/pcoa_axes_Migneint.RDS",
+    Moor_House = "../Data/pcoa_axes_Moor_House.RDS"#,
+    #Stean = "../Data/pcoa_axes_Stean.RDS"
+)
+
+host_pcoa_files <- list(
+    Balmoral = "../Data/pcoa_axes_host_Balmoral.RDS",
+    Bowness = "../Data/pcoa_axes_host_Bowness.RDS",
+    Crocach = "../Data/pcoa_axes_host_Crocach.RDS",
+    Langwell = "../Data/pcoa_axes_host_Langwell.RDS",
+    Migneint = "../Data/pcoa_axes_host_Migneint.RDS",
+    Moor_House = "../Data/pcoa_axes_host_Moor_House.RDS"#,
+    #Stean = "../Data/pcoa_axes_host_Stean.RDS"
+)
+# Function to perform PCoA, PERMANOVA, variance partitioning, and dbRDA for each site
+analyze_site_data <- function(metadata, virus_pcoa_files, host_pcoa_files) {
+  
+  results <- list()
+  
+  for (site in names(virus_pcoa_files)) {
+    # Load virus and host PCoA axes
+    axes_virus <- readRDS(virus_pcoa_files[[site]])
+    axes_host <- readRDS(host_pcoa_files[[site]])
+    
+    # Extract the corresponding metadata for the site
+    site_metadata <- metadata[metadata$site == site, , drop = FALSE]
+    site_metadata <- cbind(site_metadata[, 1:3], site_metadata[, 5:length(colnames(site_metadata))])
+    
+    # Ensure the SampleID order matches between metadata and PCoA axes
+    axes_virus <- axes_virus[match(site_metadata$SampleID, axes_virus$SampleID), ] 
+    axes_host <- axes_host[match(site_metadata$SampleID, axes_host$SampleID), ]
+    
+    axes_virus_matrix <- as.matrix(axes_virus[, grepl("Axis", names(axes_virus))])
+    rownames(axes_virus_matrix) <- axes_virus$SampleID
+    axes_host_matrix <- as.matrix(axes_host[, grepl("Axis", names(axes_host))])
+    rownames(axes_host_matrix) <- axes_host$SampleID
+    
+    # Recalculate Bray-Curtis distance for virus
+    bray_curtis_dist_virus <- as.matrix(vegdist(axes_virus_matrix, method = 'bray', diag = TRUE))
+    
+    # Perform PERMANOVA
+    permanova_result <- adonis2(bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
+    
+    # Adjust p-values using BH method
+    p_values <- c(permanova_result$`Pr(>F)`)
+    p_values_bh <- p.adjust(p_values, method = "BH")
+    
+    # Variance partitioning using host PCoA axes
+    host_matrix <- as.matrix(axes_host_matrix[, c("Axis.1", "Axis.2")])
+    treatment_matrix <- model.matrix(~ treatment - 1, data = axes_virus)
+    
+    varpart_result <- varpart(
+      Y = as.matrix(bray_curtis_dist_virus),
+      X = axes_host_matrix,
+      X1 = treatment_matrix
+    )
+    
+    # Combine the necessary data into one dataframe
+    combined_data <- cbind(axes_virus[, grepl("Axis", names(axes_virus))], treatment_matrix)
+    combined_data <- combined_data %>%
+      mutate(treatment = case_when(
+        treatmentNAT == 1 & treatmentREST == 0 & treatmentDAM == 0 ~ "DAM",
+        treatmentNAT == 0 & treatmentREST == 1 & treatmentDAM == 0 ~ "REST",
+        treatmentNAT == 0 & treatmentREST == 0 & treatmentDAM == 1 ~ "DAM"
+      )) %>%
+      select(-treatmentNAT, -treatmentREST, -treatmentDAM)
+    rownames(combined_data) <- axes_virus$SampleID
+    
+    # Replace row names of host_matrix, and treatment_matrix
+    rownames(host_matrix) <- rownames(bray_curtis_dist_virus)
+    rownames(treatment_matrix) <- rownames(bray_curtis_dist_virus)
+    
+    # Run dbRDA for treatment
+    dbrda_treatment <- dbrda(bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
+    anova_treatment <- anova(dbrda_treatment, by = "terms")
+    
+    # Run dbRDA for host community axes
+    dbrda_host <- dbrda(bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
+    anova_host <- anova(dbrda_host, by = "terms")
+    
+    # Store the results
+    results[[site]] <- list(
+      PERMANOVA = permanova_result,
+      Adjusted_p_values_BH = p_values_bh,
+      Variance_Partitioning = varpart_result,
+      dbRDA_Treatment = anova_treatment,
+      dbRDA_Host = anova_host
+    )
+    
+    print(paste("Results for", site, "completed."))
+  }
+  
+  return(results)
+}
+
+# Usage:
+# results_pcoa_stats <- analyze_site_data(metadata, virus_pcoa_files, host_pcoa_files)
+```
+
+```{r pcoa-analysis-results}
+results_pcoa_stats <- analyze_site_data(metadata, virus_pcoa_files, host_pcoa_files)
+results_pcoa_stats
+```
+
+

@@ -1,9 +1,9 @@
-# README
+# Welcome
 This repository contains all scripts and data tables used for the analysis of viruses in total metagenomes generated from upland peatland soils in the UK, as presented in [Kosmopoulos et al. (202X)]().
 
 Original, raw sequence reads are deposited to the NCBI Sequence Read Archive under BioProject accession [PRJNAXXXXXX](). Prokaryotic metagenome-assembled genomes (MAGs) can be accessed from NCBI WGA under accession [PRJNAXXXXXX](). Viral genomes can be accessed from XXXXXX at [XXXXXX]().
 
-# Repository organization
+# Repository Organization
 `Scripts` contains python and shell scripts used to conduct the analyses and run the tools mentioned in the [bioinformatic workflow](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/workflow.ipynb).
 
 `Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as virus and host community summary statistics, virus and hsot genome information, virus and host genome counts, virus-host predictions, gene annotations, read mapping statistics, functional predictions, and more. It also includes the `.shp` shapefiles used to generate the map in Figure 1A.

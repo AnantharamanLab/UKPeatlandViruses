@@ -1,7 +1,7 @@
 Virus Presence/Absence Across Sites, Statuses, and Databases
 ================
 James C. Kosmopoulos
-2024-11-18
+2024-12-12
 
 # Load packages
 
@@ -295,6 +295,7 @@ upset.treatments <- ComplexUpset::upset(
         position = 'right'
     )) +
     ylab("Genomes per\nhealth status") +
+    scale_y_continuous(breaks=c(0, 400, 800)) +
     geom_text(aes(label=..count..), hjust=1.1, stat='count'),
   width_ratio = 0.5,
   wrap = FALSE,

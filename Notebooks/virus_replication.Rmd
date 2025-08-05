@@ -16,6 +16,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 library("tidyverse");packageVersion("tidyverse")
 library("RColorBrewer");packageVersion("RColorBrewer")
 library("ggpubr");packageVersion("ggpubr")
+library("ggtext");packageVersion("ggtext")
 library("cowplot");packageVersion("cowplot")
 library("lme4");packageVersion("lme4")
 library("car");packageVersion("car")
@@ -33,6 +34,16 @@ virus_abundance_with_hosts <- readRDS("../Data/virus_abundance_with_hosts.RDS")
 virus_abundance_with_hosts_and_all_sites <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites.RDS")
 virus_abundance_with_hosts_and_all_sites_and_metabolism <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites_and_metabolism.RDS")
 virus_host_abundance <- readRDS("../Data/virus_host_abundance.RDS")
+eco_index <- readRDS("../Data/env_data.RDS") %>%
+  select(SampleID, site, treatment, index) %>%
+  mutate(
+    shape = case_when(
+      treatment == "NAT" ~ 21,
+      treatment == "REST" ~ 24,
+      treatment == "DAM" ~ 23
+    )
+  ) %>%
+  filter(!is.na(index))
 ```
 
 # Virus abundance over Host abundance
@@ -64,15 +75,17 @@ annotation_data <- virus_host_abundance_by_phylum %>%
     r_squared = summary(lm(total_virus_abundance ~ total_host_abundance))$r.squared,
     p_value = summary(lm(total_virus_abundance ~ total_host_abundance))$coefficients[2, 4],
     .groups = 'drop'
-  )
+  ) %>%
+  # Apply Benjamini-Hochberg correction to adjust the p-values
+  mutate(adj_p_value = p.adjust(p_value, method = "BH"))
 
 # Step 2: Create a combined annotation text
 annotation_data <- annotation_data %>%
   mutate(
     annotation = paste0(
-      "p = ", signif(p_value, 3), "\n",
-      "R² = ", round(r_squared, 2), "\n",
-      "m = ", round(slope, 3)
+      "<i>P</i> = ", signif(adj_p_value, 3), "<br>",
+      "<i>R</i><sup>2</sup> = ", round(r_squared, 2), "<br>",
+      "<i>m</i> = ", round(slope, 3)
     )
   )
 
@@ -88,21 +101,26 @@ plot.virus.over.host.abundance.phylum <- ggplot(virus_host_abundance_by_phylum %
   geom_abline(slope = 1, linetype = 3, color = "grey40") +
   geom_point() +
   geom_smooth(method = lm, formula = y ~ x, se = FALSE) +
-  geom_text(data = annotation_data, aes(label = annotation),
-            x = -Inf, y = Inf,
-            hjust = -0.05, vjust = 1.1,
-            size = 3.5,
-            inherit.aes = FALSE, color = "black") +
+  geom_richtext(data = annotation_data, aes(label = annotation),
+                  x = -Inf, y = Inf,
+                  hjust = -0.05, vjust = 1.1,
+                  size = 3.5,
+                  color = "black",
+                  fill = NA,
+                  label.color = NA) +
   scale_color_manual(values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
                      name = "Ecosystem health") +
   facet_grid(treatment ~ `Host Phylum`, scales = "free") +
   cowplot::theme_cowplot() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
-        axis.text.y = element_text(size = 10),
-        strip.text.x = element_text(size = 10),
-        strip.text.y = element_text(size = 10),
-        axis.title = element_text(size = 12)) +
+  theme(
+    legend.position = "none",
+    # axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    # axis.text.y = element_text(size = 10),
+    strip.text.x = element_text(size = 10),
+    strip.text.y = element_text(size = 10),
+    # axis.title = element_text(size = 12)
+  ) +
   xlab("Total Host Abundance") +
   ylab("Total Virus Abundance")
 
@@ -145,8 +163,8 @@ head(lysogenic_phages_non_redundant)
 ```
 
 ```{r summarize-lysogenic}
-lysogenic_phages_non_redundant_total_by_sample <- lysogenic_phages_non_redundant %>%
-  group_by(site, treatment) %>%
+lysogenic_per_sample <- lysogenic_phages_non_redundant %>%
+  group_by(Sample, site, treatment) %>%
   summarize(total_abundance = sum(Abundance),
             mean_abundance = mean(Abundance),
             sd_abundance = sd(Abundance),
@@ -158,134 +176,130 @@ lysogenic_phages_non_redundant_total_by_sample <- lysogenic_phages_non_redundant
                                treatment == "DAM" ~ "Damaged")) %>%
   mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged")))
   
-head(lysogenic_phages_non_redundant_total_by_sample)
+head(lysogenic_per_sample)
 ```
 
-## Perform Kruskal-Wallis and Dunn's test for each site
-```{r Kruskal-Wallis}
-# Perform Kruskal-Wallis and Dunn's test for sites with three treatments
-results <- lysogenic_phages_non_redundant %>%
-  mutate(treatment = case_when(
-    treatment == "NAT" ~ "Natural",
-    treatment == "REST" ~ "Restored",
-    treatment == "DAM" ~ "Damaged"
-  )) %>%
-  mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged"))) %>%
-  group_by(site) %>%
-  do({
-    # Perform Kruskal-Wallis test
-    kruskal_test <- kruskal.test(Abundance ~ treatment, data = .)
-    
-    # Safely perform Dunn's test
-    dunn_test <- tryCatch({
-      dunnTest(Abundance ~ treatment, data = ., method = "bh")$res %>%
-        mutate(treatment1 = sub(" - .*", "", Comparison),
-               treatment2 = sub(".* - ", "", Comparison)) %>%
-        select(-Comparison)
-    }, error = function(e) {
-      tibble(treatment1 = NA, treatment2 = NA, Z = NA, P.unadj = NA, P.adj = NA)
-    })
-    
-    # Add Kruskal-Wallis results to Dunn's test dataframe
-    dunn_test <- dunn_test %>%
-      mutate(KW_statistic = kruskal_test$statistic,  # H value
-             KW_p_value = kruskal_test$p.value)      # p-value
-    
-    dunn_test
-  })
-results
-```
+## Get pariwise comparisons for "all sites" using mixed effects model
+```{r get-pairwise-contrasts-non-normalized-all-sites}
+# Fit LME on all sites (to get emmeans contrasts for “All sites”)
+m_all_non <- lmer(
+  mean_abundance ~ treatment + (1 | site),
+  data = lysogenic_per_sample %>% filter(site != "All sites")
+)
+emm_all_non  <- emmeans(m_all_non, ~ treatment)
+pairs_all_non <- contrast(emm_all_non, method = "pairwise", adjust = "BH") %>%
+  as.data.frame()
 
-```{r plot-lysogenic-tmeans, fig.height=4.5, fig.width=5}
-plot.lysogenic.tmeans.mean <-
-ggplot(lysogenic_phages_non_redundant_total_by_sample,
-       aes(x = treatment, y = mean_abundance, group = site)) +
-  facet_wrap(~site, ncol = 2, scales = "free_y") +
-  geom_point(size = 2, position = position_dodge(width = 0.3)) +
-  geom_line(size = 0.5, alpha = 0.75, position = position_dodge(width = 0.3)) +
-  geom_errorbar(aes(x = treatment, ymin = mean_abundance - se_abundance,
-                    ymax = mean_abundance + se_abundance), 
-                width = 0.2, position = position_dodge(width = 0.3)) +
-  labs(x = "Ecosystem Health", y = "Mean lysogenic virus abundance") +
-  cowplot::theme_cowplot() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
-      axis.text.y = element_text(size = 9),
-      axis.title = element_text(size=12),
-      strip.text.x = element_text(size = 10))
-plot.lysogenic.tmeans.mean
-```
+# Build an annotation table for “All sites” using the LME contrasts
+y_max_non <- max(
+  lysogenic_per_sample$mean_abundance[lysogenic_per_sample$site == "All sites"],
+  na.rm = TRUE
+)
+gap_non <- 0.05 * y_max_non
 
-### Add test results
-```{r plot-lysogenic-tmeans-with-tests, fig.height=6.5, fig.width=5}
-# Map treatments to numerical positions based on their order in lysogenic_phages_non_redundant_total_by_sample
-treatment_order <- lysogenic_phages_non_redundant_total_by_sample %>%
-  distinct(treatment) %>%
-  arrange(treatment) %>%
-  mutate(position = row_number()) %>%
-  select(treatment, position)
-
-# Join this order with the annotation data and filter for significant results only
-annotation_data <- results %>%
-  rename(group1 = treatment1, group2 = treatment2) %>%
-  left_join(treatment_order, by = c("group1" = "treatment")) %>%
-  rename(x = position) %>%
-  left_join(treatment_order, by = c("group2" = "treatment")) %>%
-  rename(xend = position) %>%
-  group_by(site) %>%
+annot_all_non <- pairs_all_non %>%
   mutate(
-    y_base = 1.2 * max(lysogenic_phages_non_redundant_total_by_sample$mean_abundance[
-      lysogenic_phages_non_redundant_total_by_sample$site == first(site)], na.rm = TRUE),
-    y_position = y_base + 1 * (row_number() - 1),  # Increase spacing between bars
-    label_position = (x + xend) / 2,               # Midpoint of segment for label
-    y_position_star = y_position + 0.2,            # Offset label above bar
-    label = case_when(
-      P.adj <= 0.0001 ~ "****",
-      P.adj <= 0.001  ~ "***",
-      P.adj <= 0.01   ~ "**",
-      P.adj <= 0.05   ~ "*",
-      TRUE            ~ NA_character_  # Use NA for non-significant labels
+    group1 = sub(" - .*", "", contrast),
+    group2 = sub(".* - ", "", contrast),
+    ymin   = y_max_non + gap_non * row_number(),
+    label  = case_when(
+      p.value <= 0.0001 ~ "****",
+      p.value <= 0.001  ~ "***",
+      p.value <= 0.01   ~ "**",
+      p.value <= 0.05   ~ "*",
+      TRUE                  ~ NA_character_
     )
   ) %>%
-  filter(!is.na(label)) %>%  # Keep only significant comparisons
-  ungroup()
+  filter(!is.na(label))
+annot_all_non
+```
 
-# Step 2: Add only significant bars and annotations to the plot
-plot.lysogenic.tmeans.mean.annotated <- plot.lysogenic.tmeans.mean +
-  geom_segment(data = annotation_data, 
-               aes(x = x, xend = xend,
-                   y = y_position,
-                   yend = y_position),
-               size = 0.5, color = "black") +
-  geom_text(data = annotation_data, 
-            aes(x = label_position,
-                y = y_position_star,
-                label = label),
-            size = 4) +
-  theme(legend.position = "none")
-plot.lysogenic.tmeans.mean.annotated
+
+```{r plot-lysogenic-tmeans, fig.height=5, fig.width=10}
+plot.lysogenic.tmeans.mean <-
+ggplot(lysogenic_per_sample,
+       aes(x = treatment, y = mean_abundance, color = treatment)) +
+  facet_wrap(~site, nrow = 1) +
+  geom_jitter(width = 0.2, alpha = 0.6) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.25) +
+  # For individual‐site pairwise tests:
+  stat_pwc(
+    data               = lysogenic_per_sample %>% filter(site!= "Stean" & site != "All sites"),
+    p.adjust.method    = "BH",
+    label              = "p.adj.signif",
+    method             = "emmeans_test",
+    hide.ns            = TRUE
+  ) +
+  # Add “All sites” LME‐based asterisks:
+  geom_segment(
+    data = annot_all_non,
+    aes(
+      x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
+      xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
+      y    = ymin, yend = ymin
+    ),
+    inherit.aes = FALSE,
+    color = "black",
+    size  = 0.5
+  ) +
+  geom_text(
+    data = annot_all_non,
+    aes(
+      x     = (as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))) +
+               as.numeric(factor(group2, levels = c("Natural","Restored","Damaged")))) / 2,
+      y     = ymin + (0.02 * y_max_non),
+      label = label
+    ),
+    size = 4,
+    inherit.aes = FALSE
+  ) +
+  scale_y_continuous(labels = scales::scientific_format()) +
+  scale_color_manual(
+    values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
+    name = "Ecosystem health"
+  ) +
+  labs(
+    x = "Ecosystem health status",
+    y = "Mean lysogenic virus abundance (per sample)"
+  ) +
+  cowplot::theme_cowplot() +
+  theme(
+    axis.text.x    = element_text(angle = 45, hjust = 1, size = 10),
+    axis.text.y    = element_text(size = 9),
+    axis.title     = element_text(size = 12),
+    strip.text.x   = element_text(size = 10),
+    legend.position= "none"
+  )
+plot.lysogenic.tmeans.mean
 ```
 
 ```{r save-plot-lysogenic}
 ggsave(plot.lysogenic.tmeans.mean,
        file="../Plots/virus_replication/lysogenic_phage_abundance.png",
        device = "png",
-       width = 5, height = 6.5, units = "in",
+       width = 10, height = 5, units = "in",
        dpi = 600, bg = "white")
 ```
 
-## Normalize by total virus abundance
-```{r normalize-lysogenic-abundance}
-total_virus_abundance_per_site_treatment <- virus_abundance_with_hosts_and_all_sites %>%
-  select(Virus, Sample, site, treatment, Virus_Abundance) %>%
+## Normalize by total virus abundance per sample
+### Calculate the total virus abundance per sample
+```{r calculate-lysogenic-per-sample}
+total_virus_abundance_per_sample <- virus_abundance_with_hosts_and_all_sites %>%
+  filter(site != "All sites") %>%
+  select(Virus, Sample, Virus_Abundance) %>%
   distinct() %>%
-  group_by(site, treatment) %>%
-  summarize(total_virus_abundance_in_site_treatment = sum(Virus_Abundance)) %>%
+  group_by(Sample) %>%
+  summarize(total_virus_abundance_in_sample = sum(Virus_Abundance)) %>%
   ungroup()
+total_virus_abundance_per_sample
+```
 
-lysogenic_phages_non_redundant_total_per_site_treatment_normalized <- lysogenic_phages_non_redundant %>%
-  left_join(total_virus_abundance_per_site_treatment, by = join_by("site", "treatment")) %>%
-  mutate(Abundance_norm = Abundance / total_virus_abundance_in_site_treatment) %>%
-  group_by(site, treatment) %>%
+### Normalize by total virus abundance per sample
+```{r normalize-lysogenic-per-sample}
+lysogenic_per_sample_norm <- lysogenic_phages_non_redundant %>%
+  left_join(total_virus_abundance_per_sample, by = "Sample") %>%
+  mutate(Abundance_norm = Abundance / total_virus_abundance_in_sample) %>%
+  group_by(Sample, site, treatment) %>%
   summarize(total_abundance = sum(Abundance),
             total_abundance_norm = sum(Abundance_norm),
             mean_abundance = mean(Abundance),
@@ -300,161 +314,230 @@ lysogenic_phages_non_redundant_total_per_site_treatment_normalized <- lysogenic_
                                treatment == "REST" ~ "Restored",
                                treatment == "DAM" ~ "Damaged")) %>%
   mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged")))
-write_csv(lysogenic_phages_non_redundant_total_per_site_treatment_normalized, file = "../Tables/lysogenic_virus_abundance.csv")
-head(lysogenic_phages_non_redundant_total_per_site_treatment_normalized)
+write_csv(lysogenic_per_sample_norm, file = "../Tables/lysogenic_virus_abundance.csv")
+head(lysogenic_per_sample_norm)
 ```
 
-## Perform Kruskal-Wallis and Dunn's test for each site on the normalized data
-```{r Kruskal-Wallis-norm}
-# Perform Kruskal-Wallis and Dunn's test for sites with three treatments
-results_norm <- lysogenic_phages_non_redundant %>%
-  left_join(total_virus_abundance_per_site_treatment, by = join_by("site", "treatment")) %>%
-  mutate(Abundance_norm = Abundance / total_virus_abundance_in_site_treatment) %>%
-  select(-Trend_Group) %>%
-  filter(site != "Stean") %>%
-  mutate(treatment = case_when(
-    treatment == "NAT" ~ "Natural",
-    treatment == "REST" ~ "Restored",
-    treatment == "DAM" ~ "Damaged"
-  )) %>%
-  mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged"))) %>%
-  group_by(site) %>%
-  do({
-    kruskal_test <- kruskal.test(Abundance_norm ~ treatment, data = .)
-    
-    # Safely perform Dunn's test
-    dunn_test <- tryCatch({
-      dunnTest(Abundance_norm ~ treatment, data = ., method = "bh")$res %>%
-        mutate(treatment1 = sub(" - .*", "", Comparison),
-               treatment2 = sub(".* - ", "", Comparison)) %>%
-        select(-Comparison)
-    }, error = function(e) {
-      tibble(treatment1 = NA, treatment2 = NA, Z = NA, P.unadj = NA, P.adj = NA)
-    })
-    
-    # Add Kruskal-Wallis results to Dunn's test dataframe
-    dunn_test <- dunn_test %>%
-      mutate(KW_statistic = kruskal_test$statistic,  # H value
-             KW_p_value = kruskal_test$p.value)      # p-value
-    
-    dunn_test
-  })
-results_norm
+### Fit a linear-mixed effects model with ecosystem health status as a fixed effect and sample site as a random intercept
+```{r mixed-effects-treatment}
+m_treatment <- lmer(
+  mean_abundance_norm ~ treatment + (1 | site),
+  data = lysogenic_per_sample_norm %>% filter(site != "All sites"),
+  REML = FALSE
+)
+summary(m_treatment)
+```
+
+### Get pairwise contrasts for each ecosystem health status with `emmeans`
+```{r emmeans-treatment}
+emm_treat <- emmeans(m_treatment, ~ treatment)
+pairs_treat <- contrast(emm_treat, method = "pairwise", adjust = "BH")
+pairs_df <- as.data.frame(pairs_treat)
+pairs_df
+```
+
+### Prepare emmeans annotation coordinates for the plot
+```{r prep-annot-coords-emmeans}
+y_max_allsites_norm <- max(subset(lysogenic_per_sample_norm, site != "All sites")$mean_abundance_norm, na.rm = TRUE)
+gap <- 0.15 * y_max_allsites_norm
+tick_height <- 0.04 * y_max_allsites_norm
+annot_allsites_norm <- pairs_df %>%
+  mutate(
+    site = factor("All sites", levels = levels(lysogenic_per_sample_norm$site)),
+    group1 = sub(" - .*", "", contrast),
+    group2 = sub(".* - ", "", contrast),
+    ymin = y_max_allsites_norm + gap * row_number(),
+    ymax = ymin,  # horizontal bar at this y
+    label = case_when(
+      p.value <= 0.0001 ~ "****",
+      p.value <= 0.001  ~ "***",
+      p.value <= 0.01   ~ "**",
+      p.value <= 0.05   ~ "*",
+      TRUE              ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(label))
+annot_allsites_norm
 ```
 
 ## Plot the normnalized total lysogenic phage abundance
-```{r plot-normalized-lysogenic-abundance, fig.height=4.5, fig.width=5}
+```{r plot-normalized-lysogenic-abundance, fig.height=5, fig.width=10}
 plot.lysogenic.tmeans.mean.norm <-
-ggplot(lysogenic_phages_non_redundant_total_per_site_treatment_normalized,
-       aes(x = treatment, y = mean_abundance_norm * 1000, group = site)) +
-  facet_wrap(~site, ncol = 2, scales = "free_y") +
-  geom_point(size = 2, position = position_dodge(width = 0.3)) +
-  geom_line(size = 0.5, alpha = 0.75, position = position_dodge(width = 0.3)) +
-  geom_errorbar(aes(x = treatment, ymin = mean_abundance_norm * 1000 - se_abundance_norm * 1000,
-                    ymax = mean_abundance_norm * 1000 + se_abundance_norm * 1000), 
-                width = 0.2, position = position_dodge(width = 0.3)) +
-  labs(x = "Ecosystem Health", y = "Normalized lysogenic virus abundance") +
+ggplot(lysogenic_per_sample_norm,
+       aes(x = treatment, y = mean_abundance_norm, color = treatment)) +
+  facet_wrap(~site, nrow=1) +
+  geom_jitter() +
+  stat_pwc(
+    data               = lysogenic_per_sample_norm %>% filter(site!= "Stean" & site != "All sites"),
+    p.adjust.method    = "BH",
+    label              = "p.adj.signif",
+    method             = "emmeans_test",
+    hide.ns            = TRUE
+  ) +
+  # Add “All sites” LME‐based asterisks:
+  geom_segment(
+    data = annot_allsites_norm,
+    aes(
+      x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
+      xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
+      y    = ymin,
+      yend = ymax
+    ),
+    inherit.aes = FALSE,
+    color = "black",
+    size  = 0.25
+  ) +
+  # Add vertical ticks at both ends of each horizontal bracket
+  geom_segment(
+    data        = annot_allsites_norm,
+    aes(
+      x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
+      xend = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
+      y    = ymin+0.000025,
+      yend = ymin - tick_height
+    ),
+    inherit.aes = FALSE,
+    color       = "black",
+    size        = 0.25
+  ) +
+  geom_segment(
+    data        = annot_allsites_norm,
+    aes(
+      x    = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
+      xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
+      y    = ymin+0.000025,
+      yend = ymin - tick_height
+    ),
+    inherit.aes = FALSE,
+    color       = "black",
+    size        = 0.25
+  ) +
+  # Asterisk labels centered between group1 and group2
+  geom_text(
+    data = annot_allsites_norm,
+    aes(
+      x = (as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))) +
+           as.numeric(factor(group2, levels = c("Natural","Restored","Damaged")))) / 2,
+      y = ymin + (0.02 * y_max_allsites_norm), # small vertical offset above the bar
+      label = label
+    ),
+    size = 4,
+    inherit.aes = FALSE) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.25) +
+  scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
+  scale_color_manual(
+    values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
+    name = "Ecosystem health") +
+  labs(x = "Ecosystem health status", y = "Normalized lysogenic virus abundance (per sample)") +
   cowplot::theme_cowplot() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
-      axis.text.y = element_text(size = 9),
-      axis.title = element_text(size=12),
-      strip.text.x = element_text(size = 10))
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+    axis.text.y = element_text(size = 9),
+    axis.title = element_text(size=12),
+    strip.text.x = element_text(size = 10),
+    legend.position = "none"
+    )
 plot.lysogenic.tmeans.mean.norm
 ```
 
-### Add test results
-```{r plot-normalized-lysogenic-abundance-with-tests, fig.height=6.5, fig.width=5}
-treatment_order_norm <- lysogenic_phages_non_redundant_total_per_site_treatment_normalized %>%
-  distinct(treatment) %>%
-  arrange(treatment) %>%
-  mutate(position = row_number()) %>%
-  select(treatment, position)
-
-max_values <- lysogenic_phages_non_redundant_total_per_site_treatment_normalized %>%
-  group_by(site) %>%
-  summarize(max_y = max(mean_abundance_norm * 1000, na.rm = TRUE))
-
-annotation_data_norm <- results_norm %>%
-  rename(group1 = treatment1, group2 = treatment2) %>%
-  left_join(treatment_order_norm, by = c("group1" = "treatment")) %>%
-  rename(x = position) %>%
-  left_join(treatment_order_norm, by = c("group2" = "treatment")) %>%
-  rename(xend = position) %>%
-  left_join(max_values, by = "site") %>%  # Add the max_y value for each site
-  group_by(site) %>%
-  mutate(
-    # Set a y_base that scales with the maximum y-value for each site
-    y_base = max_y * 1.3,
-    
-    # Dynamically set y_position with incremental spacing
-    y_position = y_base + (0.2 * max_y * (row_number() - 1)),
-    label_position = (x + xend) / 2,           # Midpoint of segment for label
-    y_position_star = y_position + (0.05 * max_y),  # Offset for label above bar
-    label = case_when(
-      P.adj <= 0.0001 ~ "****",
-      P.adj <= 0.001  ~ "***",
-      P.adj <= 0.01   ~ "**",
-      P.adj <= 0.05   ~ "*",
-      TRUE            ~ NA_character_  # Use NA for non-significant labels
-    )
-  ) %>%
-  filter(!is.na(label)) %>%  # Keep only significant comparisons
-  distinct(site, x, xend, .keep_all = TRUE) %>%  # Remove duplicate comparisons
-  ungroup()
-
-plot.lysogenic.tmeans.mean.norm.annotated <- plot.lysogenic.tmeans.mean.norm +
-  geom_segment(data = annotation_data_norm, 
-               aes(x = x, xend = xend,
-                   y = y_position,
-                   yend = y_position),
-               size = 0.5, color = "black") +
-  geom_text(data = annotation_data_norm, 
-            aes(x = label_position,
-                y = y_position_star,
-                label = label),
-            size = 4) +
-  theme(legend.position = "none")
-
-plot.lysogenic.tmeans.mean.norm.annotated
-```
-
-
 ```{r save-plot-lysogenic-norm}
-ggsave(plot.lysogenic.tmeans.mean.norm.annotated,
+ggsave(plot.lysogenic.tmeans.mean.norm,
        file="../Plots/virus_replication/lysogenic_phage_abundance_normalized.png",
        device = "png",
-       width = 5, height = 6.5, units = "in",
+       width = 10, height = 5, units = "in",
        dpi = 600, bg = "white")
 ```
 
 ## Combine the plots
-```{r combine-lysogenic-plots, fig.height=6.5, fig.width=9}
-plot.combined.lysogenic <- cowplot::plot_grid(plot.lysogenic.tmeans.mean.annotated,
-                                              plot.lysogenic.tmeans.mean.norm.annotated,
-                                              ncol = 2,
+```{r combine-lysogenic-plots, fig.height=10, fig.width=10}
+plot.combined.lysogenic <- cowplot::plot_grid(plot.lysogenic.tmeans.mean,
+                                              plot.lysogenic.tmeans.mean.norm,
+                                              nrow = 2,
                                               align = "hv",
                                               axis = "l",
-                                              labels = c("B", "C"),
+                                              labels = c("A", "B"),
                                               label_size = 16,
                                               label_fontfamily = "sans",
                                               label_fontface = "bold")
+ggsave(plot.combined.lysogenic,
+       file="../Plots/virus_replication/FigS5.png",
+       device = "png",
+       width = 10, height = 10, units = "in",
+       dpi = 600, bg = "white")
 plot.combined.lysogenic
 ```
 
-## Combine the KW adn Dunn test results
-```{r combine-KW-dunn}
-results_KW_Dunn_combined <- rbind(
-  results_norm %>%
-    mutate(Data = "normalized"),
-  results %>%
-    filter(site != "Stean") %>%
-    mutate(Data = "non-normalized")
-)
-results_KW_Dunn_combined
-```
+## Plot the mean normalized lysogenic virus abundance for just all sites
+```{r lysogenic-abundance-just-all-sites, fig.height=4, fig.width=4}
+plot.lysogenic.tmeans.mean.norm.allsites <-
+ggplot(lysogenic_per_sample_norm %>%
+         filter(site == "All sites"),
+       aes(x = treatment, y = mean_abundance_norm, color = treatment)) +
+  geom_jitter() +
+  geom_boxplot(outlier.shape = NA, alpha = 0.25) +
+  scale_y_continuous(labels = function(x) format(x, scientific = TRUE), limits = c(0, 2e-2)) +
+  scale_color_manual(
+    values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
+    name = "Ecosystem health") +
+  labs(x = "Ecosystem health status", y = "Normalized lysogenic virus\nabundance (per sample)") +
+  cowplot::theme_cowplot() +
+  theme(
+    legend.position = "none"
+    )
 
-```{r save-combined-test-results}
-write_csv(results_KW_Dunn_combined, file = "../Tables/lysogenic_virus_abundance_KW_Dunn_tests.csv")
+plot.lysogenic.tmeans.mean.norm.allsites <- plot.lysogenic.tmeans.mean.norm.allsites +
+  # Add “All sites” LME‐based asterisks:
+  geom_segment(
+    data = annot_allsites_norm,
+    aes(
+      x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
+      xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
+      y    = ymin - 0.00375,
+      yend = ymax - 0.00375
+    ),
+    inherit.aes = FALSE,
+    color = "black",
+    size  = 0.25
+  ) +
+  # Add vertical ticks at both ends of each horizontal bracket
+  geom_segment(
+    data        = annot_allsites_norm,
+    aes(
+      x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
+      xend = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
+      y    = ymin+0.000025 - 0.00375,
+      yend = ymin - tick_height - 0.00375
+    ),
+    inherit.aes = FALSE,
+    color       = "black",
+    size        = 0.25
+  ) +
+  geom_segment(
+    data        = annot_allsites_norm,
+    aes(
+      x    = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
+      xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
+      y    = ymin+0.000025 - 0.00375,
+      yend = ymin - tick_height - 0.00375
+    ),
+    inherit.aes = FALSE,
+    color       = "black",
+    size        = 0.25
+  ) +
+  # Asterisk labels centered between group1 and group2
+  geom_text(
+    data = annot_allsites_norm,
+    aes(
+      x = (as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))) +
+           as.numeric(factor(group2, levels = c("Natural","Restored","Damaged")))) / 2,
+      y = ymin + (0.02 * y_max_allsites_norm) - 0.00375, # small vertical offset above the bar
+      label = label
+    ),
+    size = 4,
+    inherit.aes = FALSE) +
+  theme(legend.position = "none")
+
+plot.lysogenic.tmeans.mean.norm.allsites
 ```
 
 # "Active" viruses
@@ -519,7 +602,7 @@ print("Fraction of active lysogens in damaged samples:")
 length(unique(subset(active_lysogens, treatment == "Damaged")$Virus)) / length(unique(active_lysogens$Virus))
 print("Number of active lysogens active in > 1 sample:")
 active_lysogens_virus_count <- active_lysogens %>%
-  count(Virus)
+  dplyr::count(Virus)
 length(subset(active_lysogens_virus_count, n > 1)$Virus)
 ```
 
@@ -603,20 +686,20 @@ heatmap <- Heatmap(
   name = "Mean Ratio",
   col = viridis(10),
   top_annotation = annotation_col,
-  cluster_rows = TRUE,  # Or FALSE if you don't want to cluster rows
-  cluster_columns = TRUE,  # Or FALSE if you don't want to cluster columns
+  cluster_rows = TRUE, # Or FALSE if you don't want to cluster rows
+  cluster_columns = TRUE, # Or FALSE if you don't want to cluster columns
   show_row_names = TRUE,
   show_column_names = FALSE,
-  row_title = NULL,  # Remove row title
-  column_title = NULL,  # Remove column title
+  row_title = NULL, # Remove row title
+  column_title = NULL, # Remove column title
   width = unit(350, "pt"),
   height = unit(510, "pt"),
   heatmap_legend_param = list(
     title = "Mean Virus/Host Ratio", 
     at = c(0, 5, 10), 
     labels = c("0", "5", ">10"),
-    legend_height = unit(30, "pt"),  # Set fixed height to 30 pt
-    legend_direction = "vertical"  # Set legend direction to vertical
+    legend_height = unit(30, "pt"), # Set fixed height to 30 pt
+    legend_direction = "vertical" # Set legend direction to vertical
   ),
   use_raster = TRUE,
   raster_quality = 5
@@ -624,16 +707,16 @@ heatmap <- Heatmap(
 
 draw(
   heatmap,
-  padding = unit(c(0, 0, 0, 60), "pt"),  # Adjust padding: top, right, bottom, left
+  padding = unit(c(0, 0, 0, 60), "pt"), # Adjust padding: top, right, bottom, left
   heatmap_legend_side = "bottom", 
   annotation_legend_side = "bottom",
-  merge_legends = TRUE  # Merge legends together at the bottom
+  merge_legends = TRUE # Merge legends together at the bottom
 )
 ```
 
 ### Save the heatmap as a PNG
 ```{r save-heatmap-png}
-png("../Plots/virus_replication/FigS4.png", width = 9, height = 9, res = 600, units = "in") 
+png("../Plots/virus_replication/FigS6.png", width = 9, height = 9, res = 600, units = "in") 
 
 draw(
   heatmap,
@@ -662,8 +745,6 @@ anova_combined<- rbind(as.data.frame(anova_ii) %>% mutate(Test = "Type II ANOVA"
 write.csv(anova_combined, file = "../Tables/virus_host_abundance_anova.csv", row.names = TRUE)
 ```
 
-Here’s how to interpret the results from your ANOVA (both Type II and Type III):
-
 ### **Type II ANOVA Interpretation:**
 
 - **treatment** (`p = 0.29659`): The effect of treatment alone is not significant. This means that when considering the main effect of treatment across all host families, without accounting for interactions, the treatment does not significantly influence the `virus_host_ratio`.
@@ -690,18 +771,347 @@ Here’s how to interpret the results from your ANOVA (both Type II and Type III
 
 3. **Host Family Effect:** Different host families have different average `virus_host_ratio` values, suggesting intrinsic differences in how these families interact with viruses.
 
+# Modeling lysogenic virus abundance
+## Merge normalized mean lysogenic virus abundance (per sample) with ecosystem health index
+```{r merge-lysogenic-with-eco-index}
+lysogenic_per_sample_eco_index <- lysogenic_per_sample_norm %>%
+  filter(site != "All sites") %>%
+  left_join(eco_index %>%
+              select(SampleID, index),
+            by = join_by("Sample" == "SampleID"))
+lysogenic_per_sample_eco_index
+```
+
+## Linear mixed-effects models
+Use linear mixed-effects modeling with (normalized, mean) lysogenic virus abundance (`mean_abundance_norm`) as the response variable and ecosystem health index (`index`) as a predictor. Since the data is also stratified by ecosystem health status (`treatment`) and sampling site (`site`), there are multiple ways the model can be fitted (i.e. different random intercepts/slopes, including/excluding `treatment` as a fixed effect). I will fit multiple models and infer which one has the best fit using likelihood-ratio tests.
+
+Models:
+- `m0`: null model, the intercept is sole predictor, with site as a random intercept
+- `m1`: ecosystem health index is the only fixed effect, with site as a random intercept
+- `m2`: both health index and health status are fixed effects, with site as a random intercept
+- `m3`: ecosystem health index is the only fixed effect, with random slopes for health index for each site
+
+### Fit the mixed-effects models and perform type II ANOVA (Wald Chi-square) for fixed effects
+```{r fit-lmes}
+m0 <- lmer(mean_abundance_norm ~ 1 + (1 | site), data = lysogenic_per_sample_eco_index)
+
+m1 <- lmer(mean_abundance_norm ~ index + (1 | site), data = lysogenic_per_sample_eco_index)
+m1_anova <- car::Anova(m1, type="II")
+m1_anova
+
+m2 <- lmer(mean_abundance_norm ~ index + treatment + (1 | site), data = lysogenic_per_sample_eco_index)
+m2_anova <- car::Anova(m2, type="II")
+m2_anova
+
+m3 <- lmer(mean_abundance_norm ~ index + (1 + index | site), data = lysogenic_per_sample_eco_index)
+m3_anova <- car::Anova(m3, type="II")
+m3_anova
+```
+
+### Compare the mixed-effects models
+```{r compare-lmes}
+# Null vs health index
+anova(m0, m1)
+
+# Health index vs health index + treatment
+anova(m1, m2)
+
+# Health index vs health index (random slope)
+anova(m1, m3)
+```
+
+### Observations
+1. Does ecosystem health index (`index`) predict lysogenic virus abundance once you account for site? (`m0` vs `m1`)
+  - **Yes**, adding ecosystem health index cuts deviance ($\chi^2 = 10.862$) compared to the null model ($P = 9.82 \times 10^{-4}$)
+2. Is there any added value in including the ecosystem health status (`treatment`) categories? (`m1` vs `m2`)
+  - **No**, $\chi^2 = 1.0265$, $P = 0.5986$
+3. Do sites differ in their index–response slope? (`m1` vs `m3`)
+  - **Not really**, $\chi^2 = 11.957$ and $P = 2.533 \times 10^{-3}$, **but** lme4 throws a `boundary (singular) fit` warning and estimates the intercept–slope correlation at –1.0, that boundary condition means site‐specific slopes can't be reliably estimated with only these seven sites
+
+## Linear models (fixed effects only, no random intercept)
+Investigate without adjusting for sampling site.
+
+### Fit linear models
+```{r fit-lms}
+lm0 <- lm(mean_abundance_norm ~ 1, data = lysogenic_per_sample_eco_index)
+summary(lm0)
+lm1 <- lm(mean_abundance_norm ~ index, data = lysogenic_per_sample_eco_index)
+summary(lm1)
+```
+
+### Compare linear models
+```{r lrt-lms}
+anova(lm0, lm1)
+# or #
+car::Anova(lm1, type="II")
+```
+
+### Observations
+1. Does ecosystem health index (`index`) predict lysogenic virus abundance? (`lm0` vs `lm1`)
+  - **Yes**, adding ecosystem health index to the null model reduces RSS by $9.135 \times 10^{-5}$ ($F = 20.483$, $P = 3.037 \times 10^{-5}$)
+
+## Compare linear mixed-effects model (`m1`) to the linear model (`lm1`)
+```{r compare-lme-lm}
+library("MuMIn");packageVersion("MuMIn")
+anova(m1, lm1)
+r.squaredGLMM(m1)
+r.squaredGLMM(lm1)
+```
+
+### Observations
+1. **Site‐to‐site variation matters:** Introducing a site‐level intercept reduces unexplained variance substantially (RSS = 0.000259 in lm1 compared to RSS = 0.000234 in m1, after refitting with ML).
+2. **Slope shrinks** from –0.0022 to –0.0014 when accounting for clustering by site (that’s the portion of the “effect” that was really driven by systematic differences between sites)
+3. **Significance remains highly robust** in the mixed-effects model (p<0.001), but the inference in the mixed effects model is now protected against pseudoreplication
+4. **Variance partitioning:** The mixed-effects model attributes some of the total variance to site intercepts (conditional R-squared = 0.42 vs. marginal R-squared = 0.18), giving a clearer sense of how much variation index really explains within sites
+5. **The mixed-effects model has a better fit** over the linear model ($\chi^2 = 5.5734$, $P = 0.01824$, likelihood-ratio-test; $AIC_{lm1} = -564.99$; $AIC_{m1} = -568.56$), demonstrating that including sample site as a block is worthwhile and improves model fit
+
+## Which model should be used to predict lysogenic virus abundance?
+- The linear mixed-effects model with ecosystem health index-- but not ecosystem health status-- as a fixed effect and sample site as a random intercept (`m1`) is the "best" model
+- Including ecosystem health index improves the overall model fit compared to the null model
+- Adding ecosystem health status as a fixed effect, or including a random slope for ecosystem health index, does not improve (or worsens) model fit
+- Modeling abundance with sample site as a random intercept improves model fit compared to linear modeling without the random intercept
+
+## Get model statistics for the best model
+### Model summary and ANOVA
+```{r best-model-summary-and-anova}
+summary(m1)
+m1_anova
+```
+
+### ANOVA *P*, Chi-square, and R-squared (marginal and conditional) 
+```{r best-model-stats}
+m1_p <- as.numeric(m1_anova$`Pr(>Chisq)`)
+m1_p
+m1_chisq <- as.numeric(m1_anova$Chisq)
+m1_chisq
+m1_r2 <- r.squaredGLMM(m1)
+m1_r2m <- m1_r2[[1]]
+m1_r2m
+m1_r2c <- m1_r2[[2]]
+m1_r2c
+```
+
+## Model diagnostics
+### Residual diagnostics
+#### Residuals vs fitted
+```{r lme-plot-resid-fitted}
+plot(m1)
+```
+
+- There is no obvious trend in the scatter of (Pearson) residuals around zero as a function of the fitted values. The clouds of points sit roughly symmetrically about the horizontal line, suggesting homoscedasticity (constant variance) and no gross nonlinearity.
+
+#### Grouped residuals
+```{r lme-grouped-residuals, fig.height=5, fig.width=9}
+library("DHARMa");packageVersion("DHARMa")
+sim <- simulateResiduals(m1)
+plot(sim)  
+```
+
+- **QQ‐plot:** points hug the 45-degree line except at the extremes. The Kolmogorov–Smirnov (KS) test p=0.09, dispersion p=0.90, outlier p=0.38 -> i.e. no significant deviations from uniformity, no over- or underdispersion, and no extreme outliers
+- **Residual vs. predicted:** the red fitted LOESS curves occasionally stray beyond the simulation‐based 95% bands, yielding a significant combined quantile test-- this hints at minor mis‐fit in certain parts of the prediction range-— but nothing dramatic
+
+### Distribution of sample site intercepts
+```{r lme-distribution-site-intercepts}
+lattice::dotplot(ranef(m1, condVar=TRUE))  
+```
+
+- The plot shows each site’s estimated intercept (with 95% CI):
+  - Balmoral sits highest (+0.0013), meaning its average (mean, normalized) lysogenic virus abundance is above the grand mean
+  - Stean sits lowest (–0.0017), well below the grand mean
+  - The other sites cluster nearer zero
+- This spread confirms that allowing `(1 | site)` was necessary: sites differ meaningfully in their baseline abundance
+
+### Influence & outliers
+#### Case-deletion diagnostics
+```{r lme-case-deletion}
+library("influence.ME");packageVersion("influence.ME")
+infl <- influence(m1, group="site")
+plot(infl, which="cook")
+```
+
+- The plot shows how the global fit changes when each site is dropped
+- Stean and Balmoral have the highest influence scores (plotted at ~2.25 and ~4.75 on the “plot.matrix” scale), indicating that excluding either of these sites would shift the overall model fit more than excluding others
+    
+#### DFBETAs
+```{r lme-dfbetas}
+dfb <- dfbetas(infl)
+dfb
+```
+
+- Balmoral and Stean are the two sites most driving the global index effect
+- The fact that other sites have DFBETAs <1 in magnitude means they are not unduly influential
+
+### Interpretation of model diagnostics
+Overall, the mixed‐effect model `m1` is broadly well‐supported, residuals look good, and site‐baseline variation is well captured. **But** a couple of sites (Balmoral and Stean) carry outsized influence on the global index slope
+
+### Sensitivity check: drop Balmoral and Stean
+```{r sensitivity-check}
+m1_noBal <- lmer(mean_abundance_norm ~ index + (1 | site), data = lysogenic_per_sample_eco_index %>% filter(site != "Balmoral"))
+summary(m1_noBal)
+car::Anova(m1_noBal, type = "II")
+m1_noStean <- lmer(mean_abundance_norm ~ index + (1 | site), data = lysogenic_per_sample_eco_index %>% filter(site != "Stean"))
+summary(m1_noStean)
+car::Anova(m1_noStean, type = "II")
+m1_noBalStean <- lmer(mean_abundance_norm ~ index + (1 | site), data = lysogenic_per_sample_eco_index %>% filter(!site %in% c("Balmoral", "Stean")))
+summary(m1_noBalStean)
+car::Anova(m1_noBalStean, type = "II")
+```
+
+Across all of these leave‐one‐(or two)‐out refits, the ecosystem‐health index retains a negative association with mean normalized lysogenic abundance, and it remains statistically significant in every case, even when dropping the two most influential sites. **Therefore, the negative ecosystem health index effect isn’t driven by a single “outlier” site.** I.e., the model is robust.
+
+## Bottom line: ecosystem health index predicts lysogenic virus abundance
+Ecosystem health index had a significant ($n = 60$, $\chi^2 = 11.515$, $P = 6.902 \times 10^{-4}$, type II ANOVA), negative ($m = -1.8233 \times 10^{-3}$) effect on mean, normalized lysogenic virus abundance after accounting for site-to-site differences. In sensitivity analyses dropping either or both of the most‐influential sites (Balmoral and Stean), the slope remained negative (–0.00075 to –0.0026) and statistically significant ($P < 0.05$), indicating that the relationship is robust across the seven peatland sites.
+
+## Plot normalized mean lysogenic abundance over ecosystem health index with model statistics
+### Format model prediction data for the plot's best fit line and 95% CI
+```{r format-plot-data-lysogenic-abundance-over-eco-index-mean-norm}
+# 1. Create an evenly spaced grid of index values
+new_index <- seq(
+  min(lysogenic_per_sample_eco_index$index),
+  max(lysogenic_per_sample_eco_index$index),
+  length = 100
+)
+
+# 2. Build a data.frame with the dummy levels for site & treatment
+#    just pick the first levels; they won't affect the marginal emmeans
+newdata <- data.frame(
+  index = new_index,
+  site = levels(lysogenic_per_sample_eco_index$site)[1],
+  treatment = levels(lysogenic_per_sample_eco_index$treatment)[1]
+)
+
+# 3. Ask emmeans for the marginal (population-level) predictions + 95% CI
+emm <- emmeans(
+  m1,
+  ~ index,
+  at = list(index = new_index),
+  data = newdata
+)
+df_preds <- as.data.frame(emm)
+head(df_preds)
+```
+
+### Plot it
+```{r plot-lysogenic-abundance-over-eco-index-mean-norm, fig.height=4, fig.width=6}
+p_raw <- m1_p  
+p_exp <- floor(log10(p_raw))
+p_mantissa <- round(p_raw / 10^p_exp, 2)
+
+plot.lysogenic.over.eco.index.mean.norm <-
+  ggplot(aes(x = index, y = mean_abundance_norm), data = lysogenic_per_sample_eco_index) +
+  geom_point(
+    aes(fill=site, shape=treatment),
+    color = "black",
+    size = 4,
+    alpha = 0.8
+    ) +
+  scale_color_brewer(palette = "Dark2", name = "Site") +
+  geom_ribbon(
+    data = df_preds,
+    aes(x = index, ymin = lower.CL, ymax = upper.CL),
+    inherit.aes = FALSE, fill = "grey50", alpha = 0.25) +
+  geom_line(
+    data = df_preds, aes(x = index, y = emmean),
+    color="black", size=1
+    ) +
+  ggplot2::annotate(
+    "text",
+    x = 0.975 * min(lysogenic_per_sample_eco_index$index), # when NOT using scale_x_reverse()
+    # x = -0.975 * min(lysogenic_per_sample_eco_index$index), # when using scale_x_reverse()
+    # y = 0.97 * max(lysogenic_per_sample_eco_index$mean_abundance_norm), # when NOT needing to be consistent with the boxplot
+    y = 0.97 * 2e-2, # when needing to be consistent with the boxplot
+    label = paste0(
+      "italic(R[marg.]^2) == ", round(m1_r2m,2),
+       "*','~",  # no space before the comma, small space after
+      "italic(R[cond.]^2) == ", round(m1_r2c,2),
+      "\n",
+      "italic(P) == ", format(m1_p, scientific=TRUE, digits=2)
+    ),
+    parse    = TRUE,
+    hjust    = 0,
+    vjust    = 1,
+    size     = 4
+    ) +
+  ggplot2::annotate(
+    "text",
+    x = 0.975 * min(lysogenic_per_sample_eco_index$index), # when NOT using scale_x_reverse()
+    # x = -0.975 * min(lysogenic_per_sample_eco_index$index), # when using scale_x_reverse()
+    # y = 0.89 * max(lysogenic_per_sample_eco_index$mean_abundance_norm), # when NOT needing to be consistent with the boxplot
+    y = 0.89 * 2e-2, # when needing to be consistent with the boxplot
+    label = paste0(
+      "italic(P) == ", p_mantissa, " %*% 10^", p_exp, ""
+    ),
+    parse    = TRUE,
+    hjust    = 0,
+    vjust    = 1,
+    size     = 4
+    ) +
+  labs(x = "Ecosystem health index", y = "Normalized lysogenic virus\nabundance (per sample)") +
+  theme(
+    legend.position = "right",
+    text = element_text(size = 14)
+    ) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
+                     values=c(21,24,23),
+                     breaks = c("Natural", "Restored", "Damaged"),
+                     labels=c("Natural", "Restored", "Damaged")) +
+  scale_fill_brewer(name = "Sample site",
+                    palette = "Dark2",
+                    labels=c("Balmoral", "Bowness", "Crocach",
+                             "Langwell", "Migneint", "Moor House",
+                             "Stean")) +
+  guides(fill = guide_legend(title.position = "top",
+                             title.hjust = 0.5,
+                             override.aes = list(shape = 21, color = "black")),
+         shape = guide_legend(title.position = "top",
+                              title.hjust = 0.5)) +
+  scale_y_continuous(labels = function(x) format(x, scientific = TRUE), limits = c(0, 2e-2)) +
+  # scale_x_reverse() + # To be consistent with Natural -> Damaged gradient
+  cowplot::theme_cowplot()
+plot.lysogenic.over.eco.index.mean.norm
+```
+
+### Save
+```{r save-lysogenic-abundance-over-eco-index-mean-norm}
+ggsave(plot.lysogenic.over.eco.index.mean.norm,
+       file = "../Plots/virus_replication/lysogenic_abundance_over_eco_index.png",
+       width = 6,
+       height = 4,
+       units = "in",
+       dpi = 600,
+       bg = "white")
+```
+
 # Combine the virus over host abundance and lysogenic phage abundance plots
-```{r combine-lysogenic-and-virus-host, fig.height=10.5, fig.width=9}
-plot.combined.lysogenic.virus.host <- cowplot::plot_grid(plot.virus.over.host.abundance.phylum,
-                                                      plot.combined.lysogenic,
-                                                      ncol = 1,
-                                                      labels = c("A", ""),
-                                                      label_size = 16,
-                                                      label_fontface = "bold",
-                                                      label_fontfamily = "sans",
-                                                      hjust = -0.5,
-                                                      rel_heights = c(4, 6.5)
-                                                      )
+## Create the lower section with lysogenic viorus abundance
+```{r combine-lyosgenic-virus-plots, fig.height=4, fig.width=10}
+plot.lysogenic.combined <- cowplot::plot_grid(
+  plot.lysogenic.tmeans.mean.norm.allsites,
+  plot.lysogenic.over.eco.index.mean.norm,
+  nrow = 1,
+  ncol = 2,
+  rel_widths = c(4, 6),
+  labels = c("B", "C"),
+  label_size = 20,
+  label_fontface = "bold",
+  label_fontfamily = "sans"
+  )
+plot.lysogenic.combined
+```
+
+## Combine the upper and lower sections into one plot
+```{r combine-lysogenic-and-virus-host, fig.height=8, fig.width=10}
+plot.combined.lysogenic.virus.host <- cowplot::plot_grid(
+  plot.virus.over.host.abundance.phylum,
+  plot.lysogenic.combined,
+  ncol = 1,
+  labels = c("A", ""),
+  label_size = 20,
+  label_fontface = "bold",
+  label_fontfamily = "sans",
+  hjust = -0.5,
+  rel_heights = c(4, 4)
+  )
 plot.combined.lysogenic.virus.host
 ```
 
@@ -709,12 +1119,11 @@ plot.combined.lysogenic.virus.host
 ```{r save-combined-plot}
 ggsave(plot.combined.lysogenic.virus.host,
        file = "../Plots/virus_replication/Fig5.png",
-       width = 9,
-       height = 10.5,
+       width = 10,
+       height = 8,
        units = "in",
        dpi = 600,
        bg = "white")
 ```
-
 
 

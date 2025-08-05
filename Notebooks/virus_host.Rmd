@@ -19,6 +19,12 @@ library("colorspace");packageVersion("colorspace")
 library("grDevices");packageVersion("grDevices")
 library("ggpubr");packageVersion("ggpubr")
 library("cowplot");packageVersion("cowplot")
+library("vegan");packageVersion("vegan")
+library("lme4");packageVersion("lme4")
+library("car");packageVersion("car")
+library("emmeans");packageVersion("emmeans")
+library("MuMIn");packageVersion("MuMIn")
+library("ggtext");packageVersion("ggtext")
 ```
 
 # Load and format data
@@ -28,7 +34,6 @@ virus_abundance_with_hosts <- readRDS("../Data/virus_abundance_with_hosts.RDS")
 virus_abundance_with_hosts_and_all_sites_and_metabolism <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites_and_metabolism.RDS")
 virus_abundance_long_all <- readRDS("../Data/virus_abundance_long_all.RDS")
 host_abundance_long_all_and_all_sites_and_metabolism <- readRDS("../Data/host_abundance_long_all_and_all_sites_and_metabolism.RDS")
-virus_host_abundance <- readRDS("../Data/virus_host_abundance.RDS")
 virus_abundance_with_hosts_and_all_sites <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites.RDS")
 virus_clusters <- readRDS("../Data/virus_clusters.RDS") %>%
   group_by(Virus) %>%
@@ -42,6 +47,10 @@ host_clusters <- readRDS("../Data/host_clusters.RDS") %>%
   distinct()
 host_abundance_long_all <- readRDS("../Data/host_abundance_long_all.RDS")
 host_abundance_long_all_and_all_sites <- readRDS("../Data/host_abundance_long_all_and_all_sites.RDS")
+env_scaled_global <- readRDS("../Data/env_data_scaled_global.RDS") # Global scaling when analyzing all sites together
+virus_info <- readRDS("../Data/virus_info.RDS")
+virus_tmeans <- readRDS("../Data/virus_tmeans_norm_50.RDS")
+host_tmeans <- readRDS("../Data/host_tmeans_norm_50.RDS")
 ```
 
 # Virus and Host relative abundance by metabolic functions
@@ -290,7 +299,7 @@ total_virus_abundance <- virus_abundance_with_hosts_and_all_sites %>%
 # Calculate the relative abundance for each Host Class within each site x virus trend group
 virus_abundance_with_hosts_and_all_sites_rel <- virus_abundance_with_hosts_and_all_sites %>%
   filter(!is.na(`Virus Trend Group`)) %>%
-  mutate(`Host Class` = as.character(`Host Class`)) %>%  # Ensure Host Class is a character
+  mutate(`Host Class` = as.character(`Host Class`)) %>% # Ensure Host Class is a character
   left_join(total_virus_abundance, by = c("site", "Virus Trend Group")) %>%
   group_by(site, `Virus Trend Group`, `Host Domain`,  `Host Phylum`, `Host Class`) %>%
   summarise(
@@ -647,20 +656,22 @@ plot.rel.abundance.virus.host.metab.combined
 
 ## And combine with the taxonomy plot
 ```{r combine-combined-and-taxonomy, fig.height=9, fig.width=10}
-combined.plot <- cowplot::plot_grid(plot.rel.abundance.virus.host.metab.combined,
-                                    plot.rel.abundance.virus.host + theme(legend.position = c(0, -0.4)),
-                                    ncol = 2,
-                                    labels = c("", "B"),
-                                    rel_widths = c(4.25, 7),
-                                    label_fontface = "bold",
-                                    label_size = 16,
-                                    label_fontfamily = "sans")
-combined.plot
+Fig3 <-
+  cowplot::plot_grid(
+    plot.rel.abundance.virus.host.metab.combined,
+    plot.rel.abundance.virus.host + theme(legend.position = c(0, -0.4)),
+    ncol = 2,
+    labels = c("", "B"),
+    rel_widths = c(4.25, 7),
+    label_fontface = "bold",
+    label_size = 16,
+    label_fontfamily = "sans")
+Fig3
 ```
 
 ### Save the plot
 ```{r save-combined-plot}
-ggsave(plot = combined.plot,
+ggsave(plot = Fig3,
        filename = "../Plots/virus_host/Fig3.png",
        device = "png",
        width = 10,
@@ -720,6 +731,7 @@ write_csv(pairwise_comparisons,
           file = "../Tables/pairwise_comparisons.csv")
 head(pairwise_comparisons)
 ```
+
 
 
 

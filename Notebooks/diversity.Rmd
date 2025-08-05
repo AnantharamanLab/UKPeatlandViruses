@@ -1,5 +1,5 @@
 ---
-title: "Peatland Map and Virus/Host Diversity"
+title: "Peatland Sampling Map and Virus/Host Diversity"
 author: "James C. Kosmopoulos"
 date: "`r Sys.Date()`"
 output: github_document
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 
 # Map
 # Load packages
-```{r load-packages-for-map, message=FALSE, warning=FALSE}
+```{r load-packages, message=FALSE, warning=FALSE}
 library("tidyverse");packageVersion("tidyverse")
 library("maps");packageVersion("maps")
 library("mapdata");packageVersion("mapdata")
@@ -36,7 +36,7 @@ wales_peatlands <- st_read("../Data/Unified_peat_map_for_Wales.shp") # Source: h
 # The shapefile and associated data for 
 scotland_peatlands <- st_read("../Data/CARBONPEATLANDMAP_SCOTLAND.shp") # Source: https://hub.arcgis.com/datasets/snh::carbon-and-peatland-2016-map/about
 scotland_peatlands <- scotland_peatlands %>%
-  filter(grepl("peat", COMPSOIL) | grepl("Peat", COMPSOIL)) # Only peat areas
+  filter(grepl("peat", COMPSOIL) | grepl("Peat", COMPSOIL) | grepl("peat", MSSG_NAME) | grepl("Peat", MSSG_NAME) | grepl("peat", SMU_NAME) | grepl("Peat", SMU_NAME)) # Only peat areas
 ```
 
 ## Ensure all data are in the same coordinate system
@@ -56,41 +56,229 @@ labels <- data.frame(
 ```
 
 ## Plot the map
-```{r plot-map, fig.height=4, fig.width=8*(2/3)}
+```{r plot-map, fig.height=6, fig.width=6}
 peat_soil_map <- ggplot() +
-  geom_polygon(data = uk_map, aes(x = long, y = lat, group = group), fill = "grey90", color = "black") +
-  geom_sf(data = england_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
-  geom_sf(data = wales_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
-  geom_sf(data = scotland_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
-  coord_sf(xlim = c(-8, 2), ylim = c(50, 60.75)) +
+  # Base polygon (UK outline)
+  geom_polygon(
+    data = uk_map,
+    aes(x = long, y = lat, group = group),
+    fill = "grey90",
+    color = "black",
+    linewidth = 1
+  ) +
+  # Peatlands layers
+  geom_sf(data = england_peatlands, fill = "#654321", color = NA, alpha = 1) +
+  geom_sf(data = wales_peatlands, fill = "#654321", color = NA, alpha = 1) +
+  geom_sf(data = scotland_peatlands, fill = "#654321", color = NA, alpha = 1) +
+  # Expand the bounding box slightly to give label space
+  coord_sf(xlim = c(-12, 4), ylim = c(50, 60.5)) +
+  # Minimal theme
   theme_void() +
-  geom_point(data = labels,
-             aes(x = lon, y = lat),
-             color = "#E41A1C",
-             size = 2) +
-  geom_text_repel(data = labels,
-                  aes(x = lon, y = lat, label = name),
-                  fontface = "bold",
-                  size = 4,
-                  color = "white",
-                  bg.color = "black",
-                  bg.r = .15,
-                  box.padding = 0.5,
-                  segment.color = "#E41A1C",
-                  force = 4
-                  )
+  # Points for each site
+  geom_point(
+    data = labels,
+    aes(x = lon, y = lat),
+    color = "#E41A1C",
+    size = 4
+  ) +
+  # Repelled text labels
+  geom_text_repel(
+    data = labels,
+    aes(x = lon, y = lat, label = name),
+    fontface = "bold",
+    size = 8,
+    color = "white",
+    bg.color = "black",
+    bg.r = 0.125,
+    # Increase the padding around labels and the points
+    box.padding = unit(1.125, "lines"),
+    # Control how strongly labels push away from each other & from points
+    force = 2,
+    # Color of the connecting segments
+    segment.color = "#E41A1C"
+  )
+
 peat_soil_map
 ```
 
-## Save the plot
-```{r save-plot-map}
-ggsave(filename = "../Plots/map/sample_sites.png", plot = peat_soil_map, device = "png", dpi = 600, height = 6, width = 4, units = "in")
+## Add ecosystem health index variation
+### Load and format the data
+```{r load-eco-index-and-metadata}
+eco_index <- readRDS("../Data/env_data.RDS") %>%
+  select(SampleID, site, treatment, index) %>%
+  mutate(
+    shape = case_when(
+      treatment == "NAT" ~ 21,
+      treatment == "REST" ~ 24,
+      treatment == "DAM" ~ 23
+    )
+  ) %>%
+  filter(!is.na(index))
+eco_index_avg <- eco_index %>%
+  select(site, treatment, shape, index) %>%
+  group_by(site, treatment, shape) %>%
+  summarise(avg_index = mean(index))
+
+eco_plot_data <- eco_index_avg %>%
+  left_join(labels %>% select(name, lon, lat), by = join_by(site == name))
+
+top <- 58.5
+bottom <- 50.5
+label_positions <- tibble(
+  site = c(
+    "Crocach", "Langwell", "Balmoral", "Bowness", "Moor House", "Stean", "Migneint"
+    ),
+  label_x = -12.5,
+  # label_y = c(59.0, 58.0, 57.0, 55.5, 54.5, 53.0, 52.0)
+  label_y = c(
+    bottom + (6/6)*(top-bottom),
+    bottom + (5/6)*(top-bottom),
+    bottom + (4/6)*(top-bottom),
+    bottom + (3/6)*(top-bottom),
+    bottom + (2/6)*(top-bottom),
+    bottom + (1/6)*(top-bottom),
+    bottom + (0/7)*(top-bottom))
+)
+
+treatment_offsets <- tibble(
+  treatment = c("NAT","REST","DAM"),
+  dx = c(1, 2.3, 3.6)
+)
+eco_index_avg <- eco_index_avg %>%
+  mutate(site = gsub("_", " ", site))
+eco_plot_data <- eco_index_avg %>%
+  # filter(!is.na(avg_index)) %>%
+  left_join(labels %>% select(site = name, lon, lat), by = "site") %>%
+  left_join(label_positions, by = "site") %>%
+  left_join(treatment_offsets, by = "treatment") %>%
+  mutate(
+    x_shape = label_x + dx,
+    y_shape = label_y
+  )
+eco_plot_data
+
+segment_data <- eco_plot_data %>%
+  group_by(site) %>%
+  filter(dx == max(dx)) %>%
+  ungroup()
+segment_data
+```
+
+### Plot the map with ecosystem index
+```{r plot-map-with-eco-index, fig.height=4, fig.width=6}
+peat_soil_map_eco_index <-
+  ggplot() +
+  # Base polygon (UK outline)
+  geom_polygon(
+    data = uk_map,
+    aes(x = long, y = lat, group = group),
+    fill = "grey90", color = "black", linewidth = 0.5
+  ) +
+  # Peatlands layers
+  geom_sf(
+    data = england_peatlands,
+    fill = "#7B3F00", color = NA, alpha = 1
+    ) +
+  geom_sf(
+    data = wales_peatlands,
+    fill = "#7B3F00", color = NA, alpha = 1
+    ) +
+  geom_sf(
+    data = scotland_peatlands,
+    fill = "#7B3F00", color = NA, alpha = 1
+    ) +
+  # Expand the bounding box slightly to give label space
+  coord_sf(
+    xlim = c(-20.25, 1.5),
+    ylim = c(50.25, 59)
+    ) +
+  # Minimal theme
+  theme_void() +
+  # connector from shape back to real map point
+  geom_segment(
+    data = segment_data,
+    aes(x = x_shape, y = y_shape, xend = lon, yend = lat),
+    color = "black", size = 0.66
+  ) +
+  # Points for each site
+  geom_point(
+    data = labels,
+    aes(x = lon, y = lat),
+    color = "black", fill = "red", size = 3, shape = 21, stroke = 1
+  ) +
+  # draw the fan of 3 treatment shapes next to each label
+  geom_point(
+    data = eco_plot_data,
+    aes(x = x_shape, y = y_shape, shape = treatment, fill = avg_index),
+    color  = "black", size = 5, stroke = 1
+  ) +
+  # give each treatment its numeric code
+  scale_shape_manual(
+    name   = "Ecosystem\nhealth status",
+    values = c(
+      NAT  = 21, # filled circle
+      REST = 24, # filled triangle
+      DAM  = 23 # filled diamond
+    ),
+    breaks = c("NAT", "REST", "DAM"),
+    labels=c("Natural", "Restored", "Damaged")
+  ) +
+  # continuous viridis for the index
+  scale_fill_viridis_c(
+    name   = "Avg. ecosystem\nhealth index",
+    option = "viridis"
+  ) +
+  # draw the fixed labels (one per site)
+  geom_text(
+    data = label_positions,
+    aes(x = label_x, y = label_y, label = site),
+    hjust = 1, # right align
+    fontface = "bold",
+    color = "black",
+    size = 7,
+    nudge_x = 0.02 # little buffer so text outline doesn’t overlap point
+  ) +
+  # give each guide an explicit order
+  guides(
+    shape = guide_legend(
+      order = 1,
+      title.position = "top",
+      title.hjust = 0.5,
+      override.aes = list(fill = "grey50", size = 4)
+    ),
+    fill = guide_colorbar(
+      order = 2,
+      title.position = "top",
+      title.hjust = 0.5,
+      label.position = "left"
+    )
+  ) +
+  # stack legends vertically, center them, and adjust spacing
+  theme(
+    legend.position = "right", # move both legends below plot
+    legend.box = "vertical", # stack shape above fill
+    legend.box.just = "center", # center the stacked box
+    legend.title.align = 0.5, # center titles inside each legend
+    legend.margin = margin(t = 5, r = 10, b = 5, l = -25, unit = "pt"),
+    text = element_text(size = 14)
+  )
+
+peat_soil_map_eco_index
+```
+
+### Save the map image
+```{r save-peat-map-with-index}
+ggsave("../Plots/diversity/sample_map.png",
+       peat_soil_map_eco_index,
+       device="png",
+       dpi=600,
+       width=6, height=4, units="in",
+       bg = "white")
 ```
 
 # Diversity
 # Load packages
-```{r load-packages, message=FALSE, warning=FALSE}
-library("tidyverse");packageVersion("tidyverse")
+```{r load-packages-for-div, echo=FALSE, message=FALSE, warning=FALSE}
 library("vegan");packageVersion("vegan")
 library("ape");packageVersion("ape")
 library("RColorBrewer");packageVersion("RColorBrewer")
@@ -98,7 +286,7 @@ library("cowplot");packageVersion("cowplot")
 ```
 
 # Load data
-```{r load-data}
+```{r load-data-for-div}
 tmeans <- readRDS("../Data/virus_tmeans_norm_50.RDS")
 metadata <- readRDS("../Data/metadata_simple.RDS") %>%
   mutate(treatment = factor(treatment, levels = c("NAT", "REST", "DAM")))
@@ -110,7 +298,6 @@ metadata <- readRDS("../Data/metadata_simple.RDS") %>%
 ```{r xform-for-PCoA}
 tmeans.xform <- decostand(tmeans, method="hellinger")
 bray_curtis_dist <- as.matrix(vegdist(t(tmeans.xform), method='bray'))
-saveRDS(bray_curtis_dist, file="../Data/bray_curtis_hellinger.RDS")
 ```
 
 ### Perform pcoa
@@ -143,28 +330,45 @@ An R-value close to 1 means that the dissimilarities between groups are much gre
 
 ```{r ANOSIM}
 anosim_result <- anosim(bray_curtis_dist, metadata$site)
-r_statistic <- anosim_result$statistic
-p_value <- anosim_result$signif
+r_statistic <- round(anosim_result$statistic, 3)
+p_value <- format(anosim_result$signif, scientific = TRUE)
 summary(anosim_result)
 ```
 
 Moderately high R-value (0.656) and low p-value (0.001): There is a moderately high and statistically significant separation between sample sites. This separation suggests that the groups defined by sample site are meaningfully different in terms of their Bray-Curtis dissimilarities.
 
 #### Plot PCoA: treatment and site
-```{r plot-PCoA, fig.height=4, fig.width=5}
+```{r plot-PCoA, fig.height=4, fig.width=6}
 plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
   geom_point(aes(shape=as.character(treatment),
                  fill=as.character(site)),
              color = "black",
-             size = 4,
+             size = 5,
              alpha=0.8,
              stroke=0.5) +
   xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
   ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
-  annotate("text", x = Inf, y = -Inf, 
-           label = bquote(atop(italic(R) == .(round(r_statistic, 3)), italic(P) == .(format(p_value, scientific = TRUE)))), 
-           hjust = 1.1, vjust = -0.5, size = 4) +
-  scale_shape_manual(name = "Ecosystem\nhealth",
+  ## force ggplot2::annotate and plain font for the expression
+  ggplot2::annotate(
+    "text",
+    x      = Inf,
+    y      = -Inf,
+    label  = as.expression(
+      bquote(
+        atop(
+          italic(R) == .(r_statistic),
+          italic(P) == .(p_value)
+        )
+      )
+    ),
+    fontface= "plain",
+    family  = "sans",
+    hjust   = 1.1,
+    vjust   = -0.5,
+    size    = 4,
+    parse   = FALSE
+  ) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
                      #values=c(16,17,18),
                      values=c(21,24,23),
                      breaks = c("NAT", "REST", "DAM"),
@@ -179,12 +383,17 @@ plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
                              override.aes = list(shape = 21, color = "black")),
          shape = guide_legend(title.position = "top",
                               title.hjust = 0.5)) +
-  theme_linedraw() +
-  theme(text = element_text(size = 12),
+  cowplot::theme_cowplot() +
+  theme(text = element_text(size = 14),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "right")
-ggsave("../Plots/diversity/pcoa_all_site_treat.png", plot.pcoa, device="png", dpi=600, width=5, height=4, units="in")
+ggsave("../Plots/diversity/pcoa_all_site_treat.png",
+       plot.pcoa,
+       device="png",
+       dpi=600,
+       width=6, height=4, units="in",
+       bg = "white")
 plot.pcoa
 ```
 
@@ -238,17 +447,14 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
     axes$SampleID <- rownames(axes)
     axes <- merge(site_metadata[, c("site", "treatment")] %>% mutate(SampleID = row.names(.)), axes, by = "SampleID")
     
-    # Save the axes data for the current site
-    saveRDS(axes, paste0("../Data/pcoa_axes_", site, ".RDS"))
-    
     # Store eigenvalues
     eigval <- round(pcoa$values$Relative_eig * 100, digits = 2)
     eigval <- data.frame(PC = 1:length(eigval), Eigval = eigval)
     
     # Perform ANOSIM using treatment as the grouping variable
     anosim_result <- anosim(bray_curtis_dist, site_metadata$treatment)
-    r_statistic <- anosim_result$statistic
-    p_value <- anosim_result$signif
+    r_statistic <- round(anosim_result$statistic, 3)
+    p_value <- format(anosim_result$signif, scientific = TRUE)
     
     # Find the best position for the annotation
     best_position <- find_best_annotation_position(axes)
@@ -258,14 +464,32 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
       geom_point(aes(fill = as.character(treatment)), size = 1.5, stroke = 0.75, color="black", shape=21) +
       xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
       ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
-      annotate("text", x = best_position$x,
-               y = best_position$y, 
-               label = bquote(atop(italic(R) == .(round(r_statistic, 4)), italic(P) == .(format(p_value, scientific = TRUE)))), 
-               hjust = best_position$hjust,
-               vjust = best_position$vjust, 
-               size = 2.5,
-               lineheight = 0.5) +
-      scale_fill_manual(values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"), name = "Ecosystem\nhealth", breaks = c("NAT", "REST", "DAM"), labels = c("Natural", "Restored", "Damaged")) +
+      ## force ggplot2::annotate and plain font for the expression
+      ggplot2::annotate(
+        "text",
+        x      = Inf,
+        y      = -Inf,
+        label  = as.expression(
+          bquote(
+            atop(
+              italic(R) == .(r_statistic),
+              italic(P) == .(p_value)
+            )
+          )
+        ),
+        fontface= "plain",
+        family  = "sans",
+        hjust   = 1.1,
+        vjust   = -0.5,
+        size    = 4,
+        parse   = FALSE
+      ) +
+      scale_fill_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
       guides(fill = guide_legend(title.position = "top", title.hjust = 0.5)) +
       theme_linedraw() +
       ggtitle(ifelse(site == "Moor_House", "Moor House", site)) + # Change title for "Moor_House"
@@ -274,9 +498,6 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
             panel.grid.minor = element_blank(),
             legend.position = "right",
             plot.title = element_text(hjust = 0.5))
-    
-    # Print or save the plot as needed
-    ggsave(paste0("../Plots/diversity/pcoa_", site, "_treat.png"), plot.pcoa, device="png", dpi=600, width=3, height=3, units="in")
     
     plots[[site]] <- plot.pcoa
   }
@@ -288,57 +509,9 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
 ```
 
 ### Call the function and make plots
-```{r plot-PCoA-separated}
+```{r plot-PCoA-separated, fig.height=2, fig.width=3}
 pcoa_list <- pcoa_plot_by_site(metadata, tmeans)
 pcoa_list
-```
-
-### Combine into one plot with cowplot
-```{r combine-pcoa-cowplot, fig.height=3.5, fig.width=7.08661}
-legend_plot <- cowplot::get_legend(pcoa_list[[1]] + theme(legend.title = element_text(size = 14), legend.text = element_text(size = 12), legend.title.align=0.5) + guides(fill = guide_legend(override.aes = list(size=3))))
-for(name in names(pcoa_list)){
-  pcoa_list[[name]] <- pcoa_list[[name]] + theme(legend.position = "none")
-}
-combined_pcoa_plots <- cowplot::plot_grid(plotlist = c(pcoa_list, list(legend_plot)), nrow = 2)
-combined_pcoa_plots
-```
-
-```{r save-combined-pcoa-plot}
-ggsave("../Plots/diversity/pcoa_treat.png", combined_pcoa_plots, device="png", dpi=600, width=7.08661, height=3.5, units="in", bg = "white")
-```
-
-# Combine map and virus PCoA plots
-## First combine the map and all sites PCoA
-```{r combine-map-pcoa-all, fig.height=4, fig.width=8}
-combined_map_pcoa_all <- cowplot::plot_grid(peat_soil_map, plot.pcoa,
-                                           ncol = 2,
-                                           rel_widths = c(6, 13),
-                                           labels = c("A", "B"),
-                                           label_fontface = "bold",
-                                           label_fontfamily = "sans",
-                                           label_size = 16)
-combined_map_pcoa_all
-```
-
-## Then combine with the per-site PCoA
-```{r combine-all-plots, fig.height=8, fig.width=8}
-combined_map_pcoas <- cowplot::plot_grid(combined_map_pcoa_all, combined_pcoa_plots,
-                                           nrow = 2,
-                                           rel_heights = c(8, 9),
-                                           labels = c("", "C"),
-                                           label_fontface = "bold",
-                                           label_fontfamily = "sans",
-                                           label_size = 16)
-combined_map_pcoas
-```
-
-```{r save-combined-map-pcoas}
-ggsave("../Plots/diversity/Fig1.png",
-       combined_map_pcoas,
-       device = "png",
-       dpi = 600,
-       width = 8, height = 8, units="in",
-       bg = "white")
 ```
 
 # Is virus community composition influenced by host community composition?
@@ -347,15 +520,21 @@ ggsave("../Plots/diversity/Fig1.png",
 tmeans.host <- readRDS("../Data/host_tmeans_norm_50.RDS")
 tmeans.xform.host <- decostand(tmeans.host, method="hellinger")
 bray_curtis_dist_host <- as.matrix(vegdist(t(tmeans.xform.host), method='bray'))
-saveRDS(bray_curtis_dist_host, file="../Data/bray_curtis_hellinger_host.RDS")
 ```
 
 ## Perform PCoA on hosts for all sites
 ```{r perform-pcoa-hosts}
+env_data <- read_rds("../Data/env_data.RDS")
 pcoa_host <- pcoa(as.dist(bray_curtis_dist_host))
 axes_host <- as.data.frame(pcoa_host$vectors) # make a dataframe named axes, put pcoa values in there
 axes_host$SampleID <- rownames(axes_host) # Give df extra column with the rownames in it 
-axes_host <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes_host, by.x = "SampleID", by.y = "SampleID")
+axes_host <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes_host, by.x = "SampleID", by.y = "SampleID") %>% left_join(
+  env_data %>%
+    select(
+      SampleID,
+      index # Include ecosystem health indices too, for PerMANOVA with hsot axes and index as predictors
+      ),
+  by = "SampleID")
 saveRDS(axes_host, "../Data/pcoa_axes_host_all.RDS")
 head(axes_host)
 ```
@@ -375,20 +554,37 @@ summary(anosim_result_hosts)
 ```
 
 ## Plot PCoA for hosts
-```{r plot-PCoA-host, fig.height=4, fig.width=5}
+```{r plot-PCoA-host, fig.height=4, fig.width=6}
 plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
   geom_point(aes(shape=as.character(treatment),
                  fill=as.character(site)),
              color = "black",
-             size = 4,
+             size = 5,
              alpha=0.8,
              stroke=0.5) +
   xlab(paste("PCo1 (", eigval_host$Eigval[1], " %)", sep = "")) +
   ylab(paste("PCo2 (", eigval_host$Eigval[2], " %)", sep = "")) +
-  annotate("text", x = Inf, y = -Inf, 
-           label = bquote(atop(italic(R) == .(round(r_statistic_host, 3)), italic(P) == .(format(p_value_host, scientific = TRUE)))), 
-           hjust = 1.1, vjust = -0.5, size = 4) +
-  scale_shape_manual(name = "Ecosystem\nhealth",
+  ## force ggplot2::annotate and plain font for the expression
+  ggplot2::annotate(
+    "text",
+    x      = Inf,
+    y      = -Inf,
+    label  = as.expression(
+      bquote(
+        atop(
+          italic(R) == .(round(r_statistic_host, 3)),
+          italic(P) == .(format(p_value, scientific = TRUE))
+        )
+      )
+    ),
+    fontface= "plain",
+    family  = "sans",
+    hjust   = 1.1,
+    vjust   = -0.5,
+    size    = 4,
+    parse   = FALSE
+  ) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
                      #values=c(16,17,18),
                      values=c(21,24,23),
                      breaks = c("NAT", "REST", "DAM"),
@@ -403,27 +599,53 @@ plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
                              override.aes = list(shape = 21, color = "black")),
          shape = guide_legend(title.position = "top",
                               title.hjust = 0.5)) +
-  theme_linedraw() +
+  cowplot::theme_cowplot() +
   theme(text = element_text(size = 12),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "right")
-ggsave("../Plots/diversity/pcoa_host_all_site_treat.png", plot.pcoa, device="png", dpi=600, width=5, height=4, units="in")
+ggsave("../Plots/diversity/pcoa_host_all_site_treat.png",
+       plot.pcoa,
+       device="png",
+       dpi=600,
+       width=6, height=4, units="in",
+       bg = "white")
 plot.pcoa.host
 ```
 
 ## Run PERMANOVA
-```{r permanova-virus-host-metadata}
-permanova_reduced <- adonis2(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + treatment * site, data = axes_host, method = "bray")
-write.csv(permanova_reduced, file = "../Tables/virus_host_bray_permanova.csv", row.names = TRUE)
-permanova_reduced
+### Dispersion check for sample sites and ecosystem health statuses
+```{r dispersion-check}
+bd_treat <- betadisper(as.dist(bray_curtis_dist), group = axes_host$treatment)
+bd_site  <- betadisper(as.dist(bray_curtis_dist), group = axes_host$site)
+permutest(bd_treat, permutations = 999)
+permutest(bd_site,  permutations = 999)
+plot(bd_treat)
+plot(bd_site)
 ```
 
-## Adjust p-values
-```{r p-adjust-virus-host}
-p_values <- c(permanova_reduced$`Pr(>F)`)
-p_values_bh <- p.adjust(p_values, method = "BH")
-p_values_bh
+- The three treatment groups (Natural, Damaged, Restored) do not differ significantly in their average distance to their group centroid. This means I can be confident that PERMANOVA results for treatment are not driven by differences in dispersion, but by real shifts in centroid location (community composition).
+- The seven sites differ strongly in their multivariate dispersion. Some sites have communities that are much more spread‑out in PCoA space than others. So PERMANOVA “site” effects (and any interactions with site) could be partly or entirely due to these dispersion differences rather than true shifts in community centroids.
+
+Given these results, to control for site-level heterogeneity, PerMANOVA will be run while holding sampling site constant by blocking by site. This means that I will not be able to test site itself, but any significant treatment or index effects I observe can be confidently interpreted as within‑site patterns, unaffected by the among‑site spread differences.
+
+### Run PerMANOVA using host PCoA axes, ecosystem health index, and ecosystem health status as predictors
+```{r permanova-virus-host-eco-index}
+set.seed(123)
+library("permute")
+perm <- shuffleSet(n = nrow(bray_curtis_dist), nset = 9999, control = how(blocks = axes_host$site)) # Reuse the same site-blocked permutation matrix in all tests (except for site)
+
+permanova_host_and_eco_index <- adonis2(
+  bray_curtis_dist ~
+    Axis.1 + Axis.2 + Axis.3 + Axis.4 +
+    index + treatment,
+  data = axes_host,
+  method = "bray",
+  by = "margin", # marginal tests, order‑invariant and give a read on each predictor’s unique effect
+  permutations = perm
+  )
+write.csv(permanova_host_and_eco_index, file = "../Tables/virus_host_bray_permanova.csv", row.names = TRUE)
+permanova_host_and_eco_index
 ```
 
 ## Variance partitioning
@@ -431,18 +653,22 @@ p_values_bh
 # Host composition matrix
 host_matrix <- axes_host[, c("Axis.1", "Axis.2", "Axis.3", "Axis.4")]
 
+# Ecosystem health index matrix
+eco_index_matrix <- model.matrix(~ index - 1, data = axes_host)
+
+# Ecosystem health status matrix
+treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
+
 # Site matrix
 site_matrix <- model.matrix(~ site - 1, data = axes_host)
-
-# Treatment matrix
-treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
 
 # Perform variance partitioning with separate and interaction terms
 varpart_result <- varpart(
   Y = bray_curtis_dist,            # Response matrix (virus composition)
   X = host_matrix,                 # Explanatory set 1: Host composition
-  X1 = site_matrix,                # Explanatory set 2: Site
-  X2 = treatment_matrix           # Explanatory set 3: Treatment
+  X1 = eco_index_matrix,           # Explanatory set 2: Ecosystem health index
+  X2 = treatment_matrix,           # Explanatory set 3: Ecosystem health status
+  X3 = site_matrix                 # Explanatory set 4: Sample site
 )
 write.csv(rbind(varpart_result[["part"]]$fract %>% mutate(Fraction = "basic fractions"),
                 varpart_result[["part"]]$indfract %>% mutate(Fraction = "individual fractions"),
@@ -451,14 +677,17 @@ write.csv(rbind(varpart_result[["part"]]$fract %>% mutate(Fraction = "basic frac
 varpart_result
 ```
 
-## Test significance of the unique contributions
-```{r}
-# Replace row names of host_matrix, site_matrix, and treatment_matrix
+## Test significance of the unique contributions with db-RDA
+### Format matrices for db-RDA
+```{r format-matrices-for-dbrda}
+# Replace row names of host_matrix, site_matrix, and eco_index_matrix
 rownames(host_matrix) <- rownames(bray_curtis_dist)
 rownames(site_matrix) <- rownames(bray_curtis_dist)
+rownames(eco_index_matrix) <- rownames(bray_curtis_dist)
 rownames(treatment_matrix) <- rownames(bray_curtis_dist)
 all(rownames(bray_curtis_dist) == rownames(host_matrix))
 all(rownames(bray_curtis_dist) == rownames(site_matrix))
+all(rownames(bray_curtis_dist) == rownames(eco_index_matrix))
 all(rownames(bray_curtis_dist) == rownames(treatment_matrix))
 # Convert any factors to characters
 axes_host_clean <- data.frame(lapply(axes_host, function(x) if (is.factor(x)) as.character(x) else x))
@@ -467,25 +696,376 @@ axes_host_clean <- data.frame(lapply(axes_host, function(x) if (is.factor(x)) as
 rownames(axes_host_clean) <- rownames(axes_host)
 ```
 
+### Perform db-RDA
 ```{r dbra}
-site_matrix <- model.matrix(~ site - 1, data = axes_host)
+eco_index_matrix <- model.matrix(~ index - 1, data = axes_host)
 treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
-combined_data <- cbind(axes_host, site_matrix, treatment_matrix)
-
-# Run dbRDA for site
-dbrda_site <- dbrda(bray_curtis_dist ~ site + Condition(treatment + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
-anova(dbrda_site, by = "terms")
-
-# Run dbRDA for treatment
-dbrda_treatment <- dbrda(bray_curtis_dist ~ treatment + Condition(site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
-anova(dbrda_treatment, by = "terms")
+site_matrix <- model.matrix(~ site - 1, data = axes_host)
+combined_data <- cbind(axes_host, eco_index_matrix, treatment_matrix, site_matrix)
 
 # Run dbRDA for host community axes (if Axis.1, Axis.2, etc. represent host community)
-dbrda_host <- dbrda(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + Condition(site + treatment), data = combined_data)
-anova(dbrda_host, by = "terms")
+dbrda_host <- dbrda(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + Condition(index + treatment + site), data = combined_data)
+
+# Run dbRDA for index
+dbrda_index <- dbrda(bray_curtis_dist ~ index + Condition(treatment + site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
+
+# Run dbRDA for treatment
+dbrda_treatment <- dbrda(bray_curtis_dist ~ treatment + Condition(index + site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
+
+# Run dbRDA for site
+perm_site = shuffleSet(n = nrow(bray_curtis_dist), nset = 9999, control = how()) # Use new, non-site-blocked permutation matrix for dbRDA on sites
+dbrda_site <- dbrda(bray_curtis_dist ~ site + Condition(index + treatment + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
 ```
 
-# Run the PCoA/PERMANOVA/VarPart/dbra analysis for each site
+### Run ANOVA on the db-RDA results, gather, and save
+```{r write-dbrda-results}
+# Extract just the four “pure” fractions a–d and their Adj.R²
+indf <- as.data.frame(varpart_result$part$indfract) %>%
+  rownames_to_column("fraction") %>%
+  # keep only rows whose names start with “[a]”, “[b]”, “[c]” or “[d]”
+  filter(grepl("^\\[[abcd]\\]", fraction)) %>%
+  mutate(
+    factor = case_when(
+      grepl("^\\[a\\]", fraction) ~ "Host axes",
+      grepl("^\\[b\\]", fraction) ~ "Ecosystem index",
+      grepl("^\\[c\\]", fraction) ~ "Ecosystem status",
+      grepl("^\\[d\\]", fraction) ~ "Site"
+    ),
+    Adj.R2 = Adj.R.square
+  ) %>%
+  select(factor, Adj.R2)
+
+set.seed(123)
+# Pull F-stats and p-values from your four partial db-RDAs:
+db_tests <- tibble(
+  factor   = c("Host axes", "Ecosystem index", "Ecosystem status", "Site"),
+  F        = c(
+    anova(dbrda_host,      permutations = perm)$F[1],
+    anova(dbrda_index,     permutations = perm)$F[1],
+    anova(dbrda_treatment, permutations = perm)$F[1],
+    anova(dbrda_site,      permutations = perm_site)$F[1]
+  ),
+  p.value  = c(
+    anova(dbrda_host,      permutations = perm)$`Pr(>F)`[1],
+    anova(dbrda_index,     permutations = perm)$`Pr(>F)`[1],
+    anova(dbrda_treatment, permutations = perm)$`Pr(>F)`[1],
+    anova(dbrda_site,      permutations = perm_site)$`Pr(>F)`[1]
+  )
+)
+
+# Combine into one summary table
+summary_table <- indf %>%
+  left_join(db_tests, by = "factor")
+
+write.csv(
+  summary_table,
+  file = "../Tables/dbrda_results.csv"  
+  )
+```
+
+```{r display-dbrda-results}
+summary_table
+```
+
+## Adjust and store PermANOVA  p-values, store R-squared for plotting
+```{r p-adjust-virus-host}
+p_values_index <- c(permanova_host_and_eco_index$`Pr(>F)`)
+p_values_index_bh <- p.adjust(p_values_index, method = "BH")
+p_values_index_bh <- p_values_index_bh[[5]]
+p_values_index_bh <- format(p_values_index_bh, scientific = TRUE)
+p_values_index_bh
+
+R_permanova_index <- c(permanova_host_and_eco_index$R2)
+R_permanova_index <- R_permanova_index[[5]]
+R_permanova_index <- round(R_permanova_index, 3)
+R_permanova_index
+
+p_values_treatment_bh <- format(p.adjust(permanova_host_and_eco_index$`Pr(>F)`[[6]], method = "BH"), scientific = TRUE)
+p_values_treatment_bh
+R_permanova_treatment <- round(permanova_host_and_eco_index$R2[[6]], 3)
+R_permanova_treatment
+```
+
+## Plot the PCoA with points colored by ecosystem health index
+### Merge virus PCoA axes with ecosystem health indices
+```{r merge-virus-axes-with-eco-index}
+axes.eco.index <- axes %>%
+  left_join(
+    env_data %>%
+    select(
+      SampleID,
+      index
+      ),
+  by = "SampleID")
+head(axes.eco.index)
+```
+
+### Make the plot
+```{r plot-pcoa-eco-index, fig.height=4, fig.width=7}
+plot.pcoa.eco.index <- ggplot(axes.eco.index, aes(Axis.1, Axis.2)) +
+  geom_point(
+    aes(fill = index),
+    color = "black",
+    shape = 21,
+    size  = 5
+  ) +
+  xlab(paste0("PCo1 (", eigval$Eigval[1], " %)")) +
+  ylab(paste0("PCo2 (", eigval$Eigval[2], " %)")) +
+
+  # annotation with plain fontface and sans family
+  ggplot2::annotate(
+    "text",
+    x     = 0.02,
+    y     = -0.50,
+    label = as.expression(
+      bquote(atop(
+        italic(R[index]^2) == .(R_permanova_index) * "," ~ italic(P) == .(p_values_index_bh),
+        italic(R[status]^2) == .(R_permanova_treatment) * "," ~ italic(P) == .(p_values_treatment_bh)
+      ))
+    ),
+    fontface = "plain",
+    family   = "sans",
+    hjust    = 0,
+    vjust    = -0.5,
+    size     = 4,
+    parse    = FALSE
+  ) +
+
+  viridis::scale_fill_viridis(name = "Ecosystem\nhealth index") +
+  guides(
+    fill = guide_colorbar(
+      title.position = "top",
+      title.hjust    = 0.5,
+      label.position = "left"
+    ),
+    color = "none"
+  ) +
+
+  theme_cowplot() +
+  theme(
+    panel.grid.major   = element_blank(),
+    panel.grid.minor   = element_blank(),
+    text               = element_text(size = 14),
+    legend.position    = "right"
+  )
+
+plot.pcoa.eco.index
+```
+
+## Regression of PCoA axes (viruses) over ecosystem health index
+### Format the data
+```{r format-virus-axes-with-eco-index, echo=FALSE}
+library("ggpubr");packageVersion("ggpubr")
+library("ggpmisc");packageVersion("ggpmisc")
+axes_long <- axes %>% left_join(
+  env_data %>%
+    select(
+      SampleID,
+      index
+      ),
+  by = "SampleID") %>%
+  select(SampleID, site, treatment, index, starts_with("Axis.")) %>%
+  pivot_longer(
+    cols = starts_with("Axis."),
+    names_to = "Axis",
+    values_to = "value"
+  ) %>%
+  filter(Axis %in% paste0("Axis.", 1:4)) %>%
+  mutate(Axis = gsub("\\.", " ", Axis))
+axis_labels <- paste0("Axis ", 1:4)
+axis_percents <- paste0(round(eigval[1:4, 2], 2), "%")
+names(axis_percents) <- axis_labels
+axes_long <- axes_long %>%
+  mutate(Axis = paste0(Axis, " (", axis_percents[Axis], ")"))
+head(axes_long)
+```
+
+### Just host PCo 1
+```{r plot-eco-index-pcoa1-reg, fig.height=4, fig.width=6}
+plot.eco.index.pcoa1 <- ggplot(axes_long %>%
+                                filter(Axis == "Axis 1 (16.96%)"),
+                              aes(y=value, x=index)
+                              ) +
+  geom_point(
+    aes(fill=site, shape=treatment),
+    color = "black",
+    size = 4,
+    alpha = 0.8
+    ) +
+  scale_color_brewer(palette = "Dark2", name = "Site") +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  stat_poly_line(se=FALSE, color = NA) +
+  stat_poly_eq(use_label(c("R2", "p")), size=4) +
+  ylab(expression("PCo1 (16.96%)")) +
+  xlab("Ecosystem health index") +
+  theme(
+    legend.position = "right",
+    text = element_text(size = 14)
+    ) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
+                     values=c(21,24,23),
+                     breaks = c("NAT", "REST", "DAM"),
+                     labels=c("Natural", "Restored", "Damaged")) +
+  scale_fill_brewer(name = "Sample site",
+                    palette = "Dark2",
+                    labels=c("Balmoral", "Bowness", "Crocach",
+                             "Langwell", "Migneint", "Moor House",
+                             "Stean")) +
+  guides(fill = guide_legend(title.position = "top",
+                             title.hjust = 0.5,
+                             override.aes = list(shape = 21, color = "black")),
+         shape = guide_legend(title.position = "top",
+                              title.hjust = 0.5)) +
+  cowplot::theme_cowplot()
+plot.eco.index.pcoa1
+```
+
+### All four axes
+```{r plot-eco-index-pcoa-reg, fig.height=6, fig.width=8}
+plot.eco.index.pcoa <- ggplot(axes_long, aes(x=index, y=value)) +
+  geom_point(aes(fill=site, shape=treatment), color = "black") +
+  facet_wrap(~Axis, ncol=2) +
+  scale_color_brewer(palette = "Dark2", name = "Site") +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  stat_poly_line(se=FALSE, color = NA) +
+  stat_poly_eq(use_label(c("R2")), label.y = 0.95) +
+  stat_poly_eq(use_label(c("p")), label.y = 0.85) +
+  ylab(expression("PCo axis")) +
+  xlab("Ecosystem health index") +
+  theme(legend.position = "right",
+        text = element_text(size=14)) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
+                     values=c(21,24,23),
+                     breaks = c("NAT", "REST", "DAM"),
+                     labels=c("Natural", "Restored", "Damaged")) +
+  scale_fill_brewer(name = "Sample site",
+                    palette = "Dark2",
+                    labels=c("Balmoral", "Bowness", "Crocach",
+                             "Langwell", "Migneint", "Moor House",
+                             "Stean")) +
+  guides(fill = guide_legend(title.position = "top",
+                             title.hjust = 0.5,
+                             override.aes = list(shape = 21, color = "black")),
+         shape = guide_legend(title.position = "top",
+                              title.hjust = 0.5)) +
+  cowplot::theme_cowplot()
+plot.eco.index.pcoa
+```
+
+## Combine the plots into one
+```{r fig-1, fig.height=12, fig.width=12}
+legend_plot <- cowplot::get_legend(
+  pcoa_list[[1]] +
+    theme(
+      legend.title = element_text(size = 16),
+      legend.text = element_text(size = 14),
+      legend.title.align=0.5) +
+    guides(
+      fill = guide_legend(
+        override.aes = list(size=3)
+        )
+      )
+  )
+
+Fig1 <- cowplot::plot_grid(
+  # Left major column
+  cowplot::plot_grid(
+    peat_soil_map_eco_index,
+    plot.pcoa,
+    plot.pcoa.eco.index,
+    ncol = 1,
+    nrow = 3,
+    rel_heights = c(4, 4, 4),
+    labels = c("A", "B", "D"),
+    label_fontface = "bold",
+    label_size = 24,
+    label_fontfamily = "sans",
+    label_x = -0.01,
+    label_y = 1.02
+  ),
+  
+  
+  # Middle major pseudo column
+  cowplot::plot_grid(
+    ggplot() + cowplot::theme_cowplot(),
+    ggplot() + cowplot::theme_cowplot(),
+    ncol = 1,
+    nrow = 2,
+    rel_heights = c(8, 4),
+    labels = c("", ""),
+    label_fontface = "bold",
+    label_size = 24,
+    label_fontfamily = "sans",
+    label_x = -0.01,
+    label_y = 1.02
+  ),
+  
+  
+  # Right major column
+  cowplot::plot_grid(
+    # Top 2/3 row
+    cowplot::plot_grid(
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Balmoral"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      pcoa_list[["Bowness"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Crocach"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      pcoa_list[["Langwell"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Migneint"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      pcoa_list[["Moor_House"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Stean"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      legend_plot,
+      ncol = 3,
+      nrow = 4,
+      rel_widths = c(0.25, 2.875, 2.875),
+      labels = c("", "", "", "", "", "", "", "", "", "", ""),
+      label_fontface = "bold",
+      label_size = 24,
+      label_fontfamily = "sans",
+      label_x = -0.05,
+      label_y = 1.02
+    ),
+    
+    # Bottom 1/3 row
+    cowplot::plot_grid(
+      plot.eco.index.pcoa1,
+      labels = c("E"),
+      label_fontface = "bold",
+      label_size = 24,
+      label_fontfamily = "sans",
+      label_x = -0.05,
+      label_y = 1 + 0.02*(3/3)
+    ),
+    labels = c("C", ""),
+    label_fontface = "bold",
+    label_size = 24,
+    label_fontfamily = "sans",
+    label_x = -0.05,
+    label_y = 1 + 0.02*(1.5/3),
+    ncol = 1,
+    nrow = 2,
+    rel_heights = c(8, 4)
+  ),
+  
+  
+  ncol = 3,
+  nrow = 1,
+  rel_widths = c(7, 0.25, 4.75),
+  labels = NA
+)
+
+ggsave(filename = "../Plots/diversity/Fig1.png",
+       plot = Fig1,
+       device = "png",
+       width = 12, height = 12, units = "in",
+       dpi = 600,
+       bg = "white")
+Fig1
+```
+
+# Run the PCoA for each site for hosts
 ## Define a function that will plot PCoA for each site, separately, for hosts
 ```{r PCoA-function-hosts}
 pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
@@ -508,9 +1088,6 @@ pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
     axes$SampleID <- rownames(axes)
     axes <- merge(site_metadata[, c("site", "treatment")] %>% mutate(SampleID = row.names(.)), axes, by = "SampleID")
     
-    # Save the axes data for the current site
-    saveRDS(axes, paste0("../Data/pcoa_axes_host_", site, ".RDS"))
-    
     # Store eigenvalues
     eigval <- round(pcoa$values$Relative_eig * 100, digits = 2)
     eigval <- data.frame(PC = 1:length(eigval), Eigval = eigval)
@@ -528,7 +1105,7 @@ pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
       geom_point(aes(fill = as.character(treatment)), size = 1.5, stroke = 0.75, color="black", shape=21) +
       xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
       ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
-      annotate("text", x = best_position$x,
+      ggplot2::annotate("text", x = best_position$x,
                y = best_position$y, 
                label = bquote(atop(italic(R) == .(round(r_statistic, 4)), italic(P) == .(format(p_value, scientific = TRUE)))), 
                hjust = best_position$hjust,
@@ -544,9 +1121,6 @@ pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
             panel.grid.minor = element_blank(),
             legend.position = "right",
             plot.title = element_text(hjust = 0.5))
-    
-    # Print or save the plot as needed
-    ggsave(paste0("../Plots/diversity/pcoa_host_", site, "_treat.png"), plot.pcoa, device="png", dpi=600, width=3, height=3, units="in")
     
     plots[[site]] <- plot.pcoa
   }
@@ -574,7 +1148,12 @@ combined_pcoa_plots_host
 ```
 
 ```{r save-combined-pcoa-plot-hosts}
-ggsave("../Plots/diversity/pcoa_treat_hosts.png", combined_pcoa_plots_host, device="png", dpi=600, width=7.08661, height=3.5, units="in", bg = "white")
+ggsave("../Plots/diversity/pcoa_treat_hosts.png",
+       combined_pcoa_plots_host,
+       device="png",
+       dpi=600,
+       width=7.08661, height=3.5, units="in",
+       bg = "white")
 ```
 
 ## Combine each pcoa plot
@@ -593,7 +1172,7 @@ combined_pcoas_host
 ```
 
 ```{r save-combined-host-pcoa-and-combined-host-pcoa}
-ggsave("../Plots/diversity/FigS1",
+ggsave("../Plots/diversity/FigS2.png",
        combined_pcoas_host,
        device="png",
        dpi=600,
@@ -601,115 +1180,6 @@ ggsave("../Plots/diversity/FigS1",
        bg = "white")
 ```
 
-```{r pcoa-analysis-per-site}
-# Load virus and host PCoA axes and metadata for each site
-virus_pcoa_files <- list(
-    Balmoral = "../Data/pcoa_axes_Balmoral.RDS",
-    Bowness = "../Data/pcoa_axes_Bowness.RDS",
-    Crocach = "../Data/pcoa_axes_Crocach.RDS",
-    Langwell = "../Data/pcoa_axes_Langwell.RDS",
-    Migneint = "../Data/pcoa_axes_Migneint.RDS",
-    Moor_House = "../Data/pcoa_axes_Moor_House.RDS"#,
-    #Stean = "../Data/pcoa_axes_Stean.RDS"
-)
 
-host_pcoa_files <- list(
-    Balmoral = "../Data/pcoa_axes_host_Balmoral.RDS",
-    Bowness = "../Data/pcoa_axes_host_Bowness.RDS",
-    Crocach = "../Data/pcoa_axes_host_Crocach.RDS",
-    Langwell = "../Data/pcoa_axes_host_Langwell.RDS",
-    Migneint = "../Data/pcoa_axes_host_Migneint.RDS",
-    Moor_House = "../Data/pcoa_axes_host_Moor_House.RDS"#,
-    #Stean = "../Data/pcoa_axes_host_Stean.RDS"
-)
-# Function to perform PCoA, PERMANOVA, variance partitioning, and dbRDA for each site
-analyze_site_data <- function(metadata, virus_pcoa_files, host_pcoa_files) {
-  
-  results <- list()
-  
-  for (site in names(virus_pcoa_files)) {
-    # Load virus and host PCoA axes
-    axes_virus <- readRDS(virus_pcoa_files[[site]])
-    axes_host <- readRDS(host_pcoa_files[[site]])
-    
-    # Extract the corresponding metadata for the site
-    site_metadata <- metadata[metadata$site == site, , drop = FALSE]
-    site_metadata <- cbind(site_metadata[, 1:3], site_metadata[, 5:length(colnames(site_metadata))])
-    
-    # Ensure the SampleID order matches between metadata and PCoA axes
-    axes_virus <- axes_virus[match(site_metadata$SampleID, axes_virus$SampleID), ] 
-    axes_host <- axes_host[match(site_metadata$SampleID, axes_host$SampleID), ]
-    
-    axes_virus_matrix <- as.matrix(axes_virus[, grepl("Axis", names(axes_virus))])
-    rownames(axes_virus_matrix) <- axes_virus$SampleID
-    axes_host_matrix <- as.matrix(axes_host[, grepl("Axis", names(axes_host))])
-    rownames(axes_host_matrix) <- axes_host$SampleID
-    
-    # Recalculate Bray-Curtis distance for virus
-    bray_curtis_dist_virus <- as.matrix(vegdist(axes_virus_matrix, method = 'bray', diag = TRUE))
-    
-    # Perform PERMANOVA
-    permanova_result <- adonis2(bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    
-    # Adjust p-values using BH method
-    p_values <- c(permanova_result$`Pr(>F)`)
-    p_values_bh <- p.adjust(p_values, method = "BH")
-    
-    # Variance partitioning using host PCoA axes
-    host_matrix <- as.matrix(axes_host_matrix[, c("Axis.1", "Axis.2")])
-    treatment_matrix <- model.matrix(~ treatment - 1, data = axes_virus)
-    
-    varpart_result <- varpart(
-      Y = as.matrix(bray_curtis_dist_virus),
-      X = axes_host_matrix,
-      X1 = treatment_matrix
-    )
-    
-    # Combine the necessary data into one dataframe
-    combined_data <- cbind(axes_virus[, grepl("Axis", names(axes_virus))], treatment_matrix)
-    combined_data <- combined_data %>%
-      mutate(treatment = case_when(
-        treatmentNAT == 1 & treatmentREST == 0 & treatmentDAM == 0 ~ "DAM",
-        treatmentNAT == 0 & treatmentREST == 1 & treatmentDAM == 0 ~ "REST",
-        treatmentNAT == 0 & treatmentREST == 0 & treatmentDAM == 1 ~ "DAM"
-      )) %>%
-      select(-treatmentNAT, -treatmentREST, -treatmentDAM)
-    rownames(combined_data) <- axes_virus$SampleID
-    
-    # Replace row names of host_matrix, and treatment_matrix
-    rownames(host_matrix) <- rownames(bray_curtis_dist_virus)
-    rownames(treatment_matrix) <- rownames(bray_curtis_dist_virus)
-    
-    # Run dbRDA for treatment
-    dbrda_treatment <- dbrda(bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    anova_treatment <- anova(dbrda_treatment, by = "terms")
-    
-    # Run dbRDA for host community axes
-    dbrda_host <- dbrda(bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    anova_host <- anova(dbrda_host, by = "terms")
-    
-    # Store the results
-    results[[site]] <- list(
-      PERMANOVA = permanova_result,
-      Adjusted_p_values_BH = p_values_bh,
-      Variance_Partitioning = varpart_result,
-      dbRDA_Treatment = anova_treatment,
-      dbRDA_Host = anova_host
-    )
-    
-    print(paste("Results for", site, "completed."))
-  }
-  
-  return(results)
-}
-
-# Usage:
-# results_pcoa_stats <- analyze_site_data(metadata, virus_pcoa_files, host_pcoa_files)
-```
-
-```{r pcoa-analysis-results}
-results_pcoa_stats <- analyze_site_data(metadata, virus_pcoa_files, host_pcoa_files)
-results_pcoa_stats
-```
 
 

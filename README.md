@@ -1,12 +1,14 @@
 # Welcome
-This repository contains all scripts and data tables used for the analysis of viruses in total metagenomes generated from upland peatland soils in the UK, as presented in Kosmopoulos et al. (2025; in review).
+This repository contains all scripts and data tables used for the analysis of viruses in total metagenomes generated from upland peatland soils in the UK, as presented in [Kosmopoulos et al. (2025; in review)]().
 
-Original, raw sequence reads are deposited to the NCBI Sequence Read Archive under BioProject accession PRJNA1203648. Prokaryotic metagenome-assembled genomes (MAGs) can be accessed from NCBI WGA under accession PRJNA1203648. Viral genomes can be accessed from figshare using the DOI 10.6084/m9.figshare.28107788.
+All raw sequencing data are publicly available in the NCBI Short Read Archive under BioProject accession [PRJNA1203648](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1203648). Whole assembled metagenomic contigs as well as high-quality (CheckM) prokaryotic metagenome-assembled genomes (MAGs) are available at the NCBI WGS using the same BioProject accession. All viral metagenome-assembled genomes (vMAGs) and prokaryotic metagenome-assembled genomes (medium and high quality) are publicly available on figshare under the DOI [10.6084/m9.figshare.28143446](https://doi.org/10.6084/m9.figshare.28143446).
+
+Soil samples, their associated environmental parameters, and metadata, were originally obtained and sequenced by [Pallier et al. (2025)](https://doi.org/10.1101/2025.08.01.668219).
 
 # Repository Organization
 `Scripts` contains python and shell scripts used to conduct the analyses and run the tools mentioned in the [bioinformatic workflow](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/workflow.ipynb).
 
-`Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as virus and host community summary statistics, virus and hsot genome information, virus and host genome counts, virus-host predictions, gene annotations, read mapping statistics, functional predictions, and more. It also includes the `.shp` shapefiles used to generate the map in Figure 1A.
+`Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as virus and host community summary statistics, virus and host genome information, virus and host genome counts, virus-host predictions, gene annotations, read mapping statistics, functional predictions, and more. It also includes the `.shp` shapefiles used to generate the map in Figure 1A.
 
 `Tables` include `.csv` and `.tsv` formatted data tables used in analyses to generate the data files present in `Data`. It also contains organized and summarized data that went into the Supplementary Tables.
 
@@ -17,13 +19,14 @@ Original, raw sequence reads are deposited to the NCBI Sequence Read Archive und
 # Notebook Table of Contents
 1. [Bioinformatic workflow](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/workflow.ipynb)
 2. [Gather and organize data](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/data.md)
-3. [Peatland Map and Virus/Host Diversity (Figure 1, Figure S1)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/diversity.md)
-4. [Virus Distribution (Figure 2)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_distribution.md)
-5. [Virus Genome DESeq and Clustering (Figure S2)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_deseq.md)
-6. [Host Genome DESeq and Clustering (Figure S3)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/host_deseq.md)
-7. [Virus and Host Relative Abundance (Figure 3)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_host.md)
-8. [Virus Genes (Figure 4)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_genes.md)
-9. [Virus-Host Abundance Relationships and Lysogenic Viruses (Figure 5, Figure S4)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_replication.md)
+3. [Soil Environmental Parameters (Extended Data Figure 1)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/environment.md)
+4. [Peatland Map and Virus/Host Diversity (Figure 1, Extended Data Figure 2)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/diversity.md)
+5. [Virus Distribution (Figure 2)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_distribution.md)
+6. [Virus Genome DESeq and Clustering (Extended Data Figure 3)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_deseq.md)
+7. [Host Genome DESeq and Clustering (Extended Data Figure 4)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/host_deseq.md)
+8. [Virus and Host Relative Abundance (Figure 3)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_host.md)
+9. [Virus Genes (Figure 4)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_genes.md)
+10. [Virus-Host Abundance Relationships and Lysogenic Viruses (Figure 5, Extended Data Figure 5, Extended Data Figure 6)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_replication.md)
 
 # 
 **James C. Kosmopoulos | kosmopoulos \[at\] wisc \[dot\] edu**<br>

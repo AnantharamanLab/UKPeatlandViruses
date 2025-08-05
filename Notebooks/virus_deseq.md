@@ -1,7 +1,7 @@
 Virus Genome DESeq and Abundance Clustering
 ================
 James C. Kosmopoulos
-2024-11-18
+2025-08-05
 
 # Load packages
 
@@ -82,8 +82,6 @@ res_balmoral
 ``` r
 res_balmoral <- res_balmoral %>%
   filter(!is.na(p.value))
-saveRDS(res_balmoral, "../Data/virus_deseq_results_balmoral.RDS")
-write.csv(res_balmoral, "../Tables/virus_deseq_results_balmoral.csv")
 head(res_balmoral)
 ```
 
@@ -103,8 +101,6 @@ head(res_balmoral)
 padj.cutoff <- 0.05 # Set alpha to 0.05
 sig_virus_balmoral <- res_balmoral %>%
   filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_balmoral, "../Data/sig_virus_deseq_balmoral.RDS")
-write.csv(sig_virus_balmoral, "../Tables/sig_virus_deseq_balmoral.csv")
 insig_virus_balmoral <- res_balmoral %>%
   filter(p.adjusted >= padj.cutoff)
 ```
@@ -131,7 +127,6 @@ length(unique(insig_virus_balmoral$Virus))
 tmeans_balmoral <- tmeans %>%
   select(all_of(rownames(metadata_balmoral)))
 tmeans_sig_balmoral <- tmeans_balmoral[rownames(tmeans_balmoral) %in% sig_virus_balmoral$Virus, ]
-saveRDS(tmeans_sig_balmoral, "../Data/virus_tmeans_50_norm_sig_balmoral.RDS")
 ```
 
 ## Bowness
@@ -169,8 +164,6 @@ res_bowness
 ``` r
 res_bowness <- res_bowness %>%
   filter(!is.na(p.value))
-saveRDS(res_bowness, "../Data/virus_deseq_results_bowness.RDS")
-write.csv(res_bowness, "../Tables/virus_deseq_results_bowness.csv")
 head(res_bowness)
 ```
 
@@ -190,8 +183,6 @@ head(res_bowness)
 padj.cutoff <- 0.05 # Set alpha to 0.05
 sig_virus_bowness <- res_bowness %>%
   filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_bowness, "../Data/sig_virus_deseq_bowness.RDS")
-write.csv(sig_virus_bowness, "../Tables/sig_virus_deseq_bowness.csv")
 insig_virus_bowness <- res_bowness %>%
   filter(p.adjusted >= padj.cutoff)
 ```
@@ -218,7 +209,6 @@ length(unique(insig_virus_bowness$Virus))
 tmeans_bowness <- tmeans %>%
   select(all_of(rownames(metadata_bowness)))
 tmeans_sig_bowness <- tmeans_bowness[rownames(tmeans_bowness) %in% sig_virus_bowness$Virus, ]
-saveRDS(tmeans_sig_bowness, "../Data/virus_tmeans_50_norm_sig_bowness.RDS")
 ```
 
 ## Crocach
@@ -256,8 +246,6 @@ res_crocach
 ``` r
 res_crocach <- res_crocach %>%
   filter(!is.na(p.value))
-saveRDS(res_crocach, "../Data/virus_deseq_results_crocach.RDS")
-write.csv(res_crocach, "../Tables/virus_deseq_results_crocach.csv")
 head(res_crocach)
 ```
 
@@ -277,8 +265,6 @@ head(res_crocach)
 padj.cutoff <- 0.05 # Set alpha to 0.05
 sig_virus_crocach <- res_crocach %>%
   filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_crocach, "../Data/sig_virus_deseq_crocach.RDS")
-write.csv(sig_virus_crocach, "../Tables/sig_virus_deseq_crocach.csv")
 insig_virus_crocach <- res_crocach %>%
   filter(p.adjusted >= padj.cutoff)
 ```
@@ -305,7 +291,6 @@ length(unique(insig_virus_crocach$Virus))
 tmeans_crocach <- tmeans %>%
   select(all_of(rownames(metadata_crocach)))
 tmeans_sig_crocach <- tmeans_crocach[rownames(tmeans_crocach) %in% sig_virus_crocach$Virus, ]
-saveRDS(tmeans_sig_crocach, "../Data/virus_tmeans_50_norm_sig_crocach.RDS")
 ```
 
 ## Langwell
@@ -343,8 +328,6 @@ res_langwell
 ``` r
 res_langwell <- res_langwell %>%
   filter(!is.na(p.value))
-saveRDS(res_langwell, "../Data/virus_deseq_results_langwell.RDS")
-write.csv(res_langwell, "../Tables/virus_deseq_results_langwell.csv")
 head(res_langwell)
 ```
 
@@ -364,8 +347,6 @@ head(res_langwell)
 padj.cutoff <- 0.05 # Set alpha to 0.05
 sig_virus_langwell <- res_langwell %>%
   filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_langwell, "../Data/sig_virus_deseq_langwell.RDS")
-write.csv(sig_virus_langwell, "../Tables/sig_virus_deseq_langwell.csv")
 insig_virus_langwell <- res_langwell %>%
   filter(p.adjusted >= padj.cutoff)
 ```
@@ -392,7 +373,6 @@ length(unique(insig_virus_langwell$Virus))
 tmeans_langwell <- tmeans %>%
   select(all_of(rownames(metadata_langwell)))
 tmeans_sig_langwell <- tmeans_langwell[rownames(tmeans_langwell) %in% sig_virus_langwell$Virus, ]
-saveRDS(tmeans_sig_langwell, "../Data/virus_tmeans_50_norm_sig_langwell.RDS")
 ```
 
 ## Migneint
@@ -430,8 +410,6 @@ res_migneint
 ``` r
 res_migneint <- res_migneint %>%
   filter(!is.na(p.value))
-saveRDS(res_migneint, "../Data/virus_deseq_results_migneint.RDS")
-write.csv(res_migneint, "../Tables/virus_deseq_results_migneint.csv")
 head(res_migneint)
 ```
 
@@ -451,8 +429,6 @@ head(res_migneint)
 padj.cutoff <- 0.05 # Set alpha to 0.05
 sig_virus_migneint <- res_migneint %>%
   filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_migneint, "../Data/sig_virus_deseq_migneint.RDS")
-write.csv(sig_virus_migneint, "../Tables/sig_virus_deseq_migneint.csv")
 insig_virus_migneint <- res_migneint %>%
   filter(p.adjusted >= padj.cutoff)
 ```
@@ -479,7 +455,6 @@ length(unique(insig_virus_migneint$Virus))
 tmeans_migneint <- tmeans %>%
   select(all_of(rownames(metadata_migneint)))
 tmeans_sig_migneint <- tmeans_migneint[rownames(tmeans_migneint) %in% sig_virus_migneint$Virus, ]
-saveRDS(tmeans_sig_migneint, "../Data/virus_tmeans_50_norm_sig_migneint.RDS")
 ```
 
 ## Moor House
@@ -517,8 +492,6 @@ res_moor_house
 ``` r
 res_moor_house <- res_moor_house %>%
   filter(!is.na(p.value))
-saveRDS(res_moor_house, "../Data/virus_deseq_results_moor_house.RDS")
-write.csv(res_moor_house, "../Tables/virus_deseq_results_moor_house.csv")
 head(res_moor_house)
 ```
 
@@ -538,8 +511,6 @@ head(res_moor_house)
 padj.cutoff <- 0.05 # Set alpha to 0.05
 sig_virus_moor_house <- res_moor_house %>%
   filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_moor_house, "../Data/sig_virus_deseq_moor_house.RDS")
-write.csv(sig_virus_moor_house, "../Tables/sig_virus_deseq_moor_house.csv")
 insig_virus_moor_house <- res_moor_house %>%
   filter(p.adjusted >= padj.cutoff)
 ```
@@ -566,7 +537,6 @@ length(unique(insig_virus_moor_house$Virus))
 tmeans_moor_house <- tmeans %>%
   select(all_of(rownames(metadata_moor_house)))
 tmeans_sig_moor_house <- tmeans_moor_house[rownames(tmeans_moor_house) %in% sig_virus_moor_house$Virus, ]
-saveRDS(tmeans_sig_moor_house, "../Data/virus_tmeans_50_norm_sig_moor_house.RDS")
 ```
 
 ## Stean
@@ -604,8 +574,6 @@ res_stean
 ``` r
 res_stean <- res_stean %>%
   filter(!is.na(p.value))
-saveRDS(res_stean, "../Data/virus_deseq_results_stean.RDS")
-write.csv(res_stean, "../Tables/virus_deseq_results_stean.csv")
 head(res_stean)
 ```
 
@@ -625,8 +593,6 @@ head(res_stean)
 padj.cutoff <- 0.05 # Set alpha to 0.05
 sig_virus_stean <- res_stean %>%
   filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_stean, "../Data/sig_virus_deseq_stean.RDS")
-write.csv(sig_virus_stean, "../Tables/sig_virus_deseq_stean.csv")
 insig_virus_stean <- res_stean %>%
   filter(p.adjusted >= padj.cutoff)
 ```
@@ -653,85 +619,7 @@ length(unique(insig_virus_stean$Virus))
 tmeans_stean <- tmeans %>%
   select(all_of(rownames(metadata_stean)))
 tmeans_sig_stean <- tmeans_stean[rownames(tmeans_stean) %in% sig_virus_stean$Virus, ]
-saveRDS(tmeans_sig_stean, "../Data/virus_tmeans_50_norm_sig_stean.RDS")
 ```
-
-## All sites
-
-### DESeq
-
-``` r
-dds_all <- DESeqDataSetFromMatrix(countData = virus_genome_counts %>%
-                                         select(all_of(rownames(metadata))),
-                                       colData = metadata,
-                                       design =  ~ treatment)
-dds_all <- DESeq(dds_all, test = "LRT", reduced = ~1)
-res_all <- results(dds_all) %>% tidy() %>% dplyr::rename("Virus" = "gene")
-res_all
-```
-
-    ## # A tibble: 1,548 × 7
-    ##    Virus                baseMean estimate stderror statistic  p.value p.adjusted
-    ##    <chr>                   <dbl>    <dbl>    <dbl>     <dbl>    <dbl>      <dbl>
-    ##  1 BAr1A1B1C_vRhyme_un…  1177.     0.0237    0.391      7.44 2.43e- 2   4.37e- 2
-    ##  2 LASCr2D2E2F_vRhyme_…   172.     1.25      0.484      6.64 3.61e- 2   6.10e- 2
-    ##  3 MGr2D2E2F_vRhyme_un…    47.8    0.916     0.618      4.58 1.01e- 1   1.46e- 1
-    ##  4 SEr3G3H3I_vRhyme_un…     8.61  -1.13      0.513      9.90 7.07e- 3   1.55e- 2
-    ##  5 LASCr2D2E2F_vRhyme_…   611.     0.894     0.711      1.62 4.44e- 1   5.12e- 1
-    ##  6 LASCr2D2E2F_vRhyme_…   240.    -0.758     0.660     10.8  4.44e- 3   1.08e- 2
-    ##  7 BAr3G3H3I_vRhyme_un…    21.3   -1.89      0.551     15.2  5.12e- 4   1.86e- 3
-    ##  8 MGr1A1B1C_vRhyme_un…    33.8   -3.75      0.936     13.6  1.14e- 3   3.59e- 3
-    ##  9 SEr3G3H3I_vRhyme_un…    10.9    0.700     0.423      3.66 1.60e- 1   2.16e- 1
-    ## 10 MGr1A1B1C_vRhyme_un…   188.    -0.324     0.571     80.6  3.14e-18   5.40e-16
-    ## # ℹ 1,538 more rows
-
-### Save all sites results
-
-``` r
-res_all <- res_all %>%
-  filter(!is.na(p.value))
-saveRDS(res_all, "../Data/virus_deseq_results_all_sites.RDS")
-write.csv(res_all, "../Tables/virus_deseq_results_all_sites.csv")
-head(res_all)
-```
-
-    ## # A tibble: 6 × 7
-    ##   Virus                  baseMean estimate stderror statistic p.value p.adjusted
-    ##   <chr>                     <dbl>    <dbl>    <dbl>     <dbl>   <dbl>      <dbl>
-    ## 1 BAr1A1B1C_vRhyme_unbi…  1177.     0.0237    0.391      7.44 0.0243      0.0437
-    ## 2 LASCr2D2E2F_vRhyme_un…   172.     1.25      0.484      6.64 0.0361      0.0610
-    ## 3 MGr2D2E2F_vRhyme_unbi…    47.8    0.916     0.618      4.58 0.101       0.146 
-    ## 4 SEr3G3H3I_vRhyme_unbi…     8.61  -1.13      0.513      9.90 0.00707     0.0155
-    ## 5 LASCr2D2E2F_vRhyme_un…   611.     0.894     0.711      1.62 0.444       0.512 
-    ## 6 LASCr2D2E2F_vRhyme_bi…   240.    -0.758     0.660     10.8  0.00444     0.0108
-
-### Subset to return genomes with padj \< 0.05 in all sites
-
-``` r
-padj.cutoff <- 0.05 # Set alpha to 0.05
-sig_virus_all <- res_all %>%
-  filter(p.adjusted < padj.cutoff)
-saveRDS(sig_virus_all, "../Data/sig_virus_deseq_all_sites.RDS")
-write.csv(sig_virus_all, "../Tables/sig_virus_deseq_all_sites.csv")
-insig_virus_all <- res_all %>%
-  filter(p.adjusted >= padj.cutoff)
-```
-
-### Get number of significant genomes in all sites
-
-``` r
-length(unique(sig_virus_all$Virus))
-```
-
-    ## [1] 887
-
-### Get number of insignificant genomes in all sites
-
-``` r
-length(unique(insig_virus_all$Virus))
-```
-
-    ## [1] 661
 
 # Combine DESeq2 result tables and write
 
@@ -870,7 +758,6 @@ virus.clusters.balmoral <- virus.clusters.balmoral %>%
                            Cluster == 2 ~ "Restored-abundant",
                            Cluster == 3 ~ "Damaged-abundant"))
 virus.clusters.balmoral$site <- "Balmoral"
-saveRDS(virus.clusters.balmoral, file = "../Data/virus_clusters_balmoral.RDS")
 head(virus.clusters.balmoral)
 ```
 
@@ -980,7 +867,6 @@ virus.clusters.bowness <- virus.clusters.bowness %>%
                            Cluster == 2 ~ "Restored-abundant",
                            Cluster == 3 ~ "Damaged-abundant"))
 virus.clusters.bowness$site <- "Bowness"
-saveRDS(virus.clusters.bowness, file = "../Data/virus_clusters_bowness.RDS")
 head(virus.clusters.bowness)
 ```
 
@@ -1090,7 +976,6 @@ virus.clusters.crocach <- virus.clusters.crocach %>%
                            Cluster == 2 ~ "Restored-abundant",
                            Cluster == 3 ~ "Damaged-abundant"))
 virus.clusters.crocach$site <- "Crocach"
-saveRDS(virus.clusters.crocach, file = "../Data/virus_clusters_crocach.RDS")
 head(virus.clusters.crocach)
 ```
 
@@ -1200,7 +1085,6 @@ virus.clusters.langwell <- virus.clusters.langwell %>%
                            Cluster == 2 ~ "Damaged-abundant",
                            Cluster == 3 ~ "Natural-abundant"))
 virus.clusters.langwell$site <- "Langwell"
-saveRDS(virus.clusters.langwell, file = "../Data/virus_clusters_langwell.RDS")
 head(virus.clusters.langwell)
 ```
 
@@ -1310,7 +1194,6 @@ virus.clusters.migneint <- virus.clusters.migneint %>%
                            Cluster == 2 ~ "Damaged-abundant",
                            Cluster == 3 ~ "Natural-abundant"))
 virus.clusters.migneint$site <- "Migneint"
-saveRDS(virus.clusters.migneint, file = "../Data/virus_clusters_migneint.RDS")
 head(virus.clusters.migneint)
 ```
 
@@ -1420,7 +1303,6 @@ virus.clusters.moor_house <- virus.clusters.moor_house %>%
                            Cluster == 2 ~ "Natural-abundant",
                            Cluster == 3 ~ "Restored-abundant"))
 virus.clusters.moor_house$site <- "Moor_House"
-saveRDS(virus.clusters.moor_house, file = "../Data/virus_clusters_moor_house.RDS")
 head(virus.clusters.moor_house)
 ```
 
@@ -1529,7 +1411,6 @@ virus.clusters.stean <- virus.clusters.stean %>%
   mutate(Title = case_when(Cluster == 1 ~ "Restored-abundant",
                            Cluster == 2 ~ "Damaged-abundant"))
 virus.clusters.stean$site <- "Stean"
-saveRDS(virus.clusters.stean, file = "../Data/virus_clusters_stean.RDS")
 head(virus.clusters.stean)
 ```
 

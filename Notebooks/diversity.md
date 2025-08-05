@@ -1,7 +1,7 @@
-Peatland Map and Virus/Host Diversity
+Peatland Sampling Map and Virus/Host Diversity
 ================
 James C. Kosmopoulos
-2024-11-18
+2025-08-05
 
 # Map
 
@@ -29,7 +29,7 @@ library("mapdata");packageVersion("mapdata")
 library("sf");packageVersion("sf")
 ```
 
-    ## [1] '1.0.16'
+    ## [1] '1.0.19'
 
 ``` r
 library("ggrepel");packageVersion("ggrepel")
@@ -54,7 +54,7 @@ england_peatlands <- st_read("../Data/Peaty_Soils_Location_(England)___BGS_&_NSR
 ```
 
     ## Reading layer `Peaty_Soils_Location_(England)___BGS_&_NSRI' from data source 
-    ##   `/Users/kosmopoulos/Library/CloudStorage/Dropbox/RESEARCH/AnantharamanLab/Peatlands/manuscript/UKPeatlandViruses/Data/Peaty_Soils_Location_(England)___BGS_&_NSRI.shp' 
+    ##   `/Users/kosmopoulos/Library/CloudStorage/Dropbox/Research/AnantharamanLab/Peatlands/manuscript/UKPeatlandViruses/Data/Peaty_Soils_Location_(England)___BGS_&_NSRI.shp' 
     ##   using driver `ESRI Shapefile'
     ## Simple feature collection with 9028 features and 4 fields
     ## Geometry type: POLYGON
@@ -67,7 +67,7 @@ wales_peatlands <- st_read("../Data/Unified_peat_map_for_Wales.shp") # Source: h
 ```
 
     ## Reading layer `Unified_peat_map_for_Wales' from data source 
-    ##   `/Users/kosmopoulos/Library/CloudStorage/Dropbox/RESEARCH/AnantharamanLab/Peatlands/manuscript/UKPeatlandViruses/Data/Unified_peat_map_for_Wales.shp' 
+    ##   `/Users/kosmopoulos/Library/CloudStorage/Dropbox/Research/AnantharamanLab/Peatlands/manuscript/UKPeatlandViruses/Data/Unified_peat_map_for_Wales.shp' 
     ##   using driver `ESRI Shapefile'
     ## Simple feature collection with 1 feature and 1 field
     ## Geometry type: MULTIPOLYGON
@@ -82,7 +82,7 @@ scotland_peatlands <- st_read("../Data/CARBONPEATLANDMAP_SCOTLAND.shp") # Source
 ```
 
     ## Reading layer `CARBONPEATLANDMAP_SCOTLAND' from data source 
-    ##   `/Users/kosmopoulos/Library/CloudStorage/Dropbox/RESEARCH/AnantharamanLab/Peatlands/manuscript/UKPeatlandViruses/Data/CARBONPEATLANDMAP_SCOTLAND.shp' 
+    ##   `/Users/kosmopoulos/Library/CloudStorage/Dropbox/Research/AnantharamanLab/Peatlands/manuscript/UKPeatlandViruses/Data/CARBONPEATLANDMAP_SCOTLAND.shp' 
     ##   using driver `ESRI Shapefile'
     ## Simple feature collection with 439659 features and 47 fields
     ## Geometry type: MULTIPOLYGON
@@ -92,7 +92,7 @@ scotland_peatlands <- st_read("../Data/CARBONPEATLANDMAP_SCOTLAND.shp") # Source
 
 ``` r
 scotland_peatlands <- scotland_peatlands %>%
-  filter(grepl("peat", COMPSOIL) | grepl("Peat", COMPSOIL)) # Only peat areas
+  filter(grepl("peat", COMPSOIL) | grepl("Peat", COMPSOIL) | grepl("peat", MSSG_NAME) | grepl("Peat", MSSG_NAME) | grepl("peat", SMU_NAME) | grepl("Peat", SMU_NAME)) # Only peat areas
 ```
 
 ## Ensure all data are in the same coordinate system
@@ -117,69 +117,281 @@ labels <- data.frame(
 
 ``` r
 peat_soil_map <- ggplot() +
-  geom_polygon(data = uk_map, aes(x = long, y = lat, group = group), fill = "grey90", color = "black") +
-  geom_sf(data = england_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
-  geom_sf(data = wales_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
-  geom_sf(data = scotland_peatlands, fill = "#4f3a2b", color = NA, alpha = 1) +
-  coord_sf(xlim = c(-8, 2), ylim = c(50, 60.75)) +
+  # Base polygon (UK outline)
+  geom_polygon(
+    data = uk_map,
+    aes(x = long, y = lat, group = group),
+    fill = "grey90",
+    color = "black",
+    linewidth = 1
+  ) +
+  # Peatlands layers
+  geom_sf(data = england_peatlands, fill = "#654321", color = NA, alpha = 1) +
+  geom_sf(data = wales_peatlands, fill = "#654321", color = NA, alpha = 1) +
+  geom_sf(data = scotland_peatlands, fill = "#654321", color = NA, alpha = 1) +
+  # Expand the bounding box slightly to give label space
+  coord_sf(xlim = c(-12, 4), ylim = c(50, 60.5)) +
+  # Minimal theme
   theme_void() +
-  geom_point(data = labels,
-             aes(x = lon, y = lat),
-             color = "#E41A1C",
-             size = 2) +
-  geom_text_repel(data = labels,
-                  aes(x = lon, y = lat, label = name),
-                  fontface = "bold",
-                  size = 4,
-                  color = "white",
-                  bg.color = "black",
-                  bg.r = .15,
-                  box.padding = 0.5,
-                  segment.color = "#E41A1C",
-                  force = 4
-                  )
+  # Points for each site
+  geom_point(
+    data = labels,
+    aes(x = lon, y = lat),
+    color = "#E41A1C",
+    size = 4
+  ) +
+  # Repelled text labels
+  geom_text_repel(
+    data = labels,
+    aes(x = lon, y = lat, label = name),
+    fontface = "bold",
+    size = 8,
+    color = "white",
+    bg.color = "black",
+    bg.r = 0.125,
+    # Increase the padding around labels and the points
+    box.padding = unit(1.125, "lines"),
+    # Control how strongly labels push away from each other & from points
+    force = 2,
+    # Color of the connecting segments
+    segment.color = "#E41A1C"
+  )
+
 peat_soil_map
 ```
 
 ![](diversity_files/figure-gfm/plot-map-1.png)<!-- -->
 
-## Save the plot
+## Add ecosystem health index variation
+
+### Load and format the data
 
 ``` r
-ggsave(filename = "../Plots/map/sample_sites.png", plot = peat_soil_map, device = "png", dpi = 600, height = 6, width = 4, units = "in")
+eco_index <- readRDS("../Data/env_data.RDS") %>%
+  select(SampleID, site, treatment, index) %>%
+  mutate(
+    shape = case_when(
+      treatment == "NAT" ~ 21,
+      treatment == "REST" ~ 24,
+      treatment == "DAM" ~ 23
+    )
+  ) %>%
+  filter(!is.na(index))
+eco_index_avg <- eco_index %>%
+  select(site, treatment, shape, index) %>%
+  group_by(site, treatment, shape) %>%
+  summarise(avg_index = mean(index))
+
+eco_plot_data <- eco_index_avg %>%
+  left_join(labels %>% select(name, lon, lat), by = join_by(site == name))
+
+top <- 58.5
+bottom <- 50.5
+label_positions <- tibble(
+  site = c(
+    "Crocach", "Langwell", "Balmoral", "Bowness", "Moor House", "Stean", "Migneint"
+    ),
+  label_x = -12.5,
+  # label_y = c(59.0, 58.0, 57.0, 55.5, 54.5, 53.0, 52.0)
+  label_y = c(
+    bottom + (6/6)*(top-bottom),
+    bottom + (5/6)*(top-bottom),
+    bottom + (4/6)*(top-bottom),
+    bottom + (3/6)*(top-bottom),
+    bottom + (2/6)*(top-bottom),
+    bottom + (1/6)*(top-bottom),
+    bottom + (0/7)*(top-bottom))
+)
+
+treatment_offsets <- tibble(
+  treatment = c("NAT","REST","DAM"),
+  dx = c(1, 2.3, 3.6)
+)
+eco_index_avg <- eco_index_avg %>%
+  mutate(site = gsub("_", " ", site))
+eco_plot_data <- eco_index_avg %>%
+  # filter(!is.na(avg_index)) %>%
+  left_join(labels %>% select(site = name, lon, lat), by = "site") %>%
+  left_join(label_positions, by = "site") %>%
+  left_join(treatment_offsets, by = "treatment") %>%
+  mutate(
+    x_shape = label_x + dx,
+    y_shape = label_y
+  )
+eco_plot_data
+```
+
+    ## # A tibble: 20 × 11
+    ## # Groups:   site, treatment [20]
+    ##    site      treatment shape avg_index   lon   lat label_x label_y    dx x_shape
+    ##    <chr>     <chr>     <dbl>     <dbl> <dbl> <dbl>   <dbl>   <dbl> <dbl>   <dbl>
+    ##  1 Balmoral  DAM          23   -1.03   -3.16  56.9   -12.5    55.8   3.6    -8.9
+    ##  2 Balmoral  NAT          21   -0.368  -3.16  56.9   -12.5    55.8   1     -11.5
+    ##  3 Balmoral  REST         24   -0.542  -3.16  56.9   -12.5    55.8   2.3   -10.2
+    ##  4 Bowness   DAM          23   -0.648  -3.24  54.9   -12.5    54.5   3.6    -8.9
+    ##  5 Bowness   NAT          21   -0.0130 -3.24  54.9   -12.5    54.5   1     -11.5
+    ##  6 Bowness   REST         24    0.202  -3.24  54.9   -12.5    54.5   2.3   -10.2
+    ##  7 Crocach   DAM          23    0.225  -4.00  58.4   -12.5    58.5   3.6    -8.9
+    ##  8 Crocach   NAT          21    0.547  -4.00  58.4   -12.5    58.5   1     -11.5
+    ##  9 Crocach   REST         24    0.181  -4.00  58.4   -12.5    58.5   2.3   -10.2
+    ## 10 Langwell  DAM          23   -0.268  -3.61  58.2   -12.5    57.2   3.6    -8.9
+    ## 11 Langwell  NAT          21    0.577  -3.61  58.2   -12.5    57.2   1     -11.5
+    ## 12 Langwell  REST         24   -0.107  -3.61  58.2   -12.5    57.2   2.3   -10.2
+    ## 13 Migneint  DAM          23    0.0450 -3.82  53.0   -12.5    50.5   3.6    -8.9
+    ## 14 Migneint  NAT          21    1.07   -3.82  53.0   -12.5    50.5   1     -11.5
+    ## 15 Migneint  REST         24    0.657  -3.82  53.0   -12.5    50.5   2.3   -10.2
+    ## 16 Moor Hou… DAM          23   -0.169  -2.38  54.7   -12.5    53.2   3.6    -8.9
+    ## 17 Moor Hou… NAT          21    0.285  -2.38  54.7   -12.5    53.2   1     -11.5
+    ## 18 Moor Hou… REST         24   -0.135  -2.38  54.7   -12.5    53.2   2.3   -10.2
+    ## 19 Stean     DAM          23   -0.771  -1.95  54.1   -12.5    51.8   3.6    -8.9
+    ## 20 Stean     REST         24    0.178  -1.95  54.1   -12.5    51.8   2.3   -10.2
+    ## # ℹ 1 more variable: y_shape <dbl>
+
+``` r
+segment_data <- eco_plot_data %>%
+  group_by(site) %>%
+  filter(dx == max(dx)) %>%
+  ungroup()
+segment_data
+```
+
+    ## # A tibble: 7 × 11
+    ##   site       treatment shape avg_index   lon   lat label_x label_y    dx x_shape
+    ##   <chr>      <chr>     <dbl>     <dbl> <dbl> <dbl>   <dbl>   <dbl> <dbl>   <dbl>
+    ## 1 Balmoral   DAM          23   -1.03   -3.16  56.9   -12.5    55.8   3.6    -8.9
+    ## 2 Bowness    DAM          23   -0.648  -3.24  54.9   -12.5    54.5   3.6    -8.9
+    ## 3 Crocach    DAM          23    0.225  -4.00  58.4   -12.5    58.5   3.6    -8.9
+    ## 4 Langwell   DAM          23   -0.268  -3.61  58.2   -12.5    57.2   3.6    -8.9
+    ## 5 Migneint   DAM          23    0.0450 -3.82  53.0   -12.5    50.5   3.6    -8.9
+    ## 6 Moor House DAM          23   -0.169  -2.38  54.7   -12.5    53.2   3.6    -8.9
+    ## 7 Stean      DAM          23   -0.771  -1.95  54.1   -12.5    51.8   3.6    -8.9
+    ## # ℹ 1 more variable: y_shape <dbl>
+
+### Plot the map with ecosystem index
+
+``` r
+peat_soil_map_eco_index <-
+  ggplot() +
+  # Base polygon (UK outline)
+  geom_polygon(
+    data = uk_map,
+    aes(x = long, y = lat, group = group),
+    fill = "grey90", color = "black", linewidth = 0.5
+  ) +
+  # Peatlands layers
+  geom_sf(
+    data = england_peatlands,
+    fill = "#7B3F00", color = NA, alpha = 1
+    ) +
+  geom_sf(
+    data = wales_peatlands,
+    fill = "#7B3F00", color = NA, alpha = 1
+    ) +
+  geom_sf(
+    data = scotland_peatlands,
+    fill = "#7B3F00", color = NA, alpha = 1
+    ) +
+  # Expand the bounding box slightly to give label space
+  coord_sf(
+    xlim = c(-20.25, 1.5),
+    ylim = c(50.25, 59)
+    ) +
+  # Minimal theme
+  theme_void() +
+  # connector from shape back to real map point
+  geom_segment(
+    data = segment_data,
+    aes(x = x_shape, y = y_shape, xend = lon, yend = lat),
+    color = "black", size = 0.66
+  ) +
+  # Points for each site
+  geom_point(
+    data = labels,
+    aes(x = lon, y = lat),
+    color = "black", fill = "red", size = 3, shape = 21, stroke = 1
+  ) +
+  # draw the fan of 3 treatment shapes next to each label
+  geom_point(
+    data = eco_plot_data,
+    aes(x = x_shape, y = y_shape, shape = treatment, fill = avg_index),
+    color  = "black", size = 5, stroke = 1
+  ) +
+  # give each treatment its numeric code
+  scale_shape_manual(
+    name   = "Ecosystem\nhealth status",
+    values = c(
+      NAT  = 21, # filled circle
+      REST = 24, # filled triangle
+      DAM  = 23 # filled diamond
+    ),
+    breaks = c("NAT", "REST", "DAM"),
+    labels=c("Natural", "Restored", "Damaged")
+  ) +
+  # continuous viridis for the index
+  scale_fill_viridis_c(
+    name   = "Avg. ecosystem\nhealth index",
+    option = "viridis"
+  ) +
+  # draw the fixed labels (one per site)
+  geom_text(
+    data = label_positions,
+    aes(x = label_x, y = label_y, label = site),
+    hjust = 1, # right align
+    fontface = "bold",
+    color = "black",
+    size = 7,
+    nudge_x = 0.02 # little buffer so text outline doesn’t overlap point
+  ) +
+  # give each guide an explicit order
+  guides(
+    shape = guide_legend(
+      order = 1,
+      title.position = "top",
+      title.hjust = 0.5,
+      override.aes = list(fill = "grey50", size = 4)
+    ),
+    fill = guide_colorbar(
+      order = 2,
+      title.position = "top",
+      title.hjust = 0.5,
+      label.position = "left"
+    )
+  ) +
+  # stack legends vertically, center them, and adjust spacing
+  theme(
+    legend.position = "right", # move both legends below plot
+    legend.box = "vertical", # stack shape above fill
+    legend.box.just = "center", # center the stacked box
+    legend.title.align = 0.5, # center titles inside each legend
+    legend.margin = margin(t = 5, r = 10, b = 5, l = -25, unit = "pt"),
+    text = element_text(size = 14)
+  )
+
+peat_soil_map_eco_index
+```
+
+![](diversity_files/figure-gfm/plot-map-with-eco-index-1.png)<!-- -->
+
+### Save the map image
+
+``` r
+ggsave("../Plots/diversity/sample_map.png",
+       peat_soil_map_eco_index,
+       device="png",
+       dpi=600,
+       width=6, height=4, units="in",
+       bg = "white")
 ```
 
 # Diversity
 
 # Load packages
 
-``` r
-library("tidyverse");packageVersion("tidyverse")
-```
-
-    ## [1] '2.0.0'
-
-``` r
-library("vegan");packageVersion("vegan")
-```
-
     ## [1] '2.6.6.1'
-
-``` r
-library("ape");packageVersion("ape")
-```
 
     ## [1] '5.8'
 
-``` r
-library("RColorBrewer");packageVersion("RColorBrewer")
-```
-
     ## [1] '1.1.3'
-
-``` r
-library("cowplot");packageVersion("cowplot")
-```
 
     ## [1] '1.1.3'
 
@@ -200,7 +412,6 @@ metadata <- readRDS("../Data/metadata_simple.RDS") %>%
 ``` r
 tmeans.xform <- decostand(tmeans, method="hellinger")
 bray_curtis_dist <- as.matrix(vegdist(t(tmeans.xform), method='bray'))
-saveRDS(bray_curtis_dist, file="../Data/bray_curtis_hellinger.RDS")
 ```
 
 ### Perform pcoa
@@ -338,8 +549,8 @@ differences between the groups.
 
 ``` r
 anosim_result <- anosim(bray_curtis_dist, metadata$site)
-r_statistic <- anosim_result$statistic
-p_value <- anosim_result$signif
+r_statistic <- round(anosim_result$statistic, 3)
+p_value <- format(anosim_result$signif, scientific = TRUE)
 summary(anosim_result)
 ```
 
@@ -356,7 +567,7 @@ summary(anosim_result)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0420 0.0555 0.0719 0.0828 
+    ## 0.0412 0.0569 0.0678 0.0847 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75%   100%    N
@@ -382,15 +593,32 @@ plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
   geom_point(aes(shape=as.character(treatment),
                  fill=as.character(site)),
              color = "black",
-             size = 4,
+             size = 5,
              alpha=0.8,
              stroke=0.5) +
   xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
   ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
-  annotate("text", x = Inf, y = -Inf, 
-           label = bquote(atop(italic(R) == .(round(r_statistic, 3)), italic(P) == .(format(p_value, scientific = TRUE)))), 
-           hjust = 1.1, vjust = -0.5, size = 4) +
-  scale_shape_manual(name = "Ecosystem\nhealth",
+  ## force ggplot2::annotate and plain font for the expression
+  ggplot2::annotate(
+    "text",
+    x      = Inf,
+    y      = -Inf,
+    label  = as.expression(
+      bquote(
+        atop(
+          italic(R) == .(r_statistic),
+          italic(P) == .(p_value)
+        )
+      )
+    ),
+    fontface= "plain",
+    family  = "sans",
+    hjust   = 1.1,
+    vjust   = -0.5,
+    size    = 4,
+    parse   = FALSE
+  ) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
                      #values=c(16,17,18),
                      values=c(21,24,23),
                      breaks = c("NAT", "REST", "DAM"),
@@ -405,12 +633,17 @@ plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
                              override.aes = list(shape = 21, color = "black")),
          shape = guide_legend(title.position = "top",
                               title.hjust = 0.5)) +
-  theme_linedraw() +
-  theme(text = element_text(size = 12),
+  cowplot::theme_cowplot() +
+  theme(text = element_text(size = 14),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "right")
-ggsave("../Plots/diversity/pcoa_all_site_treat.png", plot.pcoa, device="png", dpi=600, width=5, height=4, units="in")
+ggsave("../Plots/diversity/pcoa_all_site_treat.png",
+       plot.pcoa,
+       device="png",
+       dpi=600,
+       width=6, height=4, units="in",
+       bg = "white")
 plot.pcoa
 ```
 
@@ -468,17 +701,14 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
     axes$SampleID <- rownames(axes)
     axes <- merge(site_metadata[, c("site", "treatment")] %>% mutate(SampleID = row.names(.)), axes, by = "SampleID")
     
-    # Save the axes data for the current site
-    saveRDS(axes, paste0("../Data/pcoa_axes_", site, ".RDS"))
-    
     # Store eigenvalues
     eigval <- round(pcoa$values$Relative_eig * 100, digits = 2)
     eigval <- data.frame(PC = 1:length(eigval), Eigval = eigval)
     
     # Perform ANOSIM using treatment as the grouping variable
     anosim_result <- anosim(bray_curtis_dist, site_metadata$treatment)
-    r_statistic <- anosim_result$statistic
-    p_value <- anosim_result$signif
+    r_statistic <- round(anosim_result$statistic, 3)
+    p_value <- format(anosim_result$signif, scientific = TRUE)
     
     # Find the best position for the annotation
     best_position <- find_best_annotation_position(axes)
@@ -488,14 +718,32 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
       geom_point(aes(fill = as.character(treatment)), size = 1.5, stroke = 0.75, color="black", shape=21) +
       xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
       ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
-      annotate("text", x = best_position$x,
-               y = best_position$y, 
-               label = bquote(atop(italic(R) == .(round(r_statistic, 4)), italic(P) == .(format(p_value, scientific = TRUE)))), 
-               hjust = best_position$hjust,
-               vjust = best_position$vjust, 
-               size = 2.5,
-               lineheight = 0.5) +
-      scale_fill_manual(values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"), name = "Ecosystem\nhealth", breaks = c("NAT", "REST", "DAM"), labels = c("Natural", "Restored", "Damaged")) +
+      ## force ggplot2::annotate and plain font for the expression
+      ggplot2::annotate(
+        "text",
+        x      = Inf,
+        y      = -Inf,
+        label  = as.expression(
+          bquote(
+            atop(
+              italic(R) == .(r_statistic),
+              italic(P) == .(p_value)
+            )
+          )
+        ),
+        fontface= "plain",
+        family  = "sans",
+        hjust   = 1.1,
+        vjust   = -0.5,
+        size    = 4,
+        parse   = FALSE
+      ) +
+      scale_fill_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
       guides(fill = guide_legend(title.position = "top", title.hjust = 0.5)) +
       theme_linedraw() +
       ggtitle(ifelse(site == "Moor_House", "Moor House", site)) + # Change title for "Moor_House"
@@ -504,9 +752,6 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
             panel.grid.minor = element_blank(),
             legend.position = "right",
             plot.title = element_text(hjust = 0.5))
-    
-    # Print or save the plot as needed
-    ggsave(paste0("../Plots/diversity/pcoa_", site, "_treat.png"), plot.pcoa, device="png", dpi=600, width=3, height=3, units="in")
     
     plots[[site]] <- plot.pcoa
   }
@@ -558,64 +803,6 @@ pcoa_list
 
 ![](diversity_files/figure-gfm/plot-PCoA-separated-7.png)<!-- -->
 
-### Combine into one plot with cowplot
-
-``` r
-legend_plot <- cowplot::get_legend(pcoa_list[[1]] + theme(legend.title = element_text(size = 14), legend.text = element_text(size = 12), legend.title.align=0.5) + guides(fill = guide_legend(override.aes = list(size=3))))
-for(name in names(pcoa_list)){
-  pcoa_list[[name]] <- pcoa_list[[name]] + theme(legend.position = "none")
-}
-combined_pcoa_plots <- cowplot::plot_grid(plotlist = c(pcoa_list, list(legend_plot)), nrow = 2)
-combined_pcoa_plots
-```
-
-![](diversity_files/figure-gfm/combine-pcoa-cowplot-1.png)<!-- -->
-
-``` r
-ggsave("../Plots/diversity/pcoa_treat.png", combined_pcoa_plots, device="png", dpi=600, width=7.08661, height=3.5, units="in", bg = "white")
-```
-
-# Combine map and virus PCoA plots
-
-## First combine the map and all sites PCoA
-
-``` r
-combined_map_pcoa_all <- cowplot::plot_grid(peat_soil_map, plot.pcoa,
-                                           ncol = 2,
-                                           rel_widths = c(6, 13),
-                                           labels = c("A", "B"),
-                                           label_fontface = "bold",
-                                           label_fontfamily = "sans",
-                                           label_size = 16)
-combined_map_pcoa_all
-```
-
-![](diversity_files/figure-gfm/combine-map-pcoa-all-1.png)<!-- -->
-
-## Then combine with the per-site PCoA
-
-``` r
-combined_map_pcoas <- cowplot::plot_grid(combined_map_pcoa_all, combined_pcoa_plots,
-                                           nrow = 2,
-                                           rel_heights = c(8, 9),
-                                           labels = c("", "C"),
-                                           label_fontface = "bold",
-                                           label_fontfamily = "sans",
-                                           label_size = 16)
-combined_map_pcoas
-```
-
-![](diversity_files/figure-gfm/combine-all-plots-1.png)<!-- -->
-
-``` r
-ggsave("../Plots/diversity/Fig1.png",
-       combined_map_pcoas,
-       device = "png",
-       dpi = 600,
-       width = 8, height = 8, units="in",
-       bg = "white")
-```
-
 # Is virus community composition influenced by host community composition?
 
 ## Create host dissimilarity matrix
@@ -624,16 +811,22 @@ ggsave("../Plots/diversity/Fig1.png",
 tmeans.host <- readRDS("../Data/host_tmeans_norm_50.RDS")
 tmeans.xform.host <- decostand(tmeans.host, method="hellinger")
 bray_curtis_dist_host <- as.matrix(vegdist(t(tmeans.xform.host), method='bray'))
-saveRDS(bray_curtis_dist_host, file="../Data/bray_curtis_hellinger_host.RDS")
 ```
 
 ## Perform PCoA on hosts for all sites
 
 ``` r
+env_data <- read_rds("../Data/env_data.RDS")
 pcoa_host <- pcoa(as.dist(bray_curtis_dist_host))
 axes_host <- as.data.frame(pcoa_host$vectors) # make a dataframe named axes, put pcoa values in there
 axes_host$SampleID <- rownames(axes_host) # Give df extra column with the rownames in it 
-axes_host <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes_host, by.x = "SampleID", by.y = "SampleID")
+axes_host <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes_host, by.x = "SampleID", by.y = "SampleID") %>% left_join(
+  env_data %>%
+    select(
+      SampleID,
+      index # Include ecosystem health indices too, for PerMANOVA with hsot axes and index as predictors
+      ),
+  by = "SampleID")
 saveRDS(axes_host, "../Data/pcoa_axes_host_all.RDS")
 head(axes_host)
 ```
@@ -694,13 +887,13 @@ head(axes_host)
     ## 4  0.002844365  0.0012303142 -0.0008063377  0.001979308 -0.0041501992
     ## 5  0.007587850 -0.0090242957  0.0002141975  0.001419993  0.0040379679
     ## 6 -0.006978365  0.0111371787 -0.0052932605  0.001882011 -0.0005719896
-    ##         Axis.44       Axis.45      Axis.46
-    ## 1 -0.0008516797  0.0080775905  0.002225515
-    ## 2 -0.0012063246  0.0059283471 -0.006508267
-    ## 3  0.0028003178 -0.0072268099  0.006224829
-    ## 4 -0.0005039340  0.0009647050 -0.003618141
-    ## 5  0.0014378406 -0.0009912762  0.004272346
-    ## 6  0.0003206199  0.0030580837  0.001951821
+    ##         Axis.44       Axis.45      Axis.46      index
+    ## 1 -0.0008516797  0.0080775905  0.002225515 -0.8723888
+    ## 2 -0.0012063246  0.0059283471 -0.006508267 -0.3207317
+    ## 3  0.0028003178 -0.0072268099  0.006224829  0.0897700
+    ## 4 -0.0005039340  0.0009647050 -0.003618141 -0.8617882
+    ## 5  0.0014378406 -0.0009912762  0.004272346 -0.4388270
+    ## 6  0.0003206199  0.0030580837  0.001951821 -0.3250964
 
 ### Store eigenvalues
 
@@ -731,7 +924,7 @@ summary(anosim_result_hosts)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0447 0.0604 0.0690 0.0812 
+    ## 0.0450 0.0601 0.0750 0.0933 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75% 100%    N
@@ -751,15 +944,32 @@ plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
   geom_point(aes(shape=as.character(treatment),
                  fill=as.character(site)),
              color = "black",
-             size = 4,
+             size = 5,
              alpha=0.8,
              stroke=0.5) +
   xlab(paste("PCo1 (", eigval_host$Eigval[1], " %)", sep = "")) +
   ylab(paste("PCo2 (", eigval_host$Eigval[2], " %)", sep = "")) +
-  annotate("text", x = Inf, y = -Inf, 
-           label = bquote(atop(italic(R) == .(round(r_statistic_host, 3)), italic(P) == .(format(p_value_host, scientific = TRUE)))), 
-           hjust = 1.1, vjust = -0.5, size = 4) +
-  scale_shape_manual(name = "Ecosystem\nhealth",
+  ## force ggplot2::annotate and plain font for the expression
+  ggplot2::annotate(
+    "text",
+    x      = Inf,
+    y      = -Inf,
+    label  = as.expression(
+      bquote(
+        atop(
+          italic(R) == .(round(r_statistic_host, 3)),
+          italic(P) == .(format(p_value, scientific = TRUE))
+        )
+      )
+    ),
+    fontface= "plain",
+    family  = "sans",
+    hjust   = 1.1,
+    vjust   = -0.5,
+    size    = 4,
+    parse   = FALSE
+  ) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
                      #values=c(16,17,18),
                      values=c(21,24,23),
                      breaks = c("NAT", "REST", "DAM"),
@@ -774,12 +984,17 @@ plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
                              override.aes = list(shape = 21, color = "black")),
          shape = guide_legend(title.position = "top",
                               title.hjust = 0.5)) +
-  theme_linedraw() +
+  cowplot::theme_cowplot() +
   theme(text = element_text(size = 12),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "right")
-ggsave("../Plots/diversity/pcoa_host_all_site_treat.png", plot.pcoa, device="png", dpi=600, width=5, height=4, units="in")
+ggsave("../Plots/diversity/pcoa_host_all_site_treat.png",
+       plot.pcoa,
+       device="png",
+       dpi=600,
+       width=6, height=4, units="in",
+       bg = "white")
 plot.pcoa.host
 ```
 
@@ -787,40 +1002,108 @@ plot.pcoa.host
 
 ## Run PERMANOVA
 
+### Dispersion check for sample sites and ecosystem health statuses
+
 ``` r
-permanova_reduced <- adonis2(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + treatment * site, data = axes_host, method = "bray")
-write.csv(permanova_reduced, file = "../Tables/virus_host_bray_permanova.csv", row.names = TRUE)
-permanova_reduced
+bd_treat <- betadisper(as.dist(bray_curtis_dist), group = axes_host$treatment)
+bd_site  <- betadisper(as.dist(bray_curtis_dist), group = axes_host$site)
+permutest(bd_treat, permutations = 999)
 ```
 
-    ## Permutation test for adonis under reduced model
-    ## Terms added sequentially (first to last)
+    ## 
+    ## Permutation test for homogeneity of multivariate dispersions
     ## Permutation: free
     ## Number of permutations: 999
     ## 
-    ## adonis2(formula = bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + treatment * site, data = axes_host, method = "bray")
-    ##                Df SumOfSqs      R2       F Pr(>F)    
-    ## Axis.1          1   3.3072 0.16104 50.0990  0.001 ***
-    ## Axis.2          1   2.7684 0.13481 41.9377  0.001 ***
-    ## Axis.3          1   1.8758 0.09134 28.4149  0.001 ***
-    ## Axis.4          1   1.8025 0.08777 27.3054  0.001 ***
-    ## treatment       2   0.9826 0.04785  7.4424  0.001 ***
-    ## site            6   3.9558 0.19262  9.9874  0.001 ***
-    ## treatment:site 11   3.4679 0.16886  4.7757  0.001 ***
-    ## Residual       36   2.3765 0.11572                   
-    ## Total          59  20.5366 1.00000                   
+    ## Response: Distances
+    ##           Df  Sum Sq   Mean Sq      F N.Perm Pr(>F)
+    ## Groups     2 0.03329 0.0166448 1.8856    999  0.164
+    ## Residuals 57 0.50317 0.0088275
+
+``` r
+permutest(bd_site,  permutations = 999)
+```
+
+    ## 
+    ## Permutation test for homogeneity of multivariate dispersions
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Response: Distances
+    ##           Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)    
+    ## Groups     6 0.38862 0.064770 12.614    999  0.001 ***
+    ## Residuals 53 0.27215 0.005135                         
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-## Adjust p-values
-
 ``` r
-p_values <- c(permanova_reduced$`Pr(>F)`)
-p_values_bh <- p.adjust(p_values, method = "BH")
-p_values_bh
+plot(bd_treat)
 ```
 
-    ## [1] 0.001 0.001 0.001 0.001 0.001 0.001 0.001    NA    NA
+![](diversity_files/figure-gfm/dispersion-check-1.png)<!-- -->
+
+``` r
+plot(bd_site)
+```
+
+![](diversity_files/figure-gfm/dispersion-check-2.png)<!-- -->
+
+- The three treatment groups (Natural, Damaged, Restored) do not differ
+  significantly in their average distance to their group centroid. This
+  means I can be confident that PERMANOVA results for treatment are not
+  driven by differences in dispersion, but by real shifts in centroid
+  location (community composition).
+- The seven sites differ strongly in their multivariate dispersion. Some
+  sites have communities that are much more spread‑out in PCoA space
+  than others. So PERMANOVA “site” effects (and any interactions with
+  site) could be partly or entirely due to these dispersion differences
+  rather than true shifts in community centroids.
+
+Given these results, to control for site-level heterogeneity, PerMANOVA
+will be run while holding sampling site constant by blocking by site.
+This means that I will not be able to test site itself, but any
+significant treatment or index effects I observe can be confidently
+interpreted as within‑site patterns, unaffected by the among‑site spread
+differences.
+
+### Run PerMANOVA using host PCoA axes, ecosystem health index, and ecosystem health status as predictors
+
+``` r
+set.seed(123)
+library("permute")
+perm <- shuffleSet(n = nrow(bray_curtis_dist), nset = 9999, control = how(blocks = axes_host$site)) # Reuse the same site-blocked permutation matrix in all tests (except for site)
+
+permanova_host_and_eco_index <- adonis2(
+  bray_curtis_dist ~
+    Axis.1 + Axis.2 + Axis.3 + Axis.4 +
+    index + treatment,
+  data = axes_host,
+  method = "bray",
+  by = "margin", # marginal tests, order‑invariant and give a read on each predictor’s unique effect
+  permutations = perm
+  )
+write.csv(permanova_host_and_eco_index, file = "../Tables/virus_host_bray_permanova.csv", row.names = TRUE)
+permanova_host_and_eco_index
+```
+
+    ## Permutation test for adonis under reduced model
+    ## Marginal effects of terms
+    ## Blocks:  axes_host$site 
+    ## Permutation: free
+    ## Number of permutations: 9999
+    ## 
+    ## adonis2(formula = bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + index + treatment, data = axes_host, permutations = perm, method = "bray", by = "margin")
+    ##           Df SumOfSqs      R2       F Pr(>F)    
+    ## Axis.1     1   2.1009 0.10230 11.8662 0.0001 ***
+    ## Axis.2     1   2.6593 0.12949 15.0202 0.0001 ***
+    ## Axis.3     1   1.6628 0.08097  9.3921 0.0001 ***
+    ## Axis.4     1   1.4710 0.07163  8.3087 0.0001 ***
+    ## index      1   0.5937 0.02891  3.3531 0.0045 ** 
+    ## treatment  2   1.0531 0.05128  2.9742 0.0001 ***
+    ## Residual  52   9.2064 0.44829                   
+    ## Total     59  20.5366 1.00000                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ## Variance partitioning
 
@@ -828,18 +1111,22 @@ p_values_bh
 # Host composition matrix
 host_matrix <- axes_host[, c("Axis.1", "Axis.2", "Axis.3", "Axis.4")]
 
+# Ecosystem health index matrix
+eco_index_matrix <- model.matrix(~ index - 1, data = axes_host)
+
+# Ecosystem health status matrix
+treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
+
 # Site matrix
 site_matrix <- model.matrix(~ site - 1, data = axes_host)
-
-# Treatment matrix
-treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
 
 # Perform variance partitioning with separate and interaction terms
 varpart_result <- varpart(
   Y = bray_curtis_dist,            # Response matrix (virus composition)
   X = host_matrix,                 # Explanatory set 1: Host composition
-  X1 = site_matrix,                # Explanatory set 2: Site
-  X2 = treatment_matrix           # Explanatory set 3: Treatment
+  X1 = eco_index_matrix,           # Explanatory set 2: Ecosystem health index
+  X2 = treatment_matrix,           # Explanatory set 3: Ecosystem health status
+  X3 = site_matrix                 # Explanatory set 4: Sample site
 )
 write.csv(rbind(varpart_result[["part"]]$fract %>% mutate(Fraction = "basic fractions"),
                 varpart_result[["part"]]$indfract %>% mutate(Fraction = "individual fractions"),
@@ -851,52 +1138,91 @@ varpart_result
     ## 
     ## Partition of squared Unknown user-supplied distance in dbRDA 
     ## 
-    ## Call: varpart(Y = bray_curtis_dist, X = host_matrix, X1 = site_matrix,
-    ## X2 = treatment_matrix)
+    ## Call: varpart(Y = bray_curtis_dist, X = host_matrix, X1 =
+    ## eco_index_matrix, X2 = treatment_matrix, X3 = site_matrix)
     ## 
     ## Explanatory tables:
     ## X1:  host_matrix
-    ## X2:  site_matrix
-    ## X3:  treatment_matrix 
+    ## X2:  eco_index_matrix
+    ## X3:  treatment_matrix
+    ## X4:  site_matrix 
     ## 
-    ## No. of explanatory tables: 3 
+    ## No. of explanatory tables: 4 
     ## Total variation (SS): 20.537 
     ## No. of observations: 60 
     ## 
     ## Partition table:
-    ##                       Df R.square Adj.R.square Testable
-    ## [a+d+f+g] = X1         4  0.47495      0.43677     TRUE
-    ## [b+d+e+g] = X2         6  0.46757      0.40730     TRUE
-    ## [c+e+f+g] = X3         2  0.06724      0.03451     TRUE
-    ## [a+b+d+e+f+g] = X1+X2 10  0.67981      0.61447     TRUE
-    ## [a+c+d+e+f+g] = X1+X3  6  0.52280      0.46877     TRUE
-    ## [b+c+d+e+f+g] = X2+X3  8  0.53024      0.45655     TRUE
-    ## [a+b+c+d+e+f+g] = All 12  0.71542      0.64276     TRUE
-    ## Individual fractions                                   
-    ## [a] = X1 | X2+X3       4               0.18621     TRUE
-    ## [b] = X2 | X1+X3       6               0.17398     TRUE
-    ## [c] = X3 | X1+X2       2               0.02829     TRUE
-    ## [d]                    0               0.24805    FALSE
-    ## [e]                    0               0.00372    FALSE
-    ## [f]                    0               0.02096    FALSE
-    ## [g]                    0              -0.01846    FALSE
-    ## [h] = Residuals                        0.35724    FALSE
-    ## Controlling 1 table X                                  
-    ## [a+d] = X1 | X3        4               0.43426     TRUE
-    ## [a+f] = X1 | X2        4               0.20717     TRUE
-    ## [b+d] = X2 | X3        6               0.42204     TRUE
-    ## [b+e] = X2 | X1        6               0.17770     TRUE
-    ## [c+e] = X3 | X1        2               0.03201     TRUE
-    ## [c+f] = X3 | X2        2               0.04925     TRUE
+    ##                             Df R.square Adj.R.square Testable
+    ## [aeghklno] = X1              4  0.47495      0.43677     TRUE
+    ## [befiklmo] = X2              1  0.08567      0.06991     TRUE
+    ## [cfgjlmno] = X3              2  0.06724      0.03451     TRUE
+    ## [dhijkmno] = X4              6  0.46757      0.40730     TRUE
+    ## [abefghiklmno] = X1+X2       5  0.50042      0.45417     TRUE
+    ## [acefghjklmno] = X1+X3       6  0.52280      0.46877     TRUE
+    ## [adeghijklmno] = X1+X4      10  0.67981      0.61447     TRUE
+    ## [bcefgijklmno] = X2+X3       3  0.14995      0.10441     TRUE
+    ## [bdefhijklmno] = X2+X4       7  0.49821      0.43067     TRUE
+    ## [cdfghijklmno] = X3+X4       8  0.53024      0.45655     TRUE
+    ## [abcefghijklmno] = X1+X2+X3  7  0.55171      0.49136     TRUE
+    ## [abdefghijklmno] = X1+X2+X4 11  0.69273      0.62231     TRUE
+    ## [acdefghijklmno] = X1+X3+X4 12  0.71542      0.64276     TRUE
+    ## [bcdefghijklmno] = X2+X3+X4  9  0.54294      0.46067     TRUE
+    ## [abcdefghijklmno] = All     13  0.72502      0.64730     TRUE
+    ## Individual fractions                                         
+    ## [a] = X1 | X2+X3+X4          4               0.18663     TRUE
+    ## [b] = X2 | X1+X3+X4          1               0.00455     TRUE
+    ## [c] = X3 | X1+X2+X4          2               0.02499     TRUE
+    ## [d] = X4 | X1+X2+X3          6               0.15595     TRUE
+    ## [e]                          0              -0.00043    FALSE
+    ## [f]                          0               0.00330    FALSE
+    ## [g]                          0               0.00501    FALSE
+    ## [h]                          0               0.20031    FALSE
+    ## [i]                          0               0.01804    FALSE
+    ## [j]                          0               0.01220    FALSE
+    ## [k]                          0               0.04774    FALSE
+    ## [l]                          0               0.01595    FALSE
+    ## [m]                          0              -0.00848    FALSE
+    ## [n]                          0              -0.00770    FALSE
+    ## [o]                          0              -0.01076    FALSE
+    ## [p] = Residuals              0               0.35270    FALSE
+    ## Controlling 2 tables X                                       
+    ## [ae] = X1 | X3+X4            4               0.18621     TRUE
+    ## [ag] = X1 | X2+X4            4               0.19165     TRUE
+    ## [ah] = X1 | X2+X3            4               0.38695     TRUE
+    ## [be] = X2 | X3+X4            1               0.00412     TRUE
+    ## [bf] = X2 | X1+X4            1               0.00784     TRUE
+    ## [bi] = X2 | X1+X3            1               0.02258     TRUE
+    ## [cf] = X3 | X1+X4            2               0.02829     TRUE
+    ## [cg] = X3 | X2+X4            2               0.03000     TRUE
+    ## [cj] = X3 | X1+X2            2               0.03719     TRUE
+    ## [dh] = X4 | X2+X3            6               0.35626     TRUE
+    ## [di] = X4 | X1+X3            6               0.17398     TRUE
+    ## [dj] = X4 | X1+X2            6               0.16815     TRUE
+    ## Controlling 1 table X                                        
+    ## [aghn] = X1 | X2             4               0.38426     TRUE
+    ## [aehk] = X1 | X3             4               0.43426     TRUE
+    ## [aegl] = X1 | X4             4               0.20717     TRUE
+    ## [bfim] = X2 | X1             1               0.01740     TRUE
+    ## [beik] = X2 | X3             1               0.06990     TRUE
+    ## [befl] = X2 | X4             1               0.02337     TRUE
+    ## [cfjm] = X3 | X1             2               0.03201     TRUE
+    ## [cgjn] = X3 | X2             2               0.03451     TRUE
+    ## [cfgl] = X3 | X4             2               0.04925     TRUE
+    ## [dijm] = X4 | X1             6               0.17770     TRUE
+    ## [dhjn] = X4 | X2             6               0.36076     TRUE
+    ## [dhik] = X4 | X3             6               0.42204     TRUE
     ## ---
     ## Use function 'dbrda' to test significance of fractions of interest
 
-## Test significance of the unique contributions
+## Test significance of the unique contributions with db-RDA
+
+### Format matrices for db-RDA
 
 ``` r
-# Replace row names of host_matrix, site_matrix, and treatment_matrix
+# Replace row names of host_matrix, site_matrix, and eco_index_matrix
 rownames(host_matrix) <- rownames(bray_curtis_dist)
 rownames(site_matrix) <- rownames(bray_curtis_dist)
+rownames(eco_index_matrix) <- rownames(bray_curtis_dist)
 rownames(treatment_matrix) <- rownames(bray_curtis_dist)
 all(rownames(bray_curtis_dist) == rownames(host_matrix))
 ```
@@ -905,6 +1231,12 @@ all(rownames(bray_curtis_dist) == rownames(host_matrix))
 
 ``` r
 all(rownames(bray_curtis_dist) == rownames(site_matrix))
+```
+
+    ## [1] TRUE
+
+``` r
+all(rownames(bray_curtis_dist) == rownames(eco_index_matrix))
 ```
 
     ## [1] TRUE
@@ -923,68 +1255,475 @@ axes_host_clean <- data.frame(lapply(axes_host, function(x) if (is.factor(x)) as
 rownames(axes_host_clean) <- rownames(axes_host)
 ```
 
+### Perform db-RDA
+
 ``` r
-site_matrix <- model.matrix(~ site - 1, data = axes_host)
+eco_index_matrix <- model.matrix(~ index - 1, data = axes_host)
 treatment_matrix <- model.matrix(~ treatment - 1, data = axes_host)
-combined_data <- cbind(axes_host, site_matrix, treatment_matrix)
+site_matrix <- model.matrix(~ site - 1, data = axes_host)
+combined_data <- cbind(axes_host, eco_index_matrix, treatment_matrix, site_matrix)
+
+# Run dbRDA for host community axes (if Axis.1, Axis.2, etc. represent host community)
+dbrda_host <- dbrda(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + Condition(index + treatment + site), data = combined_data)
+
+# Run dbRDA for index
+dbrda_index <- dbrda(bray_curtis_dist ~ index + Condition(treatment + site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
+
+# Run dbRDA for treatment
+dbrda_treatment <- dbrda(bray_curtis_dist ~ treatment + Condition(index + site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
 
 # Run dbRDA for site
-dbrda_site <- dbrda(bray_curtis_dist ~ site + Condition(treatment + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
-anova(dbrda_site, by = "terms")
+perm_site = shuffleSet(n = nrow(bray_curtis_dist), nset = 9999, control = how()) # Use new, non-site-blocked permutation matrix for dbRDA on sites
+dbrda_site <- dbrda(bray_curtis_dist ~ site + Condition(index + treatment + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
 ```
 
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist ~ site + Condition(treatment + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
-    ##          Df SumOfSqs     F Pr(>F)    
-    ## site      6   3.9558 5.302  0.001 ***
-    ## Residual 47   5.8443                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+### Run ANOVA on the db-RDA results, gather, and save
 
 ``` r
-# Run dbRDA for treatment
-dbrda_treatment <- dbrda(bray_curtis_dist ~ treatment + Condition(site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
-anova(dbrda_treatment, by = "terms")
-```
+# Extract just the four “pure” fractions a–d and their Adj.R²
+indf <- as.data.frame(varpart_result$part$indfract) %>%
+  rownames_to_column("fraction") %>%
+  # keep only rows whose names start with “[a]”, “[b]”, “[c]” or “[d]”
+  filter(grepl("^\\[[abcd]\\]", fraction)) %>%
+  mutate(
+    factor = case_when(
+      grepl("^\\[a\\]", fraction) ~ "Host axes",
+      grepl("^\\[b\\]", fraction) ~ "Ecosystem index",
+      grepl("^\\[c\\]", fraction) ~ "Ecosystem status",
+      grepl("^\\[d\\]", fraction) ~ "Site"
+    ),
+    Adj.R2 = Adj.R.square
+  ) %>%
+  select(factor, Adj.R2)
 
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist ~ treatment + Condition(site + Axis.1 + Axis.2 + Axis.3 + Axis.4), data = combined_data)
-    ##           Df SumOfSqs      F Pr(>F)    
-    ## treatment  2   0.7312 2.9402  0.001 ***
-    ## Residual  47   5.8443                  
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+set.seed(123)
+# Pull F-stats and p-values from your four partial db-RDAs:
+db_tests <- tibble(
+  factor   = c("Host axes", "Ecosystem index", "Ecosystem status", "Site"),
+  F        = c(
+    anova(dbrda_host,      permutations = perm)$F[1],
+    anova(dbrda_index,     permutations = perm)$F[1],
+    anova(dbrda_treatment, permutations = perm)$F[1],
+    anova(dbrda_site,      permutations = perm_site)$F[1]
+  ),
+  p.value  = c(
+    anova(dbrda_host,      permutations = perm)$`Pr(>F)`[1],
+    anova(dbrda_index,     permutations = perm)$`Pr(>F)`[1],
+    anova(dbrda_treatment, permutations = perm)$`Pr(>F)`[1],
+    anova(dbrda_site,      permutations = perm_site)$`Pr(>F)`[1]
+  )
+)
+
+# Combine into one summary table
+summary_table <- indf %>%
+  left_join(db_tests, by = "factor")
+
+write.csv(
+  summary_table,
+  file = "../Tables/dbrda_results.csv"  
+  )
+```
 
 ``` r
-# Run dbRDA for host community axes (if Axis.1, Axis.2, etc. represent host community)
-dbrda_host <- dbrda(bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + Condition(site + treatment), data = combined_data)
-anova(dbrda_host, by = "terms")
+summary_table
 ```
 
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist ~ Axis.1 + Axis.2 + Axis.3 + Axis.4 + Condition(site + treatment), data = combined_data)
-    ##          Df SumOfSqs       F Pr(>F)    
-    ## Axis.1    1   0.8786  7.0658  0.001 ***
-    ## Axis.2    1   1.4362 11.5496  0.001 ***
-    ## Axis.3    1   1.1801  9.4899  0.001 ***
-    ## Axis.4    1   0.3081  2.4781  0.005 ** 
-    ## Residual 47   5.8443                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ##             factor      Adj.R2        F p.value
+    ## 1        Host axes 0.186634274 7.614571  0.0001
+    ## 2  Ecosystem index 0.004545594 1.605744  0.0393
+    ## 3 Ecosystem status 0.024992326 2.700663  0.0001
+    ## 4             Site 0.155947024 4.832035  0.0001
 
-# Run the PCoA/PERMANOVA/VarPart/dbra analysis for each site
+## Adjust and store PermANOVA p-values, store R-squared for plotting
+
+``` r
+p_values_index <- c(permanova_host_and_eco_index$`Pr(>F)`)
+p_values_index_bh <- p.adjust(p_values_index, method = "BH")
+p_values_index_bh <- p_values_index_bh[[5]]
+p_values_index_bh <- format(p_values_index_bh, scientific = TRUE)
+p_values_index_bh
+```
+
+    ## [1] "4.5e-03"
+
+``` r
+R_permanova_index <- c(permanova_host_and_eco_index$R2)
+R_permanova_index <- R_permanova_index[[5]]
+R_permanova_index <- round(R_permanova_index, 3)
+R_permanova_index
+```
+
+    ## [1] 0.029
+
+``` r
+p_values_treatment_bh <- format(p.adjust(permanova_host_and_eco_index$`Pr(>F)`[[6]], method = "BH"), scientific = TRUE)
+p_values_treatment_bh
+```
+
+    ## [1] "1e-04"
+
+``` r
+R_permanova_treatment <- round(permanova_host_and_eco_index$R2[[6]], 3)
+R_permanova_treatment
+```
+
+    ## [1] 0.051
+
+## Plot the PCoA with points colored by ecosystem health index
+
+### Merge virus PCoA axes with ecosystem health indices
+
+``` r
+axes.eco.index <- axes %>%
+  left_join(
+    env_data %>%
+    select(
+      SampleID,
+      index
+      ),
+  by = "SampleID")
+head(axes.eco.index)
+```
+
+    ##   SampleID     site treatment      Axis.1     Axis.2      Axis.3      Axis.4
+    ## 1    BAr1A Balmoral       NAT  0.04371291 0.18451482 -0.15041196 -0.14188699
+    ## 2    BAr1B Balmoral       NAT  0.12509204 0.11290333 -0.01355911 -0.15777814
+    ## 3    BAr1C Balmoral       NAT  0.07573731 0.19005565 -0.11998814 -0.21585861
+    ## 4    BAr2D Balmoral      REST -0.13431734 0.04146957 -0.37359144 -0.11933176
+    ## 5    BAr2E Balmoral      REST  0.04361772 0.20493269 -0.24637683 -0.09453819
+    ## 6    BAr2F Balmoral      REST -0.01345630 0.22568096 -0.14002827 -0.10427358
+    ##        Axis.5      Axis.6      Axis.7    Axis.8       Axis.9     Axis.10
+    ## 1  0.17930176 -0.27422853 -0.16270742 0.1506712 -0.083531388 -0.01741684
+    ## 2  0.08750215 -0.26348402 -0.13622059 0.1192593 -0.072239697 -0.08836205
+    ## 3  0.15009436 -0.22669522 -0.15673278 0.1647575 -0.081488979  0.04767164
+    ## 4 -0.21928546 -0.05865147 -0.05571750 0.2322950  0.004340442  0.07247052
+    ## 5  0.02036570 -0.26455556  0.01657082 0.2524575  0.129795748  0.02370932
+    ## 6  0.02440819 -0.30726213  0.02259120 0.2153167  0.174130616  0.02700788
+    ##       Axis.11      Axis.12     Axis.13      Axis.14     Axis.15      Axis.16
+    ## 1 -0.07970216 -0.006995791 -0.02977212 -0.037376238  0.08308013  0.003988271
+    ## 2 -0.08606747 -0.086003320 -0.03242512  0.007773963  0.10183265  0.075755229
+    ## 3 -0.05267126 -0.008056003 -0.07316804 -0.060725469  0.14480213  0.019016484
+    ## 4  0.04285946  0.345525916  0.12403993  0.073697912 -0.29784021 -0.016792225
+    ## 5  0.04270235  0.108899426  0.07984357  0.051718115  0.04049609 -0.009429673
+    ## 6 -0.02372285 -0.027027357  0.06725828 -0.004395857  0.08271041 -0.040900098
+    ##       Axis.17     Axis.18     Axis.19       Axis.20     Axis.21     Axis.22
+    ## 1 -0.03216564 -0.16324649  0.08465762 -0.0068267120 -0.04042638 -0.07969833
+    ## 2 -0.03883213  0.16077022  0.07672093  0.0254287442 -0.05590251 -0.03878547
+    ## 3  0.02586843  0.08929712  0.03795676 -0.0005975661  0.04626828 -0.08112790
+    ## 4 -0.06706394  0.10049403  0.01198987 -0.0058887834  0.01551224 -0.06821224
+    ## 5  0.02741909 -0.12657876 -0.10257384  0.0503800013 -0.04834024  0.05031351
+    ## 6  0.07406061  0.02707200 -0.04833647 -0.0081383012  0.04315971  0.17952346
+    ##       Axis.23      Axis.24      Axis.25      Axis.26     Axis.27      Axis.28
+    ## 1  0.12950413  0.020617968 -0.032350973  0.001942465  0.01320123  0.032602023
+    ## 2 -0.04011368 -0.020087404 -0.114651283 -0.047960509  0.01674630 -0.054326088
+    ## 3 -0.06728402  0.100373789  0.052373883  0.048048969 -0.04345406 -0.023326743
+    ## 4 -0.03354708  0.002727829 -0.042840452  0.011460466 -0.04220243  0.009140842
+    ## 5  0.14059425 -0.056550981  0.060615369  0.024545785  0.03072022 -0.036982487
+    ## 6 -0.15036182 -0.057598660 -0.006948497 -0.055291145  0.01773650  0.043159798
+    ##        Axis.29     Axis.30      Axis.31      Axis.32      Axis.33      Axis.34
+    ## 1 -0.012354882  0.09837892  0.005756206  0.012704326  0.011119693  0.005186470
+    ## 2  0.005393969 -0.01549636  0.001696600 -0.013203056 -0.027501378  0.020463425
+    ## 3  0.004533032 -0.06933277 -0.002872125 -0.035424842  0.033153819 -0.027958968
+    ## 4  0.018518788  0.01174181  0.014842334  0.005151433  0.019619237  0.013042629
+    ## 5  0.037333566 -0.06989838 -0.006975531 -0.008079250 -0.003547636 -0.012384896
+    ## 6 -0.025391940  0.06694167  0.009577004  0.039489003  0.002762926  0.008085522
+    ##       Axis.35     Axis.36       Axis.37      Axis.38      Axis.39       Axis.40
+    ## 1  0.06442921  0.03593387 -0.0054641075 -0.028595867 -0.013354243 -0.0006417938
+    ## 2  0.00269502 -0.01467149 -0.0252231703  0.056399092  0.045264506 -0.0122797069
+    ## 3 -0.04671876 -0.02520317  0.0200877910 -0.039508019 -0.031974340  0.0164844462
+    ## 4  0.01779616  0.00235429  0.0046779737 -0.006763775 -0.002362349 -0.0043962271
+    ## 5 -0.05116890 -0.01189664 -0.0205591433  0.041270282  0.028118243  0.0046402707
+    ## 6 -0.00189501  0.01716017 -0.0004045092 -0.016176052 -0.023983319  0.0112602535
+    ##        Axis.41      Axis.42      Axis.43       Axis.44       Axis.45
+    ## 1  0.006366143 -0.010157815 -0.007973550 -0.0005049305 -0.0178187451
+    ## 2 -0.007705516 -0.025383289  0.004064383 -0.0102446672 -0.0001679119
+    ## 3  0.009387638  0.031296552  0.007248152  0.0123023517  0.0054766495
+    ## 4  0.002785043 -0.004936833 -0.002236385 -0.0029488926 -0.0039309033
+    ## 5 -0.006978819  0.008751067  0.011992370  0.0055605738  0.0027827288
+    ## 6  0.013757721  0.001111148 -0.007627011 -0.0013453058  0.0068464548
+    ##         Axis.46      Axis.47      Axis.48       Axis.49      Axis.50
+    ## 1  1.147908e-03  0.005528662  0.002071864  0.0075505494 -0.001247303
+    ## 2  3.114218e-03  0.006133357 -0.009123581 -0.0035482684 -0.001227902
+    ## 3 -4.697283e-03 -0.008263843  0.007690408 -0.0006555739 -0.001976656
+    ## 4  4.445503e-04  0.004245735  0.001356511 -0.0007139325  0.002607341
+    ## 5 -1.391903e-03 -0.004851907 -0.003577446  0.0018178344  0.003150204
+    ## 6 -3.249358e-05  0.002211507 -0.002461927 -0.0017083288 -0.004435184
+    ##         Axis.51       Axis.52       Axis.53      index
+    ## 1 -2.769627e-03 -0.0007203044  0.0019571448 -0.8723888
+    ## 2  1.294089e-03  0.0024104025 -0.0061216137 -0.3207317
+    ## 3  2.541265e-03 -0.0040200257  0.0059884359  0.0897700
+    ## 4  1.144068e-03 -0.0009344757 -0.0010763477 -0.8617882
+    ## 5 -4.274404e-05 -0.0001837958  0.0017608138 -0.4388270
+    ## 6 -1.400982e-03  0.0008185965 -0.0006090748 -0.3250964
+
+### Make the plot
+
+``` r
+plot.pcoa.eco.index <- ggplot(axes.eco.index, aes(Axis.1, Axis.2)) +
+  geom_point(
+    aes(fill = index),
+    color = "black",
+    shape = 21,
+    size  = 5
+  ) +
+  xlab(paste0("PCo1 (", eigval$Eigval[1], " %)")) +
+  ylab(paste0("PCo2 (", eigval$Eigval[2], " %)")) +
+
+  # annotation with plain fontface and sans family
+  ggplot2::annotate(
+    "text",
+    x     = 0.02,
+    y     = -0.50,
+    label = as.expression(
+      bquote(atop(
+        italic(R[index]^2) == .(R_permanova_index) * "," ~ italic(P) == .(p_values_index_bh),
+        italic(R[status]^2) == .(R_permanova_treatment) * "," ~ italic(P) == .(p_values_treatment_bh)
+      ))
+    ),
+    fontface = "plain",
+    family   = "sans",
+    hjust    = 0,
+    vjust    = -0.5,
+    size     = 4,
+    parse    = FALSE
+  ) +
+
+  viridis::scale_fill_viridis(name = "Ecosystem\nhealth index") +
+  guides(
+    fill = guide_colorbar(
+      title.position = "top",
+      title.hjust    = 0.5,
+      label.position = "left"
+    ),
+    color = "none"
+  ) +
+
+  theme_cowplot() +
+  theme(
+    panel.grid.major   = element_blank(),
+    panel.grid.minor   = element_blank(),
+    text               = element_text(size = 14),
+    legend.position    = "right"
+  )
+
+plot.pcoa.eco.index
+```
+
+![](diversity_files/figure-gfm/plot-pcoa-eco-index-1.png)<!-- -->
+
+## Regression of PCoA axes (viruses) over ecosystem health index
+
+### Format the data
+
+    ## [1] '0.6.0'
+
+    ## [1] '0.6.1'
+
+    ## # A tibble: 6 × 6
+    ##   SampleID site     treatment  index Axis              value
+    ##   <chr>    <chr>    <fct>      <dbl> <chr>             <dbl>
+    ## 1 BAr1A    Balmoral NAT       -0.872 Axis 1 (16.96%)  0.0437
+    ## 2 BAr1A    Balmoral NAT       -0.872 Axis 2 (13.72%)  0.185 
+    ## 3 BAr1A    Balmoral NAT       -0.872 Axis 3 (9.37%)  -0.150 
+    ## 4 BAr1A    Balmoral NAT       -0.872 Axis 4 (8.49%)  -0.142 
+    ## 5 BAr1B    Balmoral NAT       -0.321 Axis 1 (16.96%)  0.125 
+    ## 6 BAr1B    Balmoral NAT       -0.321 Axis 2 (13.72%)  0.113
+
+### Just host PCo 1
+
+``` r
+plot.eco.index.pcoa1 <- ggplot(axes_long %>%
+                                filter(Axis == "Axis 1 (16.96%)"),
+                              aes(y=value, x=index)
+                              ) +
+  geom_point(
+    aes(fill=site, shape=treatment),
+    color = "black",
+    size = 4,
+    alpha = 0.8
+    ) +
+  scale_color_brewer(palette = "Dark2", name = "Site") +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  stat_poly_line(se=FALSE, color = NA) +
+  stat_poly_eq(use_label(c("R2", "p")), size=4) +
+  ylab(expression("PCo1 (16.96%)")) +
+  xlab("Ecosystem health index") +
+  theme(
+    legend.position = "right",
+    text = element_text(size = 14)
+    ) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
+                     values=c(21,24,23),
+                     breaks = c("NAT", "REST", "DAM"),
+                     labels=c("Natural", "Restored", "Damaged")) +
+  scale_fill_brewer(name = "Sample site",
+                    palette = "Dark2",
+                    labels=c("Balmoral", "Bowness", "Crocach",
+                             "Langwell", "Migneint", "Moor House",
+                             "Stean")) +
+  guides(fill = guide_legend(title.position = "top",
+                             title.hjust = 0.5,
+                             override.aes = list(shape = 21, color = "black")),
+         shape = guide_legend(title.position = "top",
+                              title.hjust = 0.5)) +
+  cowplot::theme_cowplot()
+plot.eco.index.pcoa1
+```
+
+![](diversity_files/figure-gfm/plot-eco-index-pcoa1-reg-1.png)<!-- -->
+
+### All four axes
+
+``` r
+plot.eco.index.pcoa <- ggplot(axes_long, aes(x=index, y=value)) +
+  geom_point(aes(fill=site, shape=treatment), color = "black") +
+  facet_wrap(~Axis, ncol=2) +
+  scale_color_brewer(palette = "Dark2", name = "Site") +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  stat_poly_line(se=FALSE, color = NA) +
+  stat_poly_eq(use_label(c("R2")), label.y = 0.95) +
+  stat_poly_eq(use_label(c("p")), label.y = 0.85) +
+  ylab(expression("PCo axis")) +
+  xlab("Ecosystem health index") +
+  theme(legend.position = "right",
+        text = element_text(size=14)) +
+  scale_shape_manual(name = "Ecosystem\nhealth status",
+                     values=c(21,24,23),
+                     breaks = c("NAT", "REST", "DAM"),
+                     labels=c("Natural", "Restored", "Damaged")) +
+  scale_fill_brewer(name = "Sample site",
+                    palette = "Dark2",
+                    labels=c("Balmoral", "Bowness", "Crocach",
+                             "Langwell", "Migneint", "Moor House",
+                             "Stean")) +
+  guides(fill = guide_legend(title.position = "top",
+                             title.hjust = 0.5,
+                             override.aes = list(shape = 21, color = "black")),
+         shape = guide_legend(title.position = "top",
+                              title.hjust = 0.5)) +
+  cowplot::theme_cowplot()
+plot.eco.index.pcoa
+```
+
+![](diversity_files/figure-gfm/plot-eco-index-pcoa-reg-1.png)<!-- -->
+
+## Combine the plots into one
+
+``` r
+legend_plot <- cowplot::get_legend(
+  pcoa_list[[1]] +
+    theme(
+      legend.title = element_text(size = 16),
+      legend.text = element_text(size = 14),
+      legend.title.align=0.5) +
+    guides(
+      fill = guide_legend(
+        override.aes = list(size=3)
+        )
+      )
+  )
+
+Fig1 <- cowplot::plot_grid(
+  # Left major column
+  cowplot::plot_grid(
+    peat_soil_map_eco_index,
+    plot.pcoa,
+    plot.pcoa.eco.index,
+    ncol = 1,
+    nrow = 3,
+    rel_heights = c(4, 4, 4),
+    labels = c("A", "B", "D"),
+    label_fontface = "bold",
+    label_size = 24,
+    label_fontfamily = "sans",
+    label_x = -0.01,
+    label_y = 1.02
+  ),
+  
+  
+  # Middle major pseudo column
+  cowplot::plot_grid(
+    ggplot() + cowplot::theme_cowplot(),
+    ggplot() + cowplot::theme_cowplot(),
+    ncol = 1,
+    nrow = 2,
+    rel_heights = c(8, 4),
+    labels = c("", ""),
+    label_fontface = "bold",
+    label_size = 24,
+    label_fontfamily = "sans",
+    label_x = -0.01,
+    label_y = 1.02
+  ),
+  
+  
+  # Right major column
+  cowplot::plot_grid(
+    # Top 2/3 row
+    cowplot::plot_grid(
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Balmoral"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      pcoa_list[["Bowness"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Crocach"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      pcoa_list[["Langwell"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Migneint"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      pcoa_list[["Moor_House"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      ggplot() + cowplot::theme_cowplot(),
+      pcoa_list[["Stean"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      legend_plot,
+      ncol = 3,
+      nrow = 4,
+      rel_widths = c(0.25, 2.875, 2.875),
+      labels = c("", "", "", "", "", "", "", "", "", "", ""),
+      label_fontface = "bold",
+      label_size = 24,
+      label_fontfamily = "sans",
+      label_x = -0.05,
+      label_y = 1.02
+    ),
+    
+    # Bottom 1/3 row
+    cowplot::plot_grid(
+      plot.eco.index.pcoa1,
+      labels = c("E"),
+      label_fontface = "bold",
+      label_size = 24,
+      label_fontfamily = "sans",
+      label_x = -0.05,
+      label_y = 1 + 0.02*(3/3)
+    ),
+    labels = c("C", ""),
+    label_fontface = "bold",
+    label_size = 24,
+    label_fontfamily = "sans",
+    label_x = -0.05,
+    label_y = 1 + 0.02*(1.5/3),
+    ncol = 1,
+    nrow = 2,
+    rel_heights = c(8, 4)
+  ),
+  
+  
+  ncol = 3,
+  nrow = 1,
+  rel_widths = c(7, 0.25, 4.75),
+  labels = NA
+)
+
+ggsave(filename = "../Plots/diversity/Fig1.png",
+       plot = Fig1,
+       device = "png",
+       width = 12, height = 12, units = "in",
+       dpi = 600,
+       bg = "white")
+Fig1
+```
+
+![](diversity_files/figure-gfm/fig-1-1.png)<!-- -->
+
+# Run the PCoA for each site for hosts
 
 ## Define a function that will plot PCoA for each site, separately, for hosts
 
@@ -1009,9 +1748,6 @@ pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
     axes$SampleID <- rownames(axes)
     axes <- merge(site_metadata[, c("site", "treatment")] %>% mutate(SampleID = row.names(.)), axes, by = "SampleID")
     
-    # Save the axes data for the current site
-    saveRDS(axes, paste0("../Data/pcoa_axes_host_", site, ".RDS"))
-    
     # Store eigenvalues
     eigval <- round(pcoa$values$Relative_eig * 100, digits = 2)
     eigval <- data.frame(PC = 1:length(eigval), Eigval = eigval)
@@ -1029,7 +1765,7 @@ pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
       geom_point(aes(fill = as.character(treatment)), size = 1.5, stroke = 0.75, color="black", shape=21) +
       xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
       ylab(paste("PCo2 (", eigval$Eigval[2], " %)", sep = "")) +
-      annotate("text", x = best_position$x,
+      ggplot2::annotate("text", x = best_position$x,
                y = best_position$y, 
                label = bquote(atop(italic(R) == .(round(r_statistic, 4)), italic(P) == .(format(p_value, scientific = TRUE)))), 
                hjust = best_position$hjust,
@@ -1045,9 +1781,6 @@ pcoa_plot_by_site_hosts <- function(metadata, tmeans) {
             panel.grid.minor = element_blank(),
             legend.position = "right",
             plot.title = element_text(hjust = 0.5))
-    
-    # Print or save the plot as needed
-    ggsave(paste0("../Plots/diversity/pcoa_host_", site, "_treat.png"), plot.pcoa, device="png", dpi=600, width=3, height=3, units="in")
     
     plots[[site]] <- plot.pcoa
   }
@@ -1113,7 +1846,12 @@ combined_pcoa_plots_host
 ![](diversity_files/figure-gfm/combine-pcoa-cowplot-hosts-1.png)<!-- -->
 
 ``` r
-ggsave("../Plots/diversity/pcoa_treat_hosts.png", combined_pcoa_plots_host, device="png", dpi=600, width=7.08661, height=3.5, units="in", bg = "white")
+ggsave("../Plots/diversity/pcoa_treat_hosts.png",
+       combined_pcoa_plots_host,
+       device="png",
+       dpi=600,
+       width=7.08661, height=3.5, units="in",
+       bg = "white")
 ```
 
 ## Combine each pcoa plot
@@ -1135,579 +1873,10 @@ combined_pcoas_host
 ![](diversity_files/figure-gfm/combine-host-pcoa-and-combined-host-pcoa-1.png)<!-- -->
 
 ``` r
-ggsave("../Plots/diversity/FigS1",
+ggsave("../Plots/diversity/FigS2.png",
        combined_pcoas_host,
        device="png",
        dpi=600,
        width=8, height=8, units="in",
        bg = "white")
 ```
-
-``` r
-# Load virus and host PCoA axes and metadata for each site
-virus_pcoa_files <- list(
-    Balmoral = "../Data/pcoa_axes_Balmoral.RDS",
-    Bowness = "../Data/pcoa_axes_Bowness.RDS",
-    Crocach = "../Data/pcoa_axes_Crocach.RDS",
-    Langwell = "../Data/pcoa_axes_Langwell.RDS",
-    Migneint = "../Data/pcoa_axes_Migneint.RDS",
-    Moor_House = "../Data/pcoa_axes_Moor_House.RDS"#,
-    #Stean = "../Data/pcoa_axes_Stean.RDS"
-)
-
-host_pcoa_files <- list(
-    Balmoral = "../Data/pcoa_axes_host_Balmoral.RDS",
-    Bowness = "../Data/pcoa_axes_host_Bowness.RDS",
-    Crocach = "../Data/pcoa_axes_host_Crocach.RDS",
-    Langwell = "../Data/pcoa_axes_host_Langwell.RDS",
-    Migneint = "../Data/pcoa_axes_host_Migneint.RDS",
-    Moor_House = "../Data/pcoa_axes_host_Moor_House.RDS"#,
-    #Stean = "../Data/pcoa_axes_host_Stean.RDS"
-)
-# Function to perform PCoA, PERMANOVA, variance partitioning, and dbRDA for each site
-analyze_site_data <- function(metadata, virus_pcoa_files, host_pcoa_files) {
-  
-  results <- list()
-  
-  for (site in names(virus_pcoa_files)) {
-    # Load virus and host PCoA axes
-    axes_virus <- readRDS(virus_pcoa_files[[site]])
-    axes_host <- readRDS(host_pcoa_files[[site]])
-    
-    # Extract the corresponding metadata for the site
-    site_metadata <- metadata[metadata$site == site, , drop = FALSE]
-    site_metadata <- cbind(site_metadata[, 1:3], site_metadata[, 5:length(colnames(site_metadata))])
-    
-    # Ensure the SampleID order matches between metadata and PCoA axes
-    axes_virus <- axes_virus[match(site_metadata$SampleID, axes_virus$SampleID), ] 
-    axes_host <- axes_host[match(site_metadata$SampleID, axes_host$SampleID), ]
-    
-    axes_virus_matrix <- as.matrix(axes_virus[, grepl("Axis", names(axes_virus))])
-    rownames(axes_virus_matrix) <- axes_virus$SampleID
-    axes_host_matrix <- as.matrix(axes_host[, grepl("Axis", names(axes_host))])
-    rownames(axes_host_matrix) <- axes_host$SampleID
-    
-    # Recalculate Bray-Curtis distance for virus
-    bray_curtis_dist_virus <- as.matrix(vegdist(axes_virus_matrix, method = 'bray', diag = TRUE))
-    
-    # Perform PERMANOVA
-    permanova_result <- adonis2(bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    
-    # Adjust p-values using BH method
-    p_values <- c(permanova_result$`Pr(>F)`)
-    p_values_bh <- p.adjust(p_values, method = "BH")
-    
-    # Variance partitioning using host PCoA axes
-    host_matrix <- as.matrix(axes_host_matrix[, c("Axis.1", "Axis.2")])
-    treatment_matrix <- model.matrix(~ treatment - 1, data = axes_virus)
-    
-    varpart_result <- varpart(
-      Y = as.matrix(bray_curtis_dist_virus),
-      X = axes_host_matrix,
-      X1 = treatment_matrix
-    )
-    
-    # Combine the necessary data into one dataframe
-    combined_data <- cbind(axes_virus[, grepl("Axis", names(axes_virus))], treatment_matrix)
-    combined_data <- combined_data %>%
-      mutate(treatment = case_when(
-        treatmentNAT == 1 & treatmentREST == 0 & treatmentDAM == 0 ~ "DAM",
-        treatmentNAT == 0 & treatmentREST == 1 & treatmentDAM == 0 ~ "REST",
-        treatmentNAT == 0 & treatmentREST == 0 & treatmentDAM == 1 ~ "DAM"
-      )) %>%
-      select(-treatmentNAT, -treatmentREST, -treatmentDAM)
-    rownames(combined_data) <- axes_virus$SampleID
-    
-    # Replace row names of host_matrix, and treatment_matrix
-    rownames(host_matrix) <- rownames(bray_curtis_dist_virus)
-    rownames(treatment_matrix) <- rownames(bray_curtis_dist_virus)
-    
-    # Run dbRDA for treatment
-    dbrda_treatment <- dbrda(bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    anova_treatment <- anova(dbrda_treatment, by = "terms")
-    
-    # Run dbRDA for host community axes
-    dbrda_host <- dbrda(bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    anova_host <- anova(dbrda_host, by = "terms")
-    
-    # Store the results
-    results[[site]] <- list(
-      PERMANOVA = permanova_result,
-      Adjusted_p_values_BH = p_values_bh,
-      Variance_Partitioning = varpart_result,
-      dbRDA_Treatment = anova_treatment,
-      dbRDA_Host = anova_host
-    )
-    
-    print(paste("Results for", site, "completed."))
-  }
-  
-  return(results)
-}
-
-# Usage:
-# results_pcoa_stats <- analyze_site_data(metadata, virus_pcoa_files, host_pcoa_files)
-```
-
-``` r
-results_pcoa_stats <- analyze_site_data(metadata, virus_pcoa_files, host_pcoa_files)
-```
-
-    ## [1] "Results for Balmoral completed."
-
-    ## [1] "Results for Bowness completed."
-
-    ## [1] "Results for Crocach completed."
-
-    ## [1] "Results for Langwell completed."
-
-    ## [1] "Results for Migneint completed."
-
-    ## [1] "Results for Moor_House completed."
-
-``` r
-results_pcoa_stats
-```
-
-    ## $Balmoral
-    ## $Balmoral$PERMANOVA
-    ## Permutation test for adonis under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    ##           Df SumOfSqs      R2       F Pr(>F)  
-    ## Axis.1     1   184.77 0.13595 12.2435  0.082 .
-    ## Axis.2     1   137.23 0.10097  9.0934  0.098 .
-    ## treatment  2   976.75 0.71867 32.3616  0.019 *
-    ## Residual   4    60.36 0.04441                 
-    ## Total      8  1359.11 1.00000                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## $Balmoral$Adjusted_p_values_BH
-    ## [1] 0.098 0.098 0.057    NA    NA
-    ## 
-    ## $Balmoral$Variance_Partitioning
-    ## 
-    ## Partition of squared Unknown user-supplied distance in dbRDA 
-    ## 
-    ## Call: varpart(Y = as.matrix(bray_curtis_dist_virus), X =
-    ## axes_host_matrix, X1 = treatment_matrix)
-    ## 
-    ## Explanatory tables:
-    ## X1:  axes_host_matrix
-    ## X2:  treatment_matrix 
-    ## 
-    ## No. of explanatory tables: 2 
-    ## Total variation (SS): 1359.1 
-    ## No. of observations: 9 
-    ## 
-    ## Partition table:
-    ##                      Df R.squared Adj.R.squared Testable
-    ## [a+c] = X1            8   1.00000                   TRUE
-    ## [b+c] = X2            2   0.99981       0.99974     TRUE
-    ## [a+b+c] = X1+X2       8   1.00000                   TRUE
-    ## Individual fractions                                    
-    ## [a] = X1|X2           6                             TRUE
-    ## [b] = X2|X1           0                            FALSE
-    ## [c]                   0                            FALSE
-    ## [d] = Residuals                                    FALSE
-    ## ---
-    ## Use function 'dbrda' to test significance of fractions of interest
-
-    ## 
-    ## $Balmoral$dbRDA_Treatment
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    ##           Df Variance       F Pr(>F)
-    ## treatment  1   75.705  2.1681  0.325
-    ## Axis.1     1  -11.395 -0.3263  0.417
-    ## Axis.2     1  -69.011 -1.9764  0.591
-    ## Residual   5  174.590               
-    ## 
-    ## $Balmoral$dbRDA_Host
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    ##          Df Variance       F Pr(>F)
-    ## Axis.1    1  -11.395 -0.3263  0.353
-    ## Axis.2    1  -69.011 -1.9764  0.606
-    ## Residual  5  174.590               
-    ## 
-    ## 
-    ## $Bowness
-    ## $Bowness$PERMANOVA
-    ## Permutation test for adonis under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   458.61  0.51368 -3.0901  0.742
-    ## Axis.2     1   671.18  0.75178 -4.5225  0.775
-    ## treatment  2   356.64  0.39946 -1.2015  0.553
-    ## Residual   4  -593.64 -0.66493               
-    ## Total      8   892.79  1.00000               
-    ## 
-    ## $Bowness$Adjusted_p_values_BH
-    ## [1] 0.775 0.775 0.775    NA    NA
-    ## 
-    ## $Bowness$Variance_Partitioning
-    ## 
-    ## Partition of squared Unknown user-supplied distance in dbRDA 
-    ## 
-    ## Call: varpart(Y = as.matrix(bray_curtis_dist_virus), X =
-    ## axes_host_matrix, X1 = treatment_matrix)
-    ## 
-    ## Explanatory tables:
-    ## X1:  axes_host_matrix
-    ## X2:  treatment_matrix 
-    ## 
-    ## No. of explanatory tables: 2 
-    ## Total variation (SS): 892.79 
-    ## No. of observations: 9 
-    ## 
-    ## Partition table:
-    ##                      Df R.squared Adj.R.squared Testable
-    ## [a+c] = X1            8   1.00000                   TRUE
-    ## [b+c] = X2            2   0.98047       0.97396     TRUE
-    ## [a+b+c] = X1+X2       8   1.00000                   TRUE
-    ## Individual fractions                                    
-    ## [a] = X1|X2           6                             TRUE
-    ## [b] = X2|X1           0                            FALSE
-    ## [c]                   0                            FALSE
-    ## [d] = Residuals                                    FALSE
-    ## ---
-    ## Use function 'dbrda' to test significance of fractions of interest
-
-    ## 
-    ## $Bowness$dbRDA_Treatment
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    ##           Df Variance       F Pr(>F)
-    ## treatment  1  109.088 -7.6974  0.794
-    ## Axis.1     1   -1.827  0.1289  0.494
-    ## Axis.2     1   75.198 -5.3061  0.709
-    ## Residual   5  -70.860               
-    ## 
-    ## $Bowness$dbRDA_Host
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   -1.827  0.1289  0.345
-    ## Axis.2    1   75.198 -5.3061  0.811
-    ## Residual  5  -70.860               
-    ## 
-    ## 
-    ## $Crocach
-    ## $Crocach$PERMANOVA
-    ## Permutation test for adonis under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   -53.64 -0.10150 -0.4738  0.513
-    ## Axis.2     1  -412.65 -0.78080 -3.6445  0.821
-    ## treatment  2   541.88  1.02533  2.3929  0.158
-    ## Residual   4   452.90  0.85697               
-    ## Total      8   528.49  1.00000               
-    ## 
-    ## $Crocach$Adjusted_p_values_BH
-    ## [1] 0.7695 0.8210 0.4740     NA     NA
-    ## 
-    ## $Crocach$Variance_Partitioning
-    ## 
-    ## Partition of squared Unknown user-supplied distance in dbRDA 
-    ## 
-    ## Call: varpart(Y = as.matrix(bray_curtis_dist_virus), X =
-    ## axes_host_matrix, X1 = treatment_matrix)
-    ## 
-    ## Explanatory tables:
-    ## X1:  axes_host_matrix
-    ## X2:  treatment_matrix 
-    ## 
-    ## No. of explanatory tables: 2 
-    ## Total variation (SS): 528.49 
-    ## No. of observations: 9 
-    ## 
-    ## Partition table:
-    ##                      Df R.squared Adj.R.squared Testable
-    ## [a+c] = X1            8   1.00000                   TRUE
-    ## [b+c] = X2            2  -0.91468       -1.5529     TRUE
-    ## [a+b+c] = X1+X2       8   1.00000                   TRUE
-    ## Individual fractions                                    
-    ## [a] = X1|X2           6                             TRUE
-    ## [b] = X2|X1           0                            FALSE
-    ## [c]                   0                            FALSE
-    ## [d] = Residuals                                    FALSE
-    ## ---
-    ## Use function 'dbrda' to test significance of fractions of interest
-
-    ## 
-    ## $Crocach$dbRDA_Treatment
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    ##           Df Variance       F Pr(>F)
-    ## treatment  1  -17.896 -0.9763  0.566
-    ## Axis.1     1   26.535  1.4477  0.210
-    ## Axis.2     1  -34.227 -1.8673  0.714
-    ## Residual   5   91.649               
-    ## 
-    ## $Crocach$dbRDA_Host
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   26.535  1.4477  0.224
-    ## Axis.2    1  -34.227 -1.8673  0.787
-    ## Residual  5   91.649               
-    ## 
-    ## 
-    ## $Langwell
-    ## $Langwell$PERMANOVA
-    ## Permutation test for adonis under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   233.28  0.53175 -2.8831  0.817
-    ## Axis.2     1   315.83  0.71990 -3.9033  0.850
-    ## treatment  2   213.25  0.48609 -1.3178  0.708
-    ## Residual   4  -323.65 -0.73773               
-    ## Total      8   438.71  1.00000               
-    ## 
-    ## $Langwell$Adjusted_p_values_BH
-    ## [1] 0.85 0.85 0.85   NA   NA
-    ## 
-    ## $Langwell$Variance_Partitioning
-    ## 
-    ## Partition of squared Unknown user-supplied distance in dbRDA 
-    ## 
-    ## Call: varpart(Y = as.matrix(bray_curtis_dist_virus), X =
-    ## axes_host_matrix, X1 = treatment_matrix)
-    ## 
-    ## Explanatory tables:
-    ## X1:  axes_host_matrix
-    ## X2:  treatment_matrix 
-    ## 
-    ## No. of explanatory tables: 2 
-    ## Total variation (SS): 438.71 
-    ## No. of observations: 9 
-    ## 
-    ## Partition table:
-    ##                      Df R.squared Adj.R.squared Testable
-    ## [a+c] = X1            8   1.00000                   TRUE
-    ## [b+c] = X2            2   0.99871       0.99828     TRUE
-    ## [a+b+c] = X1+X2       8   1.00000                   TRUE
-    ## Individual fractions                                    
-    ## [a] = X1|X2           6                             TRUE
-    ## [b] = X2|X1           0                            FALSE
-    ## [c]                   0                            FALSE
-    ## [d] = Residuals                                    FALSE
-    ## ---
-    ## Use function 'dbrda' to test significance of fractions of interest
-
-    ## 
-    ## $Langwell$dbRDA_Treatment
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    ##           Df Variance       F Pr(>F)
-    ## treatment  1   36.447 -8.9688  0.931
-    ## Axis.1     1   28.551 -7.0257  0.910
-    ## Axis.2     1   10.160 -2.5001  0.774
-    ## Residual   5  -20.319               
-    ## 
-    ## $Langwell$dbRDA_Host
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   28.551 -7.0257  0.829
-    ## Axis.2    1   10.160 -2.5001  0.667
-    ## Residual  5  -20.319               
-    ## 
-    ## 
-    ## $Migneint
-    ## $Migneint$PERMANOVA
-    ## Permutation test for adonis under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1   152.69  0.32345  1.0446  0.356
-    ## Axis.2     1  -248.61 -0.52664 -1.7008  0.746
-    ## treatment  2   -16.70 -0.03538 -0.0571  0.280
-    ## Residual   4   584.69  1.23857               
-    ## Total      8   472.07  1.00000               
-    ## 
-    ## $Migneint$Adjusted_p_values_BH
-    ## [1] 0.534 0.746 0.534    NA    NA
-    ## 
-    ## $Migneint$Variance_Partitioning
-    ## 
-    ## Partition of squared Unknown user-supplied distance in dbRDA 
-    ## 
-    ## Call: varpart(Y = as.matrix(bray_curtis_dist_virus), X =
-    ## axes_host_matrix, X1 = treatment_matrix)
-    ## 
-    ## Explanatory tables:
-    ## X1:  axes_host_matrix
-    ## X2:  treatment_matrix 
-    ## 
-    ## No. of explanatory tables: 2 
-    ## Total variation (SS): 472.07 
-    ## No. of observations: 9 
-    ## 
-    ## Partition table:
-    ##                      Df R.squared Adj.R.squared Testable
-    ## [a+c] = X1            8   1.00000                   TRUE
-    ## [b+c] = X2            2   0.92432        0.8991     TRUE
-    ## [a+b+c] = X1+X2       8   1.00000                   TRUE
-    ## Individual fractions                                    
-    ## [a] = X1|X2           6                             TRUE
-    ## [b] = X2|X1           0                            FALSE
-    ## [c]                   0                            FALSE
-    ## [d] = Residuals                                    FALSE
-    ## ---
-    ## Use function 'dbrda' to test significance of fractions of interest
-
-    ## 
-    ## $Migneint$dbRDA_Treatment
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    ##           Df Variance       F Pr(>F)
-    ## treatment  1  -27.781 -1.8741  0.622
-    ## Axis.1     1   43.127  2.9094  0.130
-    ## Axis.2     1  -30.455 -2.0545  0.446
-    ## Residual   5   74.117               
-    ## 
-    ## $Migneint$dbRDA_Host
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    ##          Df Variance       F Pr(>F)
-    ## Axis.1    1   43.127  2.9094  0.221
-    ## Axis.2    1  -30.455 -2.0545  0.696
-    ## Residual  5   74.117               
-    ## 
-    ## 
-    ## $Moor_House
-    ## $Moor_House$PERMANOVA
-    ## Permutation test for adonis under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## adonis2(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + treatment, data = axes_virus, method = "bray")
-    ##           Df SumOfSqs       R2       F Pr(>F)
-    ## Axis.1     1  136.142  0.93317 17.4611  0.119
-    ## Axis.2     1   14.005  0.09600  1.7962  0.328
-    ## treatment  2  -35.443 -0.24294 -2.2729  0.822
-    ## Residual   4   31.188  0.21377               
-    ## Total      8  145.892  1.00000               
-    ## 
-    ## $Moor_House$Adjusted_p_values_BH
-    ## [1] 0.357 0.492 0.822    NA    NA
-    ## 
-    ## $Moor_House$Variance_Partitioning
-    ## 
-    ## Partition of squared Unknown user-supplied distance in dbRDA 
-    ## 
-    ## Call: varpart(Y = as.matrix(bray_curtis_dist_virus), X =
-    ## axes_host_matrix, X1 = treatment_matrix)
-    ## 
-    ## Explanatory tables:
-    ## X1:  axes_host_matrix
-    ## X2:  treatment_matrix 
-    ## 
-    ## No. of explanatory tables: 2 
-    ## Total variation (SS): 145.89 
-    ## No. of observations: 9 
-    ## 
-    ## Partition table:
-    ##                      Df R.squared Adj.R.squared Testable
-    ## [a+c] = X1            8   1.00000                   TRUE
-    ## [b+c] = X2            2   0.74682       0.66242     TRUE
-    ## [a+b+c] = X1+X2       8   1.00000                   TRUE
-    ## Individual fractions                                    
-    ## [a] = X1|X2           6                             TRUE
-    ## [b] = X2|X1           0                            FALSE
-    ## [c]                   0                            FALSE
-    ## [d] = Residuals                                    FALSE
-    ## ---
-    ## Use function 'dbrda' to test significance of fractions of interest
-
-    ## 
-    ## $Moor_House$dbRDA_Treatment
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ treatment + Axis.1 + Axis.2, data = combined_data)
-    ##           Df Variance       F Pr(>F)  
-    ## treatment  1  11.7451 24.1381  0.065 .
-    ## Axis.1     1   6.4937 13.3457  0.113  
-    ## Axis.2     1  -2.4353 -5.0049  0.809  
-    ## Residual   5   2.4329                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## $Moor_House$dbRDA_Host
-    ## Permutation test for dbrda under reduced model
-    ## Terms added sequentially (first to last)
-    ## Permutation: free
-    ## Number of permutations: 999
-    ## 
-    ## Model: dbrda(formula = bray_curtis_dist_virus ~ Axis.1 + Axis.2 + Condition(treatment), data = combined_data)
-    ##          Df Variance       F Pr(>F)  
-    ## Axis.1    1   6.4937 13.3457  0.054 .
-    ## Axis.2    1  -2.4353 -5.0049  0.792  
-    ## Residual  5   2.4329                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

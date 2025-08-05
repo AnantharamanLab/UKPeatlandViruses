@@ -380,7 +380,7 @@ metadata
 ```
 
 ## Reformat and rename, save
-```{r reformat-save-env-data}
+```{r reformat-and-save-metadata}
 metadata$site < -as.factor(metadata$site)
 metadata$treatment <- as.factor(metadata$treatment)
 metadata$number <- as.factor(metadata$number)
@@ -459,7 +459,7 @@ virus_abundance_with_hosts <- virus_abundance_long_all %>%
   left_join(host_virus_predictions %>%
               select(-`Confidence score`, -`Main method`, -`Additional methods`) %>%
               dplyr::rename(Host = `Host genome`)) %>%
-  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+  filter(Virus_Abundance > 0) # 0 is non-detection not actual 0
 
 virus_abundance_with_hosts$Virus_Abundance[is.na(virus_abundance_with_hosts$Virus_Abundance)] <- 0
 
@@ -485,7 +485,7 @@ virus_abundance_with_hosts_and_all_sites <- virus_abundance_with_hosts %>%
   mutate(site = factor(site, levels = c(
     "Balmoral", "Bowness", "Crocach", "Langwell",
     "Migneint", "Moor House", "Stean", "All sites"))) %>%
-  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+  filter(Virus_Abundance > 0) # 0 is non-detection not actual 0
 
 saveRDS(virus_abundance_with_hosts_and_all_sites, "../Data/virus_abundance_with_hosts_and_all_sites.RDS")
 head(virus_abundance_with_hosts_and_all_sites)
@@ -494,8 +494,9 @@ head(virus_abundance_with_hosts_and_all_sites)
 ## Merge virus abundance data with host metabolic predictions
 ```{r merge-virus-abundance-with-host-metabolism}
 virus_abundance_with_hosts_and_all_sites_and_metabolism <- virus_abundance_with_hosts_and_all_sites %>%
+  # Inner join ensures only predicted virus-host pairs are retained
   inner_join(metabolic_filtered_long, by = "Host") %>%
-  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+  filter(Virus_Abundance > 0) # 0 is non-detection not actual 0
 
 saveRDS(virus_abundance_with_hosts_and_all_sites_and_metabolism,
         "../Data/virus_abundance_with_hosts_and_all_sites_and_metabolism.RDS")
@@ -521,7 +522,7 @@ host_abundance_long_all <- host_tmeans %>%
   left_join(host_clusters, by = join_by("Host", "site")) %>% # Cluster assignment isn't the same across all sites!
   left_join(gtdb %>%
               dplyr::rename(Host = `Genome`)) %>%
-  filter(Host_Abundance > 0) # ) is non-detection not actual 0
+  filter(Host_Abundance > 0) # 0 is non-detection not actual 0
 
 host_abundance_long_all$Host_Abundance[is.na(host_abundance_long_all$Host_Abundance)] <- 0
 
@@ -571,6 +572,7 @@ virus_host_abundance <- virus_abundance_with_hosts %>%
                                treatment == "NAT" ~ "Natural",
                                treatment == "REST" ~ "Restored")) %>%
   mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged"))) %>%
+  # Inner join ensures only predicted virus-host pairs are retained
   inner_join(host_abundance_long_all %>%
                select(Host, Host_Abundance, Sample),
              by = join_by("Host", "Sample")) %>%
@@ -637,5 +639,134 @@ head(host_map_data_combined)
 
 write.csv(host_map_data_combined, file = "../Tables/host_map_data_combined.csv", row.names = TRUE)
 ```
+
+# Soil environmental parameters
+## Oxygen concentration
+```{r o2}
+ox <- read.csv("../Tables/oxygen_probe.csv")
+ox <- filter(ox, Depth!="40_45" & Depth!="45_50") # Metagenomes were only extracted from top 10 cm
+ox <- ox %>%
+  filter(Depth=="0_5") %>%
+  merge(filter(ox, Depth=="5_10")[,c("Sample","O2")], by="Sample", suffixes=c("_5cm", "_10cm"))
+ox <- ox[,c("Sample", "Site", "Treatment", "O2_5cm", "O2_10cm")]
+colnames(ox)[colnames(ox) == "Sample"] <- "sample"
+colnames(ox)[colnames(ox) == "Site"] <- "site"
+colnames(ox)[colnames(ox) == "Treatment"] <- "treatment"
+ox <- ox %>% rowwise() %>% mutate(O2_avg = mean(c(O2_5cm, O2_10cm)), O2_sd = sd(c(O2_5cm, O2_10cm)))
+head(ox)
+```
+
+## pH
+```{r ph}
+ph <- read.csv("../Tables/Ph.csv")
+ph <- filter(ph, Depth!="40_50") # Metagenomes were only extracted from top 10 cm
+colnames(ph) <- c("sample", "site", "treatment", "depth", "ph", "conductivity")
+head(ph)
+```
+
+## %C and %N
+```{r tc-tn}
+CN <- read.csv("../Tables/TC_TN.csv")
+colnames(CN) <- c("sample", "site", "treatment", "Plate_Well", "Sample_Weight_mg", "TC", "TN")
+head(CN)
+```
+
+## Soil density (moisture)
+```{r soil-dens}
+density <- read.csv("../Tables/Bulk_Density.csv")
+colnames(density) <- c("sample", "depth", "year_since_rest", "site", "treatment", "crucible", "vol_before", "vol_after", "crucible_weight", "weight_before", "weight_after")
+density$crucible <- as.character(density$crucible)
+density$wet_mass <- density$weight_before - density$weight_after
+density$dry_mass <- density$weight_after - density$crucible_weight
+density$water_mass <- density$wet_mass - density$dry_mass
+density$percent_moisture <- (density$water_mass / density$wet_mass) * 100 # Calculate the moisture content as the percentage of the total soil mass
+head(density)
+```
+
+## Merge, reformat, and save
+```{r merge-reformat-save-env-data}
+env_data <- CN %>%
+  dplyr::select(sample, site, treatment, TC, TN) %>%
+  full_join(ox %>%
+              dplyr::select(sample, O2_avg),
+            by = "sample") %>%
+  full_join(ph %>%
+              dplyr::select(sample, ph, conductivity),
+            by="sample") %>%
+  full_join(density %>%
+              dplyr::select(sample, percent_moisture),
+            by = "sample") %>%
+  dplyr::rename("SampleID" = "sample")
+
+write.csv(env_data, "../Tables/environmental_parameters_combined.csv")
+
+env_data <- subset(env_data,
+                   # SampleID != "LASYr2D" & SampleID != "LASYr2E" & SampleID != "LASYr2F" & SampleID != "LAWAr2D" & SampleID != "LAWAr2E" & SampleID != "LAWAr2F" # remove extra Langwell restored replicates
+                   )
+row.names(env_data) <- env_data$SampleID
+head(env_data)
+```
+
+## Scale the environmental data and save
+### Site-Specific Scaling (because if later analyses show that site effects are strong)
+- Scale variables within each site separately
+- Ensures that environmental differences within each site are emphasized while controlling for broader site-level variation
+    
+```{r scale-env-data-by-site}
+env_data_scaled_site_specific <- as.data.frame(
+  env_data %>%
+    group_by(site) %>%
+    mutate(across(where(is.numeric), ~ scale(.) %>% as.vector())) %>%
+    ungroup()
+  )
+row.names(env_data_scaled_site_specific) <- row.names(env_data)
+head(env_data_scaled_site_specific)
+```
+
+### Global scaling (for when all sites are compared together)
+```{r scale-env-data-globally}
+env_data_scaled_global <- as.data.frame(
+  env_data %>%
+    mutate(across(where(is.numeric), ~ scale(.) %>% as.vector()))
+  )
+row.names(env_data_scaled_global) <- row.names(env_data)
+head(env_data_scaled_global)
+```
+
+# Ecosystem health index
+From Pallier et al., 2025.
+
+## Load data
+```{r eco-index}
+eco_index <- read.csv("../Tables/eco_health_index.csv")
+```
+
+## Merge with the rest
+```{r merge-eco-index}
+env_data <- env_data %>%
+  left_join(eco_index %>%
+              select(SampleID,
+                     index),
+            by = "SampleID")
+saveRDS(env_data, "../Data/env_data.RDS")
+env_data
+
+env_data_scaled_site_specific <- env_data_scaled_site_specific %>%
+  left_join(eco_index %>%
+              select(SampleID,
+                     index),
+            by = "SampleID")
+saveRDS(env_data_scaled_site_specific, "../Data/env_data_scaled_site_specific.RDS")
+env_data_scaled_site_specific
+
+env_data_scaled_global <- env_data_scaled_global %>%
+  left_join(eco_index %>%
+              select(SampleID,
+                     index),
+            by = "SampleID")
+saveRDS(env_data_scaled_global, "../Data/env_data_scaled_global.RDS")
+env_data_scaled_global
+```
+
 
 

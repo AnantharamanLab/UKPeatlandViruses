@@ -1,7 +1,7 @@
 Load and format data
 ================
 James C. Kosmopoulos
-2024-11-18
+2025-08-05
 
 # Load packages
 
@@ -23527,7 +23527,7 @@ virus_abundance_with_hosts <- virus_abundance_long_all %>%
   left_join(host_virus_predictions %>%
               select(-`Confidence score`, -`Main method`, -`Additional methods`) %>%
               dplyr::rename(Host = `Host genome`)) %>%
-  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+  filter(Virus_Abundance > 0) # 0 is non-detection not actual 0
 
 virus_abundance_with_hosts$Virus_Abundance[is.na(virus_abundance_with_hosts$Virus_Abundance)] <- 0
 
@@ -23583,7 +23583,7 @@ virus_abundance_with_hosts_and_all_sites <- virus_abundance_with_hosts %>%
   mutate(site = factor(site, levels = c(
     "Balmoral", "Bowness", "Crocach", "Langwell",
     "Migneint", "Moor House", "Stean", "All sites"))) %>%
-  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+  filter(Virus_Abundance > 0) # 0 is non-detection not actual 0
 
 saveRDS(virus_abundance_with_hosts_and_all_sites, "../Data/virus_abundance_with_hosts_and_all_sites.RDS")
 head(virus_abundance_with_hosts_and_all_sites)
@@ -23622,8 +23622,9 @@ head(virus_abundance_with_hosts_and_all_sites)
 
 ``` r
 virus_abundance_with_hosts_and_all_sites_and_metabolism <- virus_abundance_with_hosts_and_all_sites %>%
+  # Inner join ensures only predicted virus-host pairs are retained
   inner_join(metabolic_filtered_long, by = "Host") %>%
-  filter(Virus_Abundance > 0) # ) is non-detection not actual 0
+  filter(Virus_Abundance > 0) # 0 is non-detection not actual 0
 
 saveRDS(virus_abundance_with_hosts_and_all_sites_and_metabolism,
         "../Data/virus_abundance_with_hosts_and_all_sites_and_metabolism.RDS")
@@ -23687,7 +23688,7 @@ host_abundance_long_all <- host_tmeans %>%
   left_join(host_clusters, by = join_by("Host", "site")) %>% # Cluster assignment isn't the same across all sites!
   left_join(gtdb %>%
               dplyr::rename(Host = `Genome`)) %>%
-  filter(Host_Abundance > 0) # ) is non-detection not actual 0
+  filter(Host_Abundance > 0) # 0 is non-detection not actual 0
 
 host_abundance_long_all$Host_Abundance[is.na(host_abundance_long_all$Host_Abundance)] <- 0
 
@@ -23827,6 +23828,7 @@ virus_host_abundance <- virus_abundance_with_hosts %>%
                                treatment == "NAT" ~ "Natural",
                                treatment == "REST" ~ "Restored")) %>%
   mutate(treatment = factor(treatment, levels = c("Natural", "Restored", "Damaged"))) %>%
+  # Inner join ensures only predicted virus-host pairs are retained
   inner_join(host_abundance_long_all %>%
                select(Host, Host_Abundance, Sample),
              by = join_by("Host", "Sample")) %>%
@@ -25086,3 +25088,647 @@ head(host_map_data_combined)
 ``` r
 write.csv(host_map_data_combined, file = "../Tables/host_map_data_combined.csv", row.names = TRUE)
 ```
+
+# Soil environmental parameters
+
+## Oxygen concentration
+
+``` r
+ox <- read.csv("../Tables/oxygen_probe.csv")
+ox <- filter(ox, Depth!="40_45" & Depth!="45_50") # Metagenomes were only extracted from top 10 cm
+ox <- ox %>%
+  filter(Depth=="0_5") %>%
+  merge(filter(ox, Depth=="5_10")[,c("Sample","O2")], by="Sample", suffixes=c("_5cm", "_10cm"))
+ox <- ox[,c("Sample", "Site", "Treatment", "O2_5cm", "O2_10cm")]
+colnames(ox)[colnames(ox) == "Sample"] <- "sample"
+colnames(ox)[colnames(ox) == "Site"] <- "site"
+colnames(ox)[colnames(ox) == "Treatment"] <- "treatment"
+ox <- ox %>% rowwise() %>% mutate(O2_avg = mean(c(O2_5cm, O2_10cm)), O2_sd = sd(c(O2_5cm, O2_10cm)))
+head(ox)
+```
+
+    ## # A tibble: 6 × 7
+    ## # Rowwise: 
+    ##   sample site     treatment O2_5cm O2_10cm O2_avg O2_sd
+    ##   <chr>  <chr>    <chr>      <dbl>   <dbl>  <dbl> <dbl>
+    ## 1 BAr1A  Balmoral NAT         9.96    9.79   9.87 0.122
+    ## 2 BAr1B  Balmoral NAT         8.41    9.33   8.87 0.650
+    ## 3 BAr1C  Balmoral NAT         6.87    7.21   7.04 0.235
+    ## 4 BAr2D  Balmoral RES         9.84    8.73   9.29 0.783
+    ## 5 BAr2E  Balmoral RES         9.86    6.60   8.23 2.31 
+    ## 6 BAr2F  Balmoral RES         9.83    6.82   8.32 2.13
+
+## pH
+
+``` r
+ph <- read.csv("../Tables/Ph.csv")
+ph <- filter(ph, Depth!="40_50") # Metagenomes were only extracted from top 10 cm
+colnames(ph) <- c("sample", "site", "treatment", "depth", "ph", "conductivity")
+head(ph)
+```
+
+    ##   sample     site treatment depth   ph conductivity
+    ## 1  MGr1A Migneint       NAT  0_10 3.79         48.8
+    ## 2  MGr1B Migneint       NAT  0_10 3.94         28.8
+    ## 3  MGr1C Migneint       NAT  0_10 3.92         30.1
+    ## 4  MGr2D Migneint       RES  0_10 3.83         30.4
+    ## 5  MGr2E Migneint       RES  0_10 3.91         48.6
+    ## 6  MGr2F Migneint       RES  0_10 3.85         37.5
+
+## %C and %N
+
+``` r
+CN <- read.csv("../Tables/TC_TN.csv")
+colnames(CN) <- c("sample", "site", "treatment", "Plate_Well", "Sample_Weight_mg", "TC", "TN")
+head(CN)
+```
+
+    ##    sample     site treatment Plate_Well Sample_Weight_mg       TC       TN
+    ## 1   CRr1C  Crocach       NAT         A1            10.17 1.760035 47.24883
+    ## 2 LABRr1B Langwell       NAT         A2            10.69 1.284095 44.34337
+    ## 3   SEr2D    Stean      REST         A3            11.62 1.121106 46.44328
+    ## 4   SEr2E    Stean      REST         A4            12.24 1.006353 45.62141
+    ## 5 LASYr2F Langwell      REST         A5            12.56 1.441236 45.89327
+    ## 6   CRr2D  Crocach      REST         A6            10.60 1.358692 53.16726
+
+## Soil density (moisture)
+
+``` r
+density <- read.csv("../Tables/Bulk_Density.csv")
+colnames(density) <- c("sample", "depth", "year_since_rest", "site", "treatment", "crucible", "vol_before", "vol_after", "crucible_weight", "weight_before", "weight_after")
+density$crucible <- as.character(density$crucible)
+density$wet_mass <- density$weight_before - density$weight_after
+density$dry_mass <- density$weight_after - density$crucible_weight
+density$water_mass <- density$wet_mass - density$dry_mass
+density$percent_moisture <- (density$water_mass / density$wet_mass) * 100 # Calculate the moisture content as the percentage of the total soil mass
+head(density)
+```
+
+    ##   sample depth year_since_rest     site treatment crucible vol_before vol_after
+    ## 1  MGr1A  0_10             NAT Migneint       NAT        1        920       935
+    ## 2  MGr1B  0_10             NAT Migneint       NAT        2        920       925
+    ## 3  MGr1C  0_10             NAT Migneint       NAT        3        920       930
+    ## 4  MGr2D  0_10            REST Migneint      REST        4        920       930
+    ## 5  MGr2E  0_10            REST Migneint      REST        5        920       930
+    ## 6  MGr2F  0_10            REST Migneint      REST        6        920       930
+    ##   crucible_weight weight_before weight_after wet_mass dry_mass water_mass
+    ## 1           0.604        11.861       1.3242  10.5368   0.7202     9.8166
+    ## 2           0.617         5.601       1.0261   4.5749   0.4091     4.1658
+    ## 3           0.500         9.751       1.5310   8.2200   1.0310     7.1890
+    ## 4           0.522        11.536       1.5683   9.9677   1.0463     8.9214
+    ## 5           0.497        10.333       1.5770   8.7560   1.0800     7.6760
+    ## 6           0.521        10.211       1.6773   8.5337   1.1563     7.3774
+    ##   percent_moisture
+    ## 1         93.16491
+    ## 2         91.05773
+    ## 3         87.45742
+    ## 4         89.50309
+    ## 5         87.66560
+    ## 6         86.45019
+
+## Merge, reformat, and save
+
+``` r
+env_data <- CN %>%
+  dplyr::select(sample, site, treatment, TC, TN) %>%
+  full_join(ox %>%
+              dplyr::select(sample, O2_avg),
+            by = "sample") %>%
+  full_join(ph %>%
+              dplyr::select(sample, ph, conductivity),
+            by="sample") %>%
+  full_join(density %>%
+              dplyr::select(sample, percent_moisture),
+            by = "sample") %>%
+  dplyr::rename("SampleID" = "sample")
+
+write.csv(env_data, "../Tables/environmental_parameters_combined.csv")
+
+env_data <- subset(env_data,
+                   # SampleID != "LASYr2D" & SampleID != "LASYr2E" & SampleID != "LASYr2F" & SampleID != "LAWAr2D" & SampleID != "LAWAr2E" & SampleID != "LAWAr2F" # remove extra Langwell restored replicates
+                   )
+row.names(env_data) <- env_data$SampleID
+head(env_data)
+```
+
+    ##         SampleID     site treatment       TC       TN O2_avg   ph conductivity
+    ## CRr1C      CRr1C  Crocach       NAT 1.760035 47.24883 5.7825 4.13         25.9
+    ## LABRr1B  LABRr1B Langwell       NAT 1.284095 44.34337     NA 4.02         23.0
+    ## SEr2D      SEr2D    Stean      REST 1.121106 46.44328     NA 3.86         39.7
+    ## SEr2E      SEr2E    Stean      REST 1.006353 45.62141     NA 3.96         32.2
+    ## LASYr2F  LASYr2F Langwell      REST 1.441236 45.89327     NA 3.85         37.2
+    ## CRr2D      CRr2D  Crocach      REST 1.358692 53.16726 4.9900 4.03         35.9
+    ##         percent_moisture
+    ## CRr1C           89.18603
+    ## LABRr1B         91.81222
+    ## SEr2D           91.91854
+    ## SEr2E           90.93687
+    ## LASYr2F         88.31003
+    ## CRr2D           81.06685
+
+## Scale the environmental data and save
+
+### Site-Specific Scaling (because if later analyses show that site effects are strong)
+
+- Scale variables within each site separately
+- Ensures that environmental differences within each site are emphasized
+  while controlling for broader site-level variation
+
+``` r
+env_data_scaled_site_specific <- as.data.frame(
+  env_data %>%
+    group_by(site) %>%
+    mutate(across(where(is.numeric), ~ scale(.) %>% as.vector())) %>%
+    ungroup()
+  )
+row.names(env_data_scaled_site_specific) <- row.names(env_data)
+head(env_data_scaled_site_specific)
+```
+
+    ##         SampleID     site treatment          TC         TN     O2_avg
+    ## CRr1C      CRr1C  Crocach       NAT -0.04411064 -0.5300150 -0.7395161
+    ## LABRr1B  LABRr1B Langwell       NAT -0.85855376 -1.1911885         NA
+    ## SEr2D      SEr2D    Stean      REST -0.07384339 -0.6355228         NA
+    ## SEr2E      SEr2E    Stean      REST -0.78085584 -0.8803480         NA
+    ## LASYr2F  LASYr2F Langwell      REST -0.31832719 -0.6548333         NA
+    ## CRr2D      CRr2D  Crocach      REST -1.61049033  1.6268015 -1.4496845
+    ##                  ph conductivity percent_moisture
+    ## CRr1C    1.01270692   -1.4526817        1.0089036
+    ## LABRr1B  0.88943642   -1.2194318        2.3520482
+    ## SEr2D    0.01476797   -0.1310447        1.2459953
+    ## SEr2E    0.90084629   -0.8870715        0.8895001
+    ## LASYr2F -0.45792766   -0.3654955       -0.0496528
+    ## CRr2D    0.08266995   -0.4360304       -1.6083336
+
+### Global scaling (for when all sites are compared together)
+
+``` r
+env_data_scaled_global <- as.data.frame(
+  env_data %>%
+    mutate(across(where(is.numeric), ~ scale(.) %>% as.vector()))
+  )
+row.names(env_data_scaled_global) <- row.names(env_data)
+head(env_data_scaled_global)
+```
+
+    ##         SampleID     site treatment         TC         TN    O2_avg         ph
+    ## CRr1C      CRr1C  Crocach       NAT  0.4456978 -0.4662307 -1.129337 1.74619062
+    ## LABRr1B  LABRr1B Langwell       NAT -0.9634805 -1.6032362        NA 1.06945204
+    ## SEr2D      SEr2D    Stean      REST -1.4460625 -0.7814682        NA 0.08510500
+    ## SEr2E      SEr2E    Stean      REST -1.7858266 -1.1030949        NA 0.70032190
+    ## LASYr2F  LASYr2F Langwell      REST -0.4982111 -0.9967076        NA 0.02358331
+    ## CRr2D      CRr2D  Crocach      REST -0.7426111  1.8498509 -1.566015 1.13097372
+    ##         conductivity percent_moisture
+    ## CRr1C    -1.20985590        0.5922331
+    ## LABRr1B  -1.49533858        1.1978544
+    ## SEr2D     0.14864788        1.2223721
+    ## SEr2E    -0.58966939        0.9959911
+    ## LASYr2F  -0.09745788        0.3902207
+    ## CRr2D    -0.22543287       -1.2801148
+
+# Ecosystem health index
+
+From Pallier et al., 2025.
+
+## Load data
+
+``` r
+eco_index <- read.csv("../Tables/eco_health_index.csv")
+```
+
+## Merge with the rest
+
+``` r
+env_data <- env_data %>%
+  left_join(eco_index %>%
+              select(SampleID,
+                     index),
+            by = "SampleID")
+saveRDS(env_data, "../Data/env_data.RDS")
+env_data
+```
+
+    ##    SampleID       site treatment        TC       TN  O2_avg   ph conductivity
+    ## 1     CRr1C    Crocach       NAT 1.7600350 47.24883  5.7825 4.13         25.9
+    ## 2   LABRr1B   Langwell       NAT 1.2840947 44.34337      NA 4.02         23.0
+    ## 3     SEr2D      Stean      REST 1.1211059 46.44328      NA 3.86         39.7
+    ## 4     SEr2E      Stean      REST 1.0063529 45.62141      NA 3.96         32.2
+    ## 5   LASYr2F   Langwell      REST 1.4412363 45.89327      NA 3.85         37.2
+    ## 6     CRr2D    Crocach      REST 1.3586918 53.16726  4.9900 4.03         35.9
+    ## 7     CRr2E    Crocach      REST 1.9584445 49.32398  7.1840 4.02         41.8
+    ## 8   LABRr1C   Langwell       NAT 1.7810409 47.69652  6.8445 3.99         22.7
+    ## 9     CRr2F    Crocach      REST 2.1696458 49.88054  7.5285 4.10         33.5
+    ## 10    BOr3G    Bowness       DAM 1.7134116 46.64932  9.8890 3.60         35.1
+    ## 11    CRr1A    Crocach       NAT 2.0214064 47.89912  6.2760 3.99         46.2
+    ## 12    MGr2E   Migneint      REST 1.9837331 48.84855  3.2345 3.91         48.6
+    ## 13    BOr1C    Bowness       NAT 1.3583310 46.29145  6.0255 3.69         44.9
+    ## 14    MHr1A Moor_House       NAT 1.3372927 47.97347 10.5000 3.75         54.1
+    ## 15    BAr2D   Balmoral      REST 1.1211820 51.12538  9.2875 3.71         20.9
+    ## 16  LASCr2E   Langwell      REST 1.0615925 46.26957  8.5460   NA           NA
+    ## 17  LAWAr2F   Langwell      REST 1.5299389 46.67239  9.1740   NA           NA
+    ## 18  LASAr3G   Langwell       DAM 1.3907166 46.83960  8.5450 3.78         55.6
+    ## 19    BOr3H    Bowness       DAM 1.7978941 45.12646  9.8460 3.59         42.4
+    ## 20    BOr1A    Bowness       NAT 1.4358318 47.23617  6.9800 3.62         41.1
+    ## 21    BAr1A   Balmoral       NAT 1.1701019 46.27535  9.8740 3.73         46.7
+    ## 22    SEr3H      Stean       DAM 0.9110925 49.64233  9.7260 3.75         44.5
+    ## 23    BAr3G   Balmoral       DAM 1.4844972 42.35862  9.4475 3.60         35.1
+    ## 24    BAr1B   Balmoral       NAT 1.1706003 46.42556  8.8665 3.80         28.7
+    ## 25    BAr1C   Balmoral       NAT 1.2474421 49.78674  7.0405 3.91         21.9
+    ## 26  LASAr3H   Langwell       DAM 1.9692106 50.28053      NA 3.84         62.3
+    ## 27    BOr2D    Bowness      REST 1.6016167 49.29037  8.0655 4.15         31.0
+    ## 28  LASYr2E   Langwell      REST 1.6721998 48.03183  6.5960 3.94         46.7
+    ## 29    MHr2F Moor_House      REST 1.4993716 48.64301 10.3225 3.74         36.9
+    ## 30    BAr2E   Balmoral      REST 1.5402536 52.07274  8.2275 3.73         25.3
+    ## 31  LASCr2F   Langwell      REST 1.2663594 51.38515 10.1550   NA           NA
+    ## 32    BOr2E    Bowness      REST 1.7381197 47.98551  7.7955 4.04         30.2
+    ## 33    MGr1B   Migneint       NAT 2.4383523 50.84798  2.6115 3.94         28.8
+    ## 34    BAr2F   Balmoral      REST 1.5189359 51.15368  8.3215 3.51         38.9
+    ## 35    MHr1C Moor_House       NAT 1.3935555 49.35648  8.2995 3.95         30.0
+    ## 36    BAr3I   Balmoral       DAM 1.4212520 47.02564 10.2955 3.62         34.8
+    ## 37    BOr2F    Bowness      REST 1.6779313 49.52766  8.8140 4.06         30.8
+    ## 38    SEr3G      Stean       DAM 1.1503860 52.86704      NA 3.82         54.8
+    ## 39    MHr3G Moor_House       DAM 1.5411164 49.85317  8.2860 3.70         38.9
+    ## 40    MHr2D Moor_House      REST 1.7610246 50.64264  9.1380 3.89         37.1
+    ## 41    MHr3H Moor_House       DAM 1.5832690 50.68416  9.7405 3.64         39.2
+    ## 42    MGr2F   Migneint      REST 2.3162584 51.89397  6.0275 3.85         37.5
+    ## 43    MHr2E Moor_House      REST 1.9943821 50.98798  8.6860 3.91         30.6
+    ## 44    CRr3G    Crocach       DAM 1.5050452 51.33075      NA 3.83         43.8
+    ## 45    MHr1B Moor_House       NAT 1.5526851 49.47584  7.5605 3.98         25.9
+    ## 46    SEr3I      Stean       DAM 1.3637865 51.86971  9.9270 3.74         47.0
+    ## 47    MGr1A   Migneint       NAT 1.8755337 49.51977  5.3940 3.79         48.8
+    ## 48  LASYr2D   Langwell      REST 1.7661138 50.80510      NA 3.78         52.5
+    ## 49  LAWAr2E   Langwell      REST 1.7848133 50.25430  9.2735   NA           NA
+    ## 50    MGr3G   Migneint       DAM 1.7664410 50.16782  5.8700 3.88         37.9
+    ## 51    BOr3I    Bowness       DAM 2.2437608 49.97747  8.8085 3.62         34.8
+    ## 52  LAWAr2D   Langwell      REST 1.5975733 51.38694  7.6905   NA           NA
+    ## 53    BAr3H   Balmoral       DAM 1.8095157 50.73779  9.3530 3.59         42.4
+    ## 54  LABRr1A   Langwell       NAT 1.7855492 49.90676  6.2085 4.15         25.7
+    ## 55  LASAr3I   Langwell       DAM 1.7046403 45.57399      NA 3.82         63.8
+    ## 56    MGr3H   Migneint       DAM 1.9150014 47.01845  9.2865 3.86         33.1
+    ## 57    MGr1C   Migneint       NAT 2.1822319 43.88880  3.8380 3.92         30.1
+    ## 58    CRr3H    Crocach       DAM 1.6273959 46.77607  8.0785 3.89         58.7
+    ## 59    MHr3I Moor_House       DAM 1.7537367 47.86358  7.1335 3.70         38.7
+    ## 60    SEr2F      Stean      REST 1.2458235 45.01654  8.9430 4.02         27.8
+    ## 61    CRr3I    Crocach       DAM 1.7116307 43.69639  7.4980 4.16         45.1
+    ## 62  LASCr2D   Langwell      REST 0.9723937 41.44368      NA   NA           NA
+    ## 63    MGr3I   Migneint       DAM 2.0100722 49.97535  6.8585 3.75         34.8
+    ## 64    MGr2D   Migneint      REST 1.9665606 45.53867  7.6860 3.83         30.4
+    ## 65    CRr1B    Crocach       NAT 1.8297397 49.00604  5.5245 4.04         30.8
+    ## 66    BOr1B    Bowness       NAT 1.5578886 48.25644  6.6940 3.70         47.8
+    ##    percent_moisture        index
+    ## 1          89.18603  0.974647050
+    ## 2          91.81222  0.318794546
+    ## 3          91.91854  0.055305662
+    ## 4          90.93687  0.462907656
+    ## 5          88.31003           NA
+    ## 6          81.06685 -0.033306484
+    ## 7          83.34727  0.173641711
+    ## 8          88.56644  0.704354976
+    ## 9          82.40710  0.401446952
+    ## 10         80.02665 -0.626651551
+    ## 11         85.28494  0.137120448
+    ## 12         87.66560  0.919580766
+    ## 13         83.07575 -0.112365103
+    ## 14         88.60839 -0.252022444
+    ## 15         85.71109 -0.861788205
+    ## 16         90.10015  0.105479608
+    ## 17         86.27897           NA
+    ## 18         87.60804 -0.374910130
+    ## 19         77.90812 -0.935412031
+    ## 20         88.19931  0.066541715
+    ## 21         84.03398 -0.872388753
+    ## 22         89.05950 -0.763943486
+    ## 23         74.33876 -0.755040527
+    ## 24         85.81695 -0.320731707
+    ## 25         89.61464  0.089770005
+    ## 26         87.41206 -0.044798328
+    ## 27         86.86764  0.299486592
+    ## 28         86.90763           NA
+    ## 29         89.38600 -0.240792645
+    ## 30         85.64512 -0.438826990
+    ## 31         88.32269 -0.437896483
+    ## 32         84.37960  0.111499409
+    ## 33         91.05773  1.396351814
+    ## 34         83.39034 -0.325096378
+    ## 35         92.12169  0.555763355
+    ## 36         67.35588 -1.497950267
+    ## 37         85.66261  0.195822181
+    ## 38         85.48276 -0.922147193
+    ## 39         89.55315  0.008831597
+    ## 40         86.36064 -0.188796232
+    ## 41         89.26610 -0.582883862
+    ## 42         86.45019  0.364005021
+    ## 43         85.69750  0.024697972
+    ## 44         88.02745  0.168110443
+    ## 45         92.06214  0.551376705
+    ## 46         85.20753 -0.627714840
+    ## 47         93.16491  1.039833529
+    ## 48         86.77444           NA
+    ## 49         89.48871           NA
+    ## 50         87.38017 -0.026448296
+    ## 51         83.49306 -0.381937074
+    ## 52         87.75055           NA
+    ## 53         74.82745 -0.831613140
+    ## 54         88.73906  0.709029404
+    ## 55         87.80070 -0.384444538
+    ## 56         88.81708  0.202461524
+    ## 57         87.45742  0.776499950
+    ## 58         88.80662  0.042392608
+    ## 59         87.47321  0.068085083
+    ## 60         88.31968  0.016103806
+    ## 61         88.68728  0.465350015
+    ## 62         89.86482  0.011132604
+    ## 63         87.20986 -0.041149766
+    ## 64         89.50309  0.688060648
+    ## 65         87.69238  0.529210487
+    ## 66         86.03164  0.006889205
+
+``` r
+env_data_scaled_site_specific <- env_data_scaled_site_specific %>%
+  left_join(eco_index %>%
+              select(SampleID,
+                     index),
+            by = "SampleID")
+saveRDS(env_data_scaled_site_specific, "../Data/env_data_scaled_site_specific.RDS")
+env_data_scaled_site_specific
+```
+
+    ##    SampleID       site treatment          TC          TN      O2_avg
+    ## 1     CRr1C    Crocach       NAT -0.04411064 -0.53001497 -0.73951609
+    ## 2   LABRr1B   Langwell       NAT -0.85855376 -1.19118847          NA
+    ## 3     SEr2D      Stean      REST -0.07384339 -0.63552279          NA
+    ## 4     SEr2E      Stean      REST -0.78085584 -0.88034801          NA
+    ## 5   LASYr2F   Langwell      REST -0.31832719 -0.65483333          NA
+    ## 6     CRr2D    Crocach      REST -1.61049033  1.62680155 -1.44968453
+    ## 7     CRr2E    Crocach      REST  0.73025030  0.22622066  0.51638431
+    ## 8   LABRr1C   Langwell       NAT  0.84986467 -0.03080335 -0.93606900
+    ## 9     CRr2F    Crocach      REST  1.55453590  0.42904466  0.82509475
+    ## 10    BOr3G    Bowness       DAM  0.12892001 -0.71556894  1.30987540
+    ## 11    CRr1A    Crocach       NAT  0.97598086 -0.29303457 -0.29728502
+    ## 12    MGr2E   Migneint      REST -0.30570028  0.08194275 -1.11438168
+    ## 13    BOr1C    Bowness       NAT -1.26333154 -0.93513129 -1.52207961
+    ## 14    MHr1A Moor_House       NAT -1.29694695 -1.31131672  1.40403774
+    ## 15    BAr2D   Balmoral      REST -1.16873972  0.80166336  0.32433465
+    ## 16  LASCr2E   Langwell      REST -1.62347942 -0.52461147  0.31776810
+    ## 17  LAWAr2F   Langwell      REST -0.01338214 -0.38521091  0.78054195
+    ## 18  LASAr3G   Langwell       DAM -0.49200553 -0.32734802  0.31703120
+    ## 19    BOr3H    Bowness       DAM  0.46017145 -1.64987797  1.27835629
+    ## 20    BOr1A    Bowness       NAT -0.95945508 -0.35552403 -0.82242876
+    ## 21    BAr1A   Balmoral       NAT -0.95372046 -0.70880166  0.92002026
+    ## 22    SEr3H      Stean       DAM -1.36777133  0.31743185  0.37315214
+    ## 23    BAr3G   Balmoral       DAM  0.42815120 -1.92860726  0.48684053
+    ## 24    BAr1B   Balmoral       NAT -0.95152977 -0.66202305 -0.10325894
+    ## 25    BAr1C   Balmoral       NAT -0.61378444  0.38476525 -1.95785729
+    ## 26  LASAr3H   Langwell       DAM  1.49676085  0.86341273          NA
+    ## 27    BOr2D    Bowness      REST -0.30942138  0.90477239 -0.02675459
+    ## 28  LASYr2E   Langwell      REST  0.47568720  0.08523133 -1.11918891
+    ## 29    MHr2F Moor_House      REST -0.50231040 -0.73534240  1.25282931
+    ## 30    BAr2E   Balmoral      REST  0.67321928  1.09670541 -0.75226680
+    ## 31  LASCr2F   Langwell      REST -0.91952458  1.24567717  1.50344185
+    ## 32    BOr2E    Bowness      REST  0.22579931  0.10421259 -0.22466525
+    ## 33    MGr1B   Migneint       NAT  1.77692043  0.84297992 -1.40237661
+    ## 34    BAr2F   Balmoral      REST  0.57952083  0.81047734 -0.65679459
+    ## 35    MHr1C Moor_House       NAT -1.02110292 -0.12158390 -0.47052089
+    ## 36    BAr3I   Balmoral       DAM  0.15016766 -0.47513552  1.34812169
+    ## 37    BOr2F    Bowness      REST -0.01019615  1.05035936  0.52189775
+    ## 38    SEr3G      Stean       DAM  0.10655600  1.27803185          NA
+    ## 39    MHr3G Moor_House       DAM -0.29764554  0.30569515 -0.48202125
+    ## 40    MHr2D Moor_House      REST  0.78051478  0.98483600  0.24377923
+    ## 41    MHr3H Moor_House       DAM -0.09098067  1.02055279  0.75703603
+    ## 42    MGr2F   Migneint      REST  1.21760559  1.24111239  0.17674167
+    ## 43    MHr2E Moor_House      REST  1.92461404  1.28191152 -0.14126985
+    ## 44    CRr3G    Crocach       DAM -1.03929609  0.95753616          NA
+    ## 45    MHr1B Moor_House       NAT -0.24092640 -0.01890631 -1.10005910
+    ## 46    SEr3I      Stean       DAM  1.42135202  0.98093913  0.75976853
+    ## 47    MGr1A   Migneint       NAT -0.80136386  0.33742903 -0.11610711
+    ## 48  LASYr2D   Langwell      REST  0.79854761  1.04494316          NA
+    ## 49  LAWAr2E   Langwell      REST  0.86283347  0.85433700  0.85386360
+    ## 50    MGr3G   Migneint       DAM -1.30111992  0.58409167  0.10393397
+    ## 51    BOr3I    Bowness       DAM  2.20839030  1.32632303  0.51786624
+    ## 52  LAWAr2D   Langwell      REST  0.21913348  1.24629366 -0.31265073
+    ## 53    BAr3H   Balmoral       DAM  1.85671542  0.68095613  0.39086049
+    ## 54  LABRr1A   Langwell       NAT  0.86536330  0.73406874 -1.40473806
+    ## 55  LASAr3I   Langwell       DAM  0.58721198 -0.76532093          NA
+    ## 56    MGr3H   Migneint       DAM -0.62056152 -0.61463989  1.68328338
+    ## 57    MGr1C   Migneint       NAT  0.60362719 -1.80586474 -0.83540103
+    ## 58    CRr3H    Crocach       DAM -0.56178052 -0.70229838  1.31795613
+    ## 59    MHr3I Moor_House       DAM  0.74478406 -1.40584612 -1.46381122
+    ## 60    SEr2F      Stean      REST  0.69456254 -1.06053203 -1.13292067
+    ## 61    CRr3I    Crocach       DAM -0.23302517 -1.82460951  0.79776335
+    ## 62  LASCr2D   Langwell      REST -1.93012994 -2.19464730          NA
+    ## 63    MGr3I   Migneint       DAM -0.18503996  0.51083236  0.56088901
+    ## 64    MGr2D   Migneint      REST -0.38436767 -1.17788348  0.94341839
+    ## 65    CRr1B    Crocach       NAT  0.22793569  0.11035440 -0.97071289
+    ## 66    BOr1B    Bowness       NAT -0.48087691  0.27043486 -1.03206746
+    ##             ph conductivity percent_moisture        index
+    ## 1   1.01270692  -1.45268174       1.00890364  0.974647050
+    ## 2   0.88943642  -1.21943181       2.35204824  0.318794546
+    ## 3   0.01476797  -0.13104466       1.24599533  0.055305662
+    ## 4   0.90084629  -0.88707153       0.88950006  0.462907656
+    ## 5  -0.45792766  -0.36549545      -0.04965280           NA
+    ## 6   0.08266995  -0.43603045      -1.60833360 -0.033306484
+    ## 7  -0.01033374   0.16379382      -0.87323540  0.173641711
+    ## 8   0.65166629  -1.23747272       0.12618682  0.704354976
+    ## 9   0.73369583  -0.68002676      -1.17630175  0.401446952
+    ## 10 -0.81291198  -0.37225549      -1.19365371 -0.626651551
+    ## 11 -0.28934484   0.61112039      -0.24862159  0.137120448
+    ## 12  0.82254406   1.58702537      -0.49680401  0.919580766
+    ## 13 -0.41862533   1.10670551      -0.26845741 -0.112365103
+    ## 14 -0.45081579   2.14996963      -0.15175743 -0.252022444
+    ## 15  0.17273976  -1.29880417       0.62035315 -0.861788205
+    ## 16          NA           NA       1.17795989  0.105479608
+    ## 17          NA           NA      -1.44249306           NA
+    ## 18 -1.01272464   0.74101363      -0.53105786 -0.374910130
+    ## 19 -0.85672161   0.72941954      -1.83648524 -0.935412031
+    ## 20 -0.72529272   0.53323084       1.28619815  0.066541715
+    ## 21  0.33638796   1.53029835       0.39009482 -0.872388753
+    ## 22 -0.95991818   0.35281254       0.20773067 -0.763943486
+    ## 23 -0.72732533   0.25829877      -0.94100908 -0.755040527
+    ## 24  0.90915666  -0.44349411       0.63488694 -0.320731707
+    ## 25  1.80922175  -1.18914903       1.15629128  0.089770005
+    ## 26 -0.53718437   1.14392727      -0.66545392 -0.044798328
+    ## 27  1.59661754  -0.99100448       0.88212440  0.299486592
+    ## 28  0.25538274   0.20580000      -1.01137636           NA
+    ## 29 -0.53037152   0.00967832       0.19608677 -0.240792645
+    ## 30  0.33638796  -0.81632157       0.61129603 -0.438826990
+    ## 31          NA           NA      -0.04097245 -0.437896483
+    ## 32  1.11471163  -1.11173599       0.12717185  0.111499409
+    ## 33  1.30534167  -1.04619550       1.06428621  1.396351814
+    ## 34 -1.46374222   0.67498828       0.30172542 -0.325096378
+    ## 35  1.14029877  -0.84892692       1.41983044  0.555763355
+    ## 36 -0.56367713   0.22540222      -1.89972399 -1.497950267
+    ## 37  1.20233089  -1.02118735       0.51647908  0.195822181
+    ## 38 -0.33966335   1.39108945      -1.09116913 -0.922147193
+    ## 39 -0.84859444   0.25854940       0.27085796  0.008831597
+    ## 40  0.66296440   0.03456543      -1.15723424 -0.188796232
+    ## 41 -1.32592881   0.29588007       0.14245348 -0.582883862
+    ## 42 -0.14305114   0.11082579      -1.05614720  0.364005021
+    ## 43  0.82207586  -0.77426559      -1.45387697  0.024697972
+    ## 44 -1.77740399   0.36712408       0.63543354  0.168110443
+    ## 45  1.37896596  -1.35911264       1.39319249  0.551376705
+    ## 46 -1.04852601   0.60482150      -1.19112134 -0.627714840
+    ## 47 -1.10864635   1.61362356       2.03403095  1.039833529
+    ## 48 -1.01272464   0.55459091      -1.10271654           NA
+    ## 49          NA           NA       0.75864974           NA
+    ## 50  0.33974646   0.16402218      -0.62816407 -0.026448296
+    ## 51 -0.72529272  -0.41752980      -0.14183141 -0.381937074
+    ## 52          NA           NA      -0.43332565           NA
+    ## 53 -0.80914942   1.05878126      -0.87391457 -0.831613140
+    ## 54  1.91977367  -1.05706363       0.24456305  0.709029404
+    ## 55 -0.69569780   1.23413181      -0.39893552 -0.384444538
+    ## 56  0.01788139  -0.47433440       0.03311789  0.202461524
+    ## 57  0.98347660  -0.87330726      -0.59261039  0.776499950
+    ## 58 -1.21938180   1.88193451       0.88660043  0.042392608
+    ## 59 -0.84859444   0.23366229      -0.65955251  0.068085083
+    ## 60  1.43249328  -1.33060730      -0.06093558  0.016103806
+    ## 61  1.29171801   0.49928875       0.84813070  0.465350015
+    ## 62          NA           NA       1.01657642  0.011132604
+    ## 63 -1.75237648  -0.24824978      -0.70653824 -0.041149766
+    ## 64 -0.46491621  -0.83340997       0.34882885  0.688060648
+    ## 65  0.17567365  -0.95452261       0.52742402  0.529210487
+    ## 66 -0.37481570   1.54435723       0.62845428  0.006889205
+
+``` r
+env_data_scaled_global <- env_data_scaled_global %>%
+  left_join(eco_index %>%
+              select(SampleID,
+                     index),
+            by = "SampleID")
+saveRDS(env_data_scaled_global, "../Data/env_data_scaled_global.RDS")
+env_data_scaled_global
+```
+
+    ##    SampleID       site treatment          TC          TN      O2_avg
+    ## 1     CRr1C    Crocach       NAT  0.44569784 -0.46623071 -1.12933697
+    ## 2   LABRr1B   Langwell       NAT -0.96348049 -1.60323617          NA
+    ## 3     SEr2D      Stean      REST -1.44606252 -0.78146818          NA
+    ## 4     SEr2E      Stean      REST -1.78582664 -1.10309493          NA
+    ## 5   LASYr2F   Langwell      REST -0.49821107 -0.99670756          NA
+    ## 6     CRr2D    Crocach      REST -0.74261112  1.84985089 -1.56601531
+    ## 7     CRr2E    Crocach      REST  1.03315441  0.34584738 -0.35709130
+    ## 8   LABRr1C   Langwell       NAT  0.50789264 -0.29103326 -0.54416044
+    ## 9     CRr2F    Crocach      REST  1.65848552  0.56364844 -0.16726709
+    ## 10    BOr3G    Bowness       DAM  0.30765369 -0.70083944  1.13340069
+    ## 11    CRr1A    Crocach       NAT  1.21957398 -0.21175104 -0.85741172
+    ## 12    MGr2E   Migneint      REST  1.10802959  0.15979264 -2.53331981
+    ## 13    BOr1C    Bowness       NAT -0.74367952 -0.84088693 -0.99544064
+    ## 14    MHr1A Moor_House       NAT -0.80597033 -0.18265447  1.47007005
+    ## 15    BAr2D   Balmoral      REST -1.44583733  1.05079468  0.80196597
+    ## 16  LASCr2E   Langwell      REST -1.62227171 -0.84944825  0.39338933
+    ## 17  LAWAr2F   Langwell      REST -0.23557754 -0.69180937  0.73942591
+    ## 18  LASAr3G   Langwell       DAM -0.64779131 -0.62637604  0.39283831
+    ## 19    BOr3H    Bowness       DAM  0.55779214 -1.29678693  1.10970711
+    ## 20    BOr1A    Bowness       NAT -0.51421279 -0.47118538 -0.46949809
+    ## 21    BAr1A   Balmoral       NAT -1.30099379 -0.84718514  1.12513549
+    ## 22    SEr3H      Stean       DAM -2.06787659  0.47042775  1.04358546
+    ## 23    BAr3G   Balmoral       DAM -0.37012281 -2.37993590  0.89012816
+    ## 24    BAr1B   Balmoral       NAT -1.29951807 -0.78840532  0.56998921
+    ## 25    BAr1C   Balmoral       NAT -1.07200250  0.52693998 -0.43616176
+    ## 26  LASAr3H   Langwell       DAM  1.06503114  0.72017667          NA
+    ## 27    BOr2D    Bowness      REST -0.02335177  0.33269264  0.12862726
+    ## 28  LASYr2E   Langwell      REST  0.18563279 -0.15981730 -0.68108734
+    ## 29    MHr2F Moor_House      REST -0.32608208  0.07936095  1.37226512
+    ## 30    BAr2E   Balmoral      REST -0.20503746  1.42153075  0.21789147
+    ## 31  LASCr2F   Langwell      REST -1.01599153  1.15245428  1.27997033
+    ## 32    BOr2E    Bowness      REST  0.38081032 -0.17794313 -0.02014644
+    ## 33    MGr1B   Migneint       NAT  2.45407990  0.94223973 -2.87660133
+    ## 34    BAr2F   Balmoral      REST -0.26815560  1.06186991  0.26968676
+    ## 35    MHr1C Moor_House       NAT -0.63938561  0.35856472  0.25756446
+    ## 36    BAr3I   Balmoral       DAM -0.55738102 -0.55357117  1.35738775
+    ## 37    BOr2F    Bowness      REST  0.20260268  0.42555505  0.54106099
+    ## 38    SEr3G      Stean       DAM -1.35936923  1.73236738          NA
+    ## 39    MHr3G Moor_House       DAM -0.20248310  0.55293745  0.25012577
+    ## 40    MHr2D Moor_House      REST  0.44862775  0.86188417  0.71958942
+    ## 41    MHr3H Moor_House       DAM -0.07767630  0.87813204  1.05157516
+    ## 42    MGr2F   Migneint      REST  2.09258060  1.35157269 -0.99433862
+    ## 43    MHr2E Moor_House      REST  1.13955972  0.99702626  0.47053124
+    ## 44    CRr3G    Crocach       DAM -0.30928372  1.13116516          NA
+    ## 45    MHr1B Moor_House       NAT -0.16822990  0.40527359 -0.14963465
+    ## 46    SEr3I      Stean       DAM -0.72752673  1.34207685  1.15433921
+    ## 47    MGr1A   Migneint       NAT  0.78766971  0.42246641 -1.34340578
+    ## 48  LASYr2D   Langwell      REST  0.46369590  0.92545744          NA
+    ## 49  LAWAr2E   Langwell      REST  0.51906201  0.70991353  0.79425178
+    ## 50    MGr3G   Migneint       DAM  0.46466477  0.67606829 -1.08112327
+    ## 51    BOr3I    Bowness       DAM  1.87792753  0.60157803  0.53803042
+    ## 52  LAWAr2D   Langwell      REST -0.03532376  1.15315143 -0.07800287
+    ## 53    BAr3H   Balmoral       DAM  0.59220170  0.89911961  0.83805736
+    ## 54  LABRr1A   Langwell       NAT  0.52124082  0.57391009 -0.89460514
+    ## 55  LASAr3I   Langwell       DAM  0.28168336 -1.12165069          NA
+    ## 56    MGr3H   Migneint       DAM  0.90452683 -0.55638663  0.80141495
+    ## 57    MGr1C   Migneint       NAT  1.69575087 -1.78112368 -2.20078306
+    ## 58    CRr3H    Crocach       DAM  0.05297584 -0.65123599  0.13579043
+    ## 59    MHr3I Moor_House       DAM  0.42704964 -0.22565667 -0.38491749
+    ## 60    SEr2F      Stean      REST -1.07679496 -1.33980257  0.61214176
+    ## 61    CRr3I    Crocach       DAM  0.30238084 -1.85642156 -0.18407301
+    ## 62  LASCr2D   Langwell      REST -1.88637408 -2.73798150          NA
+    ## 63    MGr3I   Migneint       DAM  1.18601540  0.60074802 -0.53644625
+    ## 64    MGr2D   Migneint      REST  1.05718487 -1.13547570 -0.08048244
+    ## 65    CRr1B    Crocach       NAT  0.65208145  0.22142525 -1.27149850
+    ## 66    BOr1B    Bowness       NAT -0.15282326 -0.07191852 -0.62708800
+    ##             ph conductivity percent_moisture        index
+    ## 1   1.74619062  -1.20985590       0.59223313  0.974647050
+    ## 2   1.06945204  -1.49533858       1.19785442  0.318794546
+    ## 3   0.08510500   0.14864788       1.22237208  0.055305662
+    ## 4   0.70032190  -0.58966939       0.99599111  0.462907656
+    ## 5   0.02358331  -0.09745788       0.39022072           NA
+    ## 6   1.13097372  -0.22543287      -1.28011482 -0.033306484
+    ## 7   1.06945204   0.35537671      -0.75423219  0.173641711
+    ## 8   0.88488697  -1.52487127       0.44935131  0.704354976
+    ## 9   1.56162555  -0.46169440      -0.97104312  0.401446952
+    ## 10 -1.51445892  -0.30418672      -1.51999315 -0.626651551
+    ## 11  0.88488697   0.78852285      -0.30738909  0.137120448
+    ## 12  0.39271345   1.02478437       0.24161052  0.919580766
+    ## 13 -0.96076372   0.66054785      -0.81684602 -0.112365103
+    ## 14 -0.59163358   1.56621704       0.45902623 -0.252022444
+    ## 15 -0.83772034  -1.70206742      -0.20911557 -0.861788205
+    ## 16          NA           NA       0.80303704  0.105479608
+    ## 17          NA           NA      -0.07815761           NA
+    ## 18 -0.40706851   1.71388049       0.22833590 -0.374910130
+    ## 19 -1.57598061   0.41444209      -2.00854369 -0.935412031
+    ## 20 -1.39141554   0.28646710       0.36468875  0.066541715
+    ## 21 -0.71467696   0.83774400      -0.59587016 -0.872388753
+    ## 22 -0.59163358   0.62117093       0.56305518 -0.763943486
+    ## 23 -1.51445892  -0.30418672      -2.83166569 -0.755040527
+    ## 24 -0.28402513  -0.93421745      -0.18470380 -0.320731707
+    ## 25  0.39271345  -1.60362511       0.69107569  0.089770005
+    ## 26 -0.03793838   2.37344392       0.18314177 -0.044798328
+    ## 27  1.86923400  -0.70780016       0.05759360  0.299486592
+    ## 28  0.57727852   0.83774400       0.06681646           NA
+    ## 29 -0.65315527  -0.12699057       0.63834889 -0.240792645
+    ## 30 -0.71467696  -1.26892128      -0.22432840 -0.438826990
+    ## 31          NA           NA       0.39313971 -0.437896483
+    ## 32  1.19249541  -0.78655400      -0.51616866  0.111499409
+    ## 33  0.57727852  -0.92437322       1.02386251  1.396351814
+    ## 34 -2.06815413   0.06989404      -0.74430028 -0.325096378
+    ## 35  0.63880021  -0.80624246       1.26922033  0.555763355
+    ## 36 -1.39141554  -0.33371941      -4.44197615 -1.497950267
+    ## 37  1.31553879  -0.72748862      -0.22029603  0.195822181
+    ## 38 -0.16098175   1.63512665      -0.26176975 -0.922147193
+    ## 39 -0.89924203   0.06989404       0.67689536  0.008831597
+    ## 40  0.26967007  -0.10730211      -0.05932301 -0.188796232
+    ## 41 -1.26837216   0.09942673       0.61069954 -0.582883862
+    ## 42  0.02358331  -0.06792519      -0.03867266  0.364005021
+    ## 43  0.39271345  -0.74717708      -0.21224999  0.024697972
+    ## 44 -0.09946006   0.55226132       0.32505598  0.168110443
+    ## 45  0.82336528  -1.20985590       1.25548777  0.551376705
+    ## 46 -0.65315527   0.86727669      -0.32524122 -0.627714840
+    ## 47 -0.34554682   1.04447283       1.50979520  1.039833529
+    ## 48 -0.40706851   1.40870935       0.03610097           NA
+    ## 49          NA           NA       0.66203322           NA
+    ## 50  0.20814838  -0.02854827       0.17578686 -0.026448296
+    ## 51 -1.39141554  -0.33371941      -0.72061055 -0.381937074
+    ## 52          NA           NA       0.26120087           NA
+    ## 53 -1.57598061   0.41444209      -2.71897007 -0.831613140
+    ## 54  1.86923400  -1.22954436       0.48915836  0.709029404
+    ## 55 -0.16098175   2.52110738       0.27276543 -0.384444538
+    ## 56  0.08510500  -0.50107132       0.50715088  0.202461524
+    ## 57  0.45423514  -0.79639823       0.19360257  0.776499950
+    ## 58  0.26967007   2.01905163       0.50473851  0.042392608
+    ## 59 -0.89924203   0.05020557       0.19724477  0.068085083
+    ## 60  1.06945204  -1.02281553       0.39244724  0.016103806
+    ## 61  1.93075569   0.68023631       0.47721762  0.465350015
+    ## 62          NA           NA       0.74876770  0.011132604
+    ## 63 -0.59163358  -0.33371941       0.13651408 -0.041149766
+    ## 64 -0.09946006  -0.76686554       0.66535156  0.688060648
+    ## 65  1.19249541  -0.72748862       0.24778694  0.529210487
+    ## 66 -0.89924203   0.94603053      -0.13519514  0.006889205

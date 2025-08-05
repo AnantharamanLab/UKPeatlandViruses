@@ -1,0 +1,235 @@
+Sample ,Site,Treatment,Depth,O2
+MGr1A,Migneint ,NAT,0_5,3.648
+MGr1A,Migneint ,NAT,5_10,7.14
+MGr1A,Migneint ,NAT,40_45,5.199
+MGr1A,Migneint ,NAT,45_50,3.871
+MGr1B,Migneint ,NAT,0_5,2.407
+MGr1B,Migneint ,NAT,5_10,2.816
+MGr1B,Migneint ,NAT,40_45,2.838
+MGr1B,Migneint ,NAT,45_50,3.93
+MGr1C,Migneint ,NAT,0_5,5.774
+MGr1C,Migneint ,NAT,5_10,1.902
+MGr1C,Migneint ,NAT,40_45,5.682
+MGr1C,Migneint ,NAT,45_50,5.878
+MGr2D,Migneint ,RES,0_5,6.301
+MGr2D,Migneint ,RES,5_10,9.071
+MGr2D,Migneint ,RES,40_45,1.1563
+MGr2D,Migneint ,RES,45_50,2.662
+MGr2E,Migneint ,RES,0_5,1.152
+MGr2E,Migneint ,RES,5_10,5.317
+MGr2E,Migneint ,RES,40_45,0.115
+MGr2E,Migneint ,RES,45_50,2.837
+MGr2F,Migneint ,RES,0_5,6.931
+MGr2F,Migneint ,RES,5_10,5.124
+MGr2F,Migneint ,RES,40_45,1.079
+MGr2F,Migneint ,RES,45_50,2.705
+MGr3G,Migneint ,DAM,0_5,3.177
+MGr3G,Migneint ,DAM,5_10,8.563
+MGr3G,Migneint ,DAM,40_45,7.404
+MGr3G,Migneint ,DAM,45_50,0.8361
+MGr3H,Migneint ,DAM,0_5,8.423
+MGr3H,Migneint ,DAM,5_10,10.15
+MGr3H,Migneint ,DAM,40_45,6.379
+MGr3H,Migneint ,DAM,45_50,3.758
+MGr3I,Migneint ,DAM,0_5,9.675
+MGr3I,Migneint ,DAM,5_10,4.042
+MGr3I,Migneint ,DAM,40_45,8.032
+MGr3I,Migneint ,DAM,45_50,2.908
+CRr1A,Crocach,NAT,0_5,6.846
+CRr1A,Crocach,NAT,5_10,5.706
+CRr1A,Crocach,NAT,40_45,7.963
+CRr1A,Crocach,NAT,45_50,5.209
+CRr1B,Crocach,NAT,0_5,5.621
+CRr1B,Crocach,NAT,5_10,5.428
+CRr1B,Crocach,NAT,40_45,3.028
+CRr1B,Crocach,NAT,45_50,3.89
+CRr1C,Crocach,NAT,0_5,4.349
+CRr1C,Crocach,NAT,5_10,7.216
+CRr1C,Crocach,NAT,40_45,6.848
+CRr1C,Crocach,NAT,45_50,5.947
+CRr2D,Crocach,RES,0_5,7.074
+CRr2D,Crocach,RES,5_10,2.906
+CRr2D,Crocach,RES,40_45,3.56
+CRr2D,Crocach,RES,45_50,3.352
+CRr2E,Crocach,RES,0_5,9.086
+CRr2E,Crocach,RES,5_10,5.282
+CRr2E,Crocach,RES,40_45,1.896
+CRr2E,Crocach,RES,45_50,3.822
+CRr2F,Crocach,RES,0_5,7.807
+CRr2F,Crocach,RES,5_10,7.25
+CRr2F,Crocach,RES,40_45,5.551
+CRr2F,Crocach,RES,45_50,2.956
+CRr3G,Crocach,DAM,0_5,
+CRr3G,Crocach,DAM,5_10,5.201
+CRr3G,Crocach,DAM,40_45,6.219
+CRr3G,Crocach,DAM,45_50,0.139
+CRr3H,Crocach,DAM,0_5,7.901
+CRr3H,Crocach,DAM,5_10,8.256
+CRr3H,Crocach,DAM,40_45,5.442
+CRr3H,Crocach,DAM,45_50,4.214
+CRr3I,Crocach,DAM,0_5,5.016
+CRr3I,Crocach,DAM,5_10,9.98
+CRr3I,Crocach,DAM,40_45,6.116
+CRr3I,Crocach,DAM,45_50,5.816
+SEr2D,Stean,RES,0_5,
+SEr2D,Stean,RES,5_10,8.218
+SEr2D,Stean,RES,40_45,10.7
+SEr2D,Stean,RES,45_50,6.65
+SEr2E,Stean,RES,0_5,
+SEr2E,Stean,RES,5_10,11.82
+SEr2E,Stean,RES,40_45,5.498
+SEr2E,Stean,RES,45_50,7.352
+SEr2F,Stean,RES,0_5,8.573
+SEr2F,Stean,RES,5_10,9.313
+SEr2F,Stean,RES,40_45,8.389
+SEr2F,Stean,RES,45_50,9.147
+SEr3G,Stean,DAM,0_5,
+SEr3G,Stean,DAM,5_10,10.76
+SEr3G,Stean,DAM,40_45,6.627
+SEr3G,Stean,DAM,45_50,2.158
+SEr3H,Stean,DAM,0_5,10.99
+SEr3H,Stean,DAM,5_10,8.462
+SEr3H,Stean,DAM,40_45,10.46
+SEr3H,Stean,DAM,45_50,7.083
+SEr3I,Stean,DAM,0_5,10.23
+SEr3I,Stean,DAM,5_10,9.624
+SEr3I,Stean,DAM,40_45,9.102
+SEr3I,Stean,DAM,45_50,2.15
+LASYr2D,Langwell,RES,0_5,
+LASYr2D,Langwell,RES,5_10,9.157
+LASYr2D,Langwell,RES,40_45,
+LASYr2D,Langwell,RES,45_50,7.367
+LASYr2E,Langwell,RES,0_5,6.559
+LASYr2E,Langwell,RES,5_10,6.633
+LASYr2E,Langwell,RES,40_45,5.808
+LASYr2E,Langwell,RES,45_50,7.812
+LASYr2F,Langwell,RES,0_5,
+LASYr2F,Langwell,RES,5_10,8.017
+LASYr2F,Langwell,RES,40_45,8.83
+LASYr2F,Langwell,RES,45_50,8.847
+LASAr3G,Langwell,DAM,0_5,8.556
+LASAr3G,Langwell,DAM,5_10,8.534
+LASAr3G,Langwell,DAM,40_45,5.586
+LASAr3G,Langwell,DAM,45_50,7.174
+LASAr3H,Langwell,DAM,0_5,
+LASAr3H,Langwell,DAM,5_10,
+LASAr3H,Langwell,DAM,40_45,4.565
+LASAr3H,Langwell,DAM,45_50,6.701
+LASAr3I,Langwell,DAM,0_5,
+LASAr3I,Langwell,DAM,5_10,9.724
+LASAr3I,Langwell,DAM,40_45,8.27
+LASAr3I,Langwell,DAM,45_50,7.71
+LABRr1A,Langwell,NAT,0_5,7.086
+LABRr1A,Langwell,NAT,5_10,5.331
+LABRr1A,Langwell,NAT,40_45,6.23
+LABRr1A,Langwell,NAT,45_50,6.187
+LABRr1B,Langwell,NAT,0_5,
+LABRr1B,Langwell,NAT,5_10,10.05
+LABRr1B,Langwell,NAT,40_45,7.575
+LABRr1B,Langwell,NAT,45_50,4.45
+LABRr1C,Langwell,NAT,0_5,6.985
+LABRr1C,Langwell,NAT,5_10,6.704
+LABRr1C,Langwell,NAT,40_45,7.093
+LABRr1C,Langwell,NAT,45_50,6.939
+LASCr2D,Langwell,RES,0_5,
+LASCr2D,Langwell,RES,5_10,9.963
+LASCr2E,Langwell,RES,0_5,10.77
+LASCr2E,Langwell,RES,5_10,6.322
+LASCr2F,Langwell,RES,0_5,10.16
+LASCr2F,Langwell,RES,5_10,10.15
+LAWAr2D,Langwell,RES,0_5,8.728
+LAWAr2D,Langwell,RES,5_10,6.653
+LAWAr2E,Langwell,RES,0_5,8.932
+LAWAr2E,Langwell,RES,5_10,9.615
+LAWAr2F,Langwell,RES,0_5,8.882
+LAWAr2F,Langwell,RES,5_10,9.466
+MHr1A,Moors_House,NAT,0_5,10.72
+MHr1A,Moors_House,NAT,5_10,10.28
+MHr1A,Moors_House,NAT,40_45,8.387
+MHr1A,Moors_House,NAT,45_50,1.562
+MHr1B,Moors_House,NAT,0_5,9.337
+MHr1B,Moors_House,NAT,5_10,5.784
+MHr1B,Moors_House,NAT,40_45,0.9244
+MHr1B,Moors_House,NAT,45_50,1.695
+MHr1C,Moors_House,NAT,0_5,8.216
+MHr1C,Moors_House,NAT,5_10,8.383
+MHr1C,Moors_House,NAT,40_45,3.73
+MHr1C,Moors_House,NAT,45_50,1.634
+MHr2D,Moors_House,RES,0_5,9.978
+MHr2D,Moors_House,RES,5_10,8.298
+MHr2D,Moors_House,RES,40_45,3.002
+MHr2D,Moors_House,RES,45_50,3.908
+MHr2E,Moors_House,RES,0_5,9.867
+MHr2E,Moors_House,RES,5_10,7.505
+MHr2E,Moors_House,RES,40_45,1.622
+MHr2E,Moors_House,RES,45_50,5.6
+MHr2F,Moors_House,RES,0_5,10.67
+MHr2F,Moors_House,RES,5_10,9.975
+MHr2F,Moors_House,RES,40_45,5.069
+MHr2F,Moors_House,RES,45_50,5.715
+MHr3G,Moors_House,DAM,0_5,10.49
+MHr3G,Moors_House,DAM,5_10,6.082
+MHr3G,Moors_House,DAM,40_45,1.135
+MHr3G,Moors_House,DAM,45_50,6.613
+MHr3H,Moors_House,DAM,0_5,9.611
+MHr3H,Moors_House,DAM,5_10,9.87
+MHr3H,Moors_House,DAM,40_45,1.756
+MHr3H,Moors_House,DAM,45_50,3.712
+MHr3I,Moors_House,DAM,0_5,9.318
+MHr3I,Moors_House,DAM,5_10,4.949
+MHr3I,Moors_House,DAM,40_45,3.552
+MHr3I,Moors_House,DAM,45_50,1.743
+BOr1A,Bowness,NAT,0_5,8.513
+BOr1A,Bowness,NAT,5_10,5.447
+BOr1A,Bowness,NAT,40_45,8.65
+BOr1A,Bowness,NAT,45_50,9.85
+BOr1B,Bowness,NAT,0_5,5.943
+BOr1B,Bowness,NAT,5_10,7.445
+BOr1B,Bowness,NAT,40_45,7.705
+BOr1B,Bowness,NAT,45_50,9.503
+BOr1C,Bowness,NAT,0_5,6.023
+BOr1C,Bowness,NAT,5_10,6.028
+BOr1C,Bowness,NAT,40_45,10.43
+BOr1C,Bowness,NAT,45_50,10.98
+BOr2D,Bowness,RES,0_5,8.385
+BOr2D,Bowness,RES,5_10,7.746
+BOr2D,Bowness,RES,40_45,3.711
+BOr2D,Bowness,RES,45_50,8.776
+BOr2E,Bowness,RES,0_5,7.305
+BOr2E,Bowness,RES,5_10,8.286
+BOr2E,Bowness,RES,40_45,6.277
+BOr2E,Bowness,RES,45_50,6.374
+BOr2F,Bowness,RES,0_5,9.146
+BOr2F,Bowness,RES,5_10,8.482
+BOr2F,Bowness,RES,40_45,7.412
+BOr2F,Bowness,RES,45_50,4.922
+BOr3G,Bowness,DAM,0_5,9.908
+BOr3G,Bowness,DAM,5_10,9.87
+BOr3G,Bowness,DAM,40_45,10.3
+BOr3G,Bowness,DAM,45_50,10.11
+BOr3H,Bowness,DAM,0_5,10.05
+BOr3H,Bowness,DAM,5_10,9.642
+BOr3H,Bowness,DAM,40_45,8.796
+BOr3H,Bowness,DAM,45_50,8.957
+BOr3I,Bowness,DAM,0_5,9.765
+BOr3I,Bowness,DAM,5_10,7.852
+BOr3I,Bowness,DAM,40_45,9.14
+BOr3I,Bowness,DAM,45_50,9.517
+BAr1A,Balmoral,NAT,0_5,9.96
+BAr1A,Balmoral,NAT,5_10,9.788
+BAr1B,Balmoral,NAT,0_5,8.407
+BAr1B,Balmoral,NAT,5_10,9.326
+BAr1C,Balmoral,NAT,0_5,6.874
+BAr1C,Balmoral,NAT,5_10,7.207
+BAr2D,Balmoral,RES,0_5,9.841
+BAr2D,Balmoral,RES,5_10,8.734
+BAr2E,Balmoral,RES,0_5,9.858
+BAr2E,Balmoral,RES,5_10,6.597
+BAr2F,Balmoral,RES,0_5,9.826
+BAr2F,Balmoral,RES,5_10,6.817
+BAr3G,Balmoral,DAM,0_5,9.661
+BAr3G,Balmoral,DAM,5_10,9.234
+BAr3H,Balmoral,DAM,0_5,9.342
+BAr3H,Balmoral,DAM,5_10,9.364
+BAr3I,Balmoral,DAM,0_5,10.63
+BAr3I,Balmoral,DAM,5_10,9.961

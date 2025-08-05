@@ -1,0 +1,304 @@
+---
+title: "Soil Environmental Parameters"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: github_document
+editor_options:
+    chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Credit
+Code for Principal Component Analyses were adapted by [**Kirsten Ball**](https://orcid.org/0000-0001-9632-0874) on 14022023 from original script by [**Dr Laura Castaneda Gomez**](https://orcid.org/0000-0002-4167-4672) & **Kirsten Ball**, then further adapted for these data by James C. Kosmopoulos on 8 September 2023 and 3 March 2025
+
+# Load packages
+```{r load-packages, message=FALSE, warning=FALSE}
+library("tidyverse");packageVersion("tidyverse")
+library("RColorBrewer");packageVersion("RColorBrewer")
+library("ggpubr");packageVersion("ggpubr")
+library("ggtext");packageVersion("ggtext")
+library("factoextra");packageVersion("factoextra")
+library("cowplot");packageVersion("cowplot")
+library("vegan");packageVersion("vegan")
+```
+
+# Load and format data
+```{r load-and-format-data}
+env_data_unscaled <- readRDS("../Data/env_data.RDS") # Unscaled data
+env_scaled_site <- readRDS("../Data/env_data_scaled_site_specific.RDS") # Site-specific scaling when analyzing sites separately
+env_scaled_global <- readRDS("../Data/env_data_scaled_global.RDS") # Global scaling when analyzing all sites together
+```
+
+# Principal Component Analysis of soil environmental parameters
+## Define working groups for analysis
+```{r working-groups}
+groups.All <- env_scaled_global %>%
+  mutate(treatment = as.factor(treatment)) %>%
+    mutate(
+      treatment = recode_factor(
+        treatment,
+        "NAT" = "Natural",
+        "REST" = "Restored",
+        "DAM" = "Damaged"
+    )
+  ) %>%
+  dplyr::rename(
+    `TC` = TC,
+    `TN` = TN,
+    `Moisture` = percent_moisture,
+    `O2` = O2_avg,
+    pH = ph
+  )
+
+groups.All.site.specific <- env_scaled_site %>%
+  mutate(treatment = as.factor(treatment)) %>%
+    mutate(
+      treatment = recode_factor(
+        treatment,
+        "NAT" = "Natural",
+        "REST" = "Restored",
+        "DAM" = "Damaged"
+    )
+  ) %>%
+  dplyr::rename(
+    `TC` = TC,
+    `TN` = TN,
+    `Moisture` = percent_moisture,
+    `O2` = O2_avg,
+    pH = ph
+  )
+```
+
+## Check for and handle NA values
+PCA cannot handle NA points, so either samples with `NA` for *any* parameter must be dropped, or those missing values will have to be imputed.
+
+### Check for missing values
+```{r check-na}
+groups.All[!complete.cases(groups.All), ]
+```
+
+Some sites, such as Langwell, have at least one `NA` for six samples, and Stean has missing values for at least one parameter in half of the samples. Since I don't want to lose this much data and lose some functionality in the PCAs, I will impute these values, **ensuring that the structured sample design (sites and treatments) are considered when imputing missing values**. There is a way to impute values with PCA, but this generally requires more replicates than I have for each site x treatment combination. So, I will impute the missing values using a **linear mixed-effects model** with ecosystem health (treatment) as a fixed effect and sample site as a random effect that predict the environmental parameter. If the model fails or there are too few samples for modeling, I will simply impute the missing values by calculating the mean value for that parameter at the missing sample's site x treatment combination.
+
+```{r impute-lme}
+impute_lme <- function(data, variable) {
+  # Check if the variable has any missing values
+  if (all(!is.na(data[[variable]]))) {
+    message(paste("Skipping", variable, "- no missing values."))
+    return(data) # Return unchanged data if no imputation is needed
+  }
+
+  # Subset the data for the given variable
+  subset_data <- data %>%
+    select(site, treatment, all_of(variable)) %>%
+    filter(!is.na(!!sym(variable))) # Only use complete cases for modeling
+
+  # Skip if there are too few observed values
+  if (nrow(subset_data) < 3) {
+    message(paste("Skipping", variable, "- too few non-missing values for modeling."))
+    return(data)
+  }
+
+  # Fit linear mixed-effects model
+  model <- tryCatch(
+    lmer(as.formula(paste(variable, "~ treatment + (1 | site)")), data = subset_data, REML = FALSE),
+    error = function(e) {
+      message(paste("Error in fitting model for", variable, "- using global mean instead."))
+      return(NULL)
+    }
+  )
+
+  # If the model fails, fill missing values with the global mean
+  if (is.null(model)) {
+    message(paste("Using global mean for", variable, "due to model failure."))
+    data <- data %>%
+      mutate(!!sym(variable) := ifelse(is.na(!!sym(variable)), mean(!!sym(variable), na.rm = TRUE), !!sym(variable)))
+  } else {
+    # Predict missing values
+    missing_indices <- which(is.na(data[[variable]]))
+    predicted_values <- predict(model, newdata = data[missing_indices, ], allow.new.levels = TRUE)
+    data[missing_indices, variable] <- predicted_values
+  }
+
+  return(data)
+}
+
+# Identify numeric environmental variables with missing values
+env_vars_to_impute <- names(groups.All)[sapply(groups.All, is.numeric) & !(names(groups.All) %in% c("SampleID"))]
+env_vars_to_impute <- env_vars_to_impute[sapply(env_vars_to_impute, function(var) any(is.na(groups.All[[var]])))]
+
+# Apply imputation only to variables with missing values
+groups.All.imputed <- groups.All
+for (var in env_vars_to_impute) {
+  message(paste("Imputing", var, "using mixed-effects model..."))
+  groups.All.imputed <- impute_lme(groups.All.imputed, var)
+}
+
+groups.All.imputed
+```
+
+## Impute the site-specific scaled data, too
+```{r impute-lme-site-specific}
+env_vars_to_impute_site <- names(groups.All.site.specific)[sapply(groups.All.site.specific, is.numeric) & !(names(groups.All.site.specific) %in% c("SampleID"))]
+env_vars_to_impute_site <- env_vars_to_impute_site[sapply(env_vars_to_impute_site, function(var) any(is.na(groups.All.site.specific[[var]])))]
+
+groups.All.site.specific.imputed <- groups.All.site.specific
+for (var in env_vars_to_impute_site) {
+  message(paste("Imputing", var, "using mixed-effects model..."))
+  groups.All.site.specific.imputed <- impute_lme(groups.All.site.specific.imputed, var)
+}
+
+groups.All.site.specific.imputed
+```
+
+## Use the site-specific imputed data to define working groups for each site
+```{r working-groups-each-site}
+groups.Balmoral <- subset(groups.All.site.specific.imputed, site=="Balmoral")
+groups.Bowness <- subset(groups.All.site.specific.imputed, site=="Bowness")
+groups.Crocach <- subset(groups.All.site.specific.imputed, site=="Crocach")
+groups.Langwell <- subset(groups.All.site.specific.imputed, site=="Langwell")
+groups.Migneint <- subset(groups.All.site.specific.imputed, site=="Migneint")
+groups.Moor_House <- subset(groups.All.site.specific.imputed, site=="Moor_House")
+groups.Stean <- subset(groups.All.site.specific.imputed, site=="Stean")
+```
+
+## Make function to plot PCA for each group
+```{r function-plot-pca}
+plot_pca <- function(group, group_name){
+  pca.data <- prcomp(group[,4:length(group)],scale=TRUE) # Do PCA analysis
+  eigen_viz <- fviz_eig(pca.data) # Visualize eigenvalues
+  eigenvalues <- get_eigenvalue(pca.data) # Get eigenvalues and variance explained
+  pca.var <- get_pca_var(pca.data) # Extract variable information including contributions
+  contrib <- pca.var$contrib
+  overall_contrib <- pca.data[[2]]
+  arrow_lengths <- sort(sqrt(rowSums(overall_contrib[, 1:2]^2)), decreasing = TRUE)
+  
+  label_size <- ifelse(group_name == "All sites", 6, 4)
+  axis_title_size <- ifelse(group_name == "All sites", 16, 12)
+  
+  plot <- fviz_pca_biplot(
+    pca.data, axes = c(1, 2),
+    geom.ind = "point",
+    pointshape = 21,
+    pointsize = 2,
+    fill.ind = group$treatment,
+    col.ind = "black",
+    habillage = group$treatment,
+    addEllipses = TRUE,
+    ellipse.type = "confidence",
+    legend.title = "Ecosystem health",
+    palette = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
+    col.var = "grey40",
+    labelsize = label_size,
+    repel = TRUE
+    ) +
+    cowplot::theme_cowplot() +
+    theme(text = element_text(size = 12),
+          axis.title = element_text(size = axis_title_size),
+          axis.text = element_text(size = 12),
+          legend.position = "bottom",
+          legend.justification = "center",
+          plot.title = element_text(
+            hjust = 0.5,
+            size = 20)) +
+    ggtitle(group_name)
+  
+  print(eigen_viz)
+  print(eigenvalues)
+  print(arrow_lengths)
+  print(plot)
+  result <- list(
+    "pca_object" = pca.data,
+    "eigenvalues" = eigenvalues,
+    "arrow_lengths" = arrow_lengths,
+    "plot" = plot
+  )
+  return(result)
+}
+```
+
+## Generate the PCA plots
+```{r plot-pca}
+results_list <- list()
+i = 0
+groups.List <- list(
+  "All sites" = groups.All.imputed,
+  "Balmoral" = groups.Balmoral,
+  "Bowness" = groups.Bowness,
+  "Crocach" = groups.Crocach,
+  "Langwell" = groups.Langwell,
+  "Migneint" = groups.Migneint,
+  "Moor House" = groups.Moor_House,
+  "Stean" = groups.Stean
+)
+
+for(group_name in names(groups.List)){
+  i = i + 1
+  group <- groups.List[[group_name]]
+  results_list[[group_name]] <- plot_pca(group, group_name)
+}
+```
+
+## Get the overall contribution of each parameter to all PCs
+```{r get-overall-contrib}
+overall_contrib <- results_list[["All sites"]][["pca_object"]][[2]]
+arrow_lengths <- sort(sqrt(rowSums(overall_contrib[, 1:2]^2)), decreasing = TRUE)
+arrow_lengths
+```
+
+## Combine the 'All sites' plot with each site's plot into a single figure
+```{r plot-pca-merged, fig.height=6, fig.width=16}
+plot.pca.env.merged <-
+  cowplot::plot_grid(
+    results_list[[1]][[4]] +
+      theme(
+        legend.position = "bottom",
+        legend.justification = "center"
+        ) +
+      labs(title = element_blank()),
+    cowplot::plot_grid(
+      (results_list[[2]][[4]] + theme(legend.position = "none")),
+      (results_list[[3]][[4]] + theme(legend.position = "none")),
+      (results_list[[4]][[4]] + theme(legend.position = "none")),
+      (results_list[[5]][[4]] + theme(legend.position = "none")),
+      (results_list[[6]][[4]] + theme(legend.position = "none")),
+      (results_list[[7]][[4]] + theme(legend.position = "none")),
+      (results_list[[8]][[4]] + theme(legend.position = "none")),
+      (get_legend(
+        (results_list[[1]][[4]] +
+           theme(
+             legend.position = "right",
+             legend.key.size = unit(0.3, 'in'),
+             legend.title = element_text(size=16, hjust = 0.5),
+             legend.text = element_text(size=14)
+             )
+         )
+        )
+       ),
+      ncol = 4
+      ),
+    ncol = 2,
+    rel_widths = c(6, 12),
+    labels = c("A", "B"),
+    label_fontface = "bold",
+    label_size = 24,
+    label_fontfamily = "sans",
+    label_x = -0.01,
+    label_y = 1.0
+  )
+
+ggsave(plot.pca.env.merged,
+       file="../Plots/environment/FigS1.png",
+       device="png",
+       dpi=600, units="in", width=8, height=3,
+       scale = 2,
+       bg = "white")
+plot.pca.env.merged
+```
+
+
+
+
+

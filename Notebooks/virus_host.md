@@ -1,7 +1,7 @@
 Virus-Host Interactions
 ================
 James C. Kosmopoulos
-2024-11-18
+2025-08-05
 
 # Load packages
 
@@ -41,6 +41,42 @@ library("cowplot");packageVersion("cowplot")
 
     ## [1] '1.1.3'
 
+``` r
+library("vegan");packageVersion("vegan")
+```
+
+    ## [1] '2.6.6.1'
+
+``` r
+library("lme4");packageVersion("lme4")
+```
+
+    ## [1] '1.1.35.5'
+
+``` r
+library("car");packageVersion("car")
+```
+
+    ## [1] '3.1.2'
+
+``` r
+library("emmeans");packageVersion("emmeans")
+```
+
+    ## [1] '1.10.4'
+
+``` r
+library("MuMIn");packageVersion("MuMIn")
+```
+
+    ## [1] '1.48.4'
+
+``` r
+library("ggtext");packageVersion("ggtext")
+```
+
+    ## [1] '0.1.2'
+
 # Load and format data
 
 ``` r
@@ -49,7 +85,6 @@ virus_abundance_with_hosts <- readRDS("../Data/virus_abundance_with_hosts.RDS")
 virus_abundance_with_hosts_and_all_sites_and_metabolism <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites_and_metabolism.RDS")
 virus_abundance_long_all <- readRDS("../Data/virus_abundance_long_all.RDS")
 host_abundance_long_all_and_all_sites_and_metabolism <- readRDS("../Data/host_abundance_long_all_and_all_sites_and_metabolism.RDS")
-virus_host_abundance <- readRDS("../Data/virus_host_abundance.RDS")
 virus_abundance_with_hosts_and_all_sites <- readRDS("../Data/virus_abundance_with_hosts_and_all_sites.RDS")
 virus_clusters <- readRDS("../Data/virus_clusters.RDS") %>%
   group_by(Virus) %>%
@@ -63,6 +98,10 @@ host_clusters <- readRDS("../Data/host_clusters.RDS") %>%
   distinct()
 host_abundance_long_all <- readRDS("../Data/host_abundance_long_all.RDS")
 host_abundance_long_all_and_all_sites <- readRDS("../Data/host_abundance_long_all_and_all_sites.RDS")
+env_scaled_global <- readRDS("../Data/env_data_scaled_global.RDS") # Global scaling when analyzing all sites together
+virus_info <- readRDS("../Data/virus_info.RDS")
+virus_tmeans <- readRDS("../Data/virus_tmeans_norm_50.RDS")
+host_tmeans <- readRDS("../Data/host_tmeans_norm_50.RDS")
 ```
 
 # Virus and Host relative abundance by metabolic functions
@@ -346,7 +385,7 @@ total_virus_abundance <- virus_abundance_with_hosts_and_all_sites %>%
 # Calculate the relative abundance for each Host Class within each site x virus trend group
 virus_abundance_with_hosts_and_all_sites_rel <- virus_abundance_with_hosts_and_all_sites %>%
   filter(!is.na(`Virus Trend Group`)) %>%
-  mutate(`Host Class` = as.character(`Host Class`)) %>%  # Ensure Host Class is a character
+  mutate(`Host Class` = as.character(`Host Class`)) %>% # Ensure Host Class is a character
   left_join(total_virus_abundance, by = c("site", "Virus Trend Group")) %>%
   group_by(site, `Virus Trend Group`, `Host Domain`,  `Host Phylum`, `Host Class`) %>%
   summarise(
@@ -798,15 +837,17 @@ plot.rel.abundance.virus.host.metab.combined
 ## And combine with the taxonomy plot
 
 ``` r
-combined.plot <- cowplot::plot_grid(plot.rel.abundance.virus.host.metab.combined,
-                                    plot.rel.abundance.virus.host + theme(legend.position = c(0, -0.4)),
-                                    ncol = 2,
-                                    labels = c("", "B"),
-                                    rel_widths = c(4.25, 7),
-                                    label_fontface = "bold",
-                                    label_size = 16,
-                                    label_fontfamily = "sans")
-combined.plot
+Fig3 <-
+  cowplot::plot_grid(
+    plot.rel.abundance.virus.host.metab.combined,
+    plot.rel.abundance.virus.host + theme(legend.position = c(0, -0.4)),
+    ncol = 2,
+    labels = c("", "B"),
+    rel_widths = c(4.25, 7),
+    label_fontface = "bold",
+    label_size = 16,
+    label_fontfamily = "sans")
+Fig3
 ```
 
 ![](virus_host_files/figure-gfm/combine-combined-and-taxonomy-1.png)<!-- -->
@@ -814,7 +855,7 @@ combined.plot
 ### Save the plot
 
 ``` r
-ggsave(plot = combined.plot,
+ggsave(plot = Fig3,
        filename = "../Plots/virus_host/Fig3.png",
        device = "png",
        width = 10,

@@ -3,7 +3,7 @@ This repository contains all scripts and data tables used for the analysis of vi
 
 All raw sequencing data are publicly available in the NCBI Short Read Archive under BioProject accession [PRJNA1203648](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1203648). Whole assembled metagenomic contigs as well as high-quality (CheckM) prokaryotic metagenome-assembled genomes (MAGs) are available at the NCBI WGS using the same BioProject accession. All viral metagenome-assembled genomes (vMAGs) and prokaryotic metagenome-assembled genomes (medium and high quality) are publicly available on figshare under the DOI [10.6084/m9.figshare.28143446](https://doi.org/10.6084/m9.figshare.28143446).
 
-Soil samples, their associated environmental parameters, and metadata, were originally obtained and sequenced by [Pallier et al. (2025)](https://doi.org/10.1101/2025.08.01.668219).
+Soil samples, their associated environmental parameters, and metadata were originally obtained and sequenced by [Pallier et al. (2025)](https://doi.org/10.1101/2025.08.01.668219).
 
 # Repository Organization
 `Scripts` contains python and shell scripts used to conduct the analyses and run the tools mentioned in the [bioinformatic workflow](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/workflow.ipynb).

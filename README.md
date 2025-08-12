@@ -5,6 +5,8 @@ All raw sequencing data are publicly available in the NCBI Short Read Archive un
 
 Soil samples, their associated environmental parameters, and metadata were originally obtained and sequenced by [Pallier et al. (2025)](https://doi.org/10.1101/2025.08.01.668219).
 
+All required software packages, their versions, and dependencies are noted in each notebook listed in the table of contents, below.
+
 # Repository Organization
 `Scripts` contains python and shell scripts used to conduct the analyses and run the tools mentioned in the [bioinformatic workflow](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/workflow.ipynb).
 

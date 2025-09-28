@@ -1,7 +1,7 @@
 Virus-Host Interactions
 ================
 James C. Kosmopoulos
-2025-08-05
+2025-09-25
 
 # Load packages
 
@@ -858,6 +858,14 @@ Fig3
 ggsave(plot = Fig3,
        filename = "../Plots/virus_host/Fig3.png",
        device = "png",
+       width = 10,
+       height = 9,
+       units = "in",
+       dpi = 600,
+       bg = "white")
+ggsave(plot = Fig3,
+       filename = "../Plots/virus_host/Fig3.svg",
+       device = "svg",
        width = 10,
        height = 9,
        units = "in",

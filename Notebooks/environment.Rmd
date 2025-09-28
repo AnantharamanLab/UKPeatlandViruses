@@ -12,7 +12,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 ```
 
 # Credit
-Code for Principal Component Analyses were adapted by [**Kirsten Ball**](https://orcid.org/0000-0001-9632-0874) on 14022023 from original script by [**Dr Laura Castaneda Gomez**](https://orcid.org/0000-0002-4167-4672) & **Kirsten Ball**, then further adapted for these data by James C. Kosmopoulos on 8 September 2023 and 3 March 2025
+Code for Principal Component Analyses were adapted by [**Kirsten Ball**](https://orcid.org/0000-0001-9632-0874) on 14 February 2023 from original script by [**Dr Laura Castaneda Gomez**](https://orcid.org/0000-0002-4167-4672) & **Kirsten Ball**, then further adapted for these data by James C. Kosmopoulos on 8 September 2023.
 
 # Load packages
 ```{r load-packages, message=FALSE, warning=FALSE}
@@ -175,35 +175,36 @@ plot_pca <- function(group, group_name){
   overall_contrib <- pca.data[[2]]
   arrow_lengths <- sort(sqrt(rowSums(overall_contrib[, 1:2]^2)), decreasing = TRUE)
   
-  label_size <- ifelse(group_name == "All sites", 6, 4)
-  axis_title_size <- ifelse(group_name == "All sites", 16, 12)
+  label_size <- ifelse(group_name == "All sites", 4, 3)
+  axis_title_size <- ifelse(group_name == "All sites", 10, 8)
   
   plot <- fviz_pca_biplot(
     pca.data, axes = c(1, 2),
     geom.ind = "point",
     pointshape = 21,
-    pointsize = 2,
+    pointsize = 1,
     fill.ind = group$treatment,
     col.ind = "black",
     habillage = group$treatment,
     addEllipses = TRUE,
     ellipse.type = "confidence",
-    legend.title = "Ecosystem health",
+    legend.title = "Ecosystem health\nstatus",
     palette = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
     col.var = "grey40",
     labelsize = label_size,
     repel = TRUE
     ) +
     cowplot::theme_cowplot() +
-    theme(text = element_text(size = 12),
+    theme(text = element_text(size = 8),
           axis.title = element_text(size = axis_title_size),
-          axis.text = element_text(size = 12),
+          axis.text = element_text(size = 8),
           legend.position = "bottom",
           legend.justification = "center",
           plot.title = element_text(
             hjust = 0.5,
-            size = 20)) +
-    ggtitle(group_name)
+            size = 10)) +
+    ggtitle(group_name) +
+    labs(title = group_name)
   
   print(eigen_viz)
   print(eigenvalues)
@@ -249,51 +250,123 @@ arrow_lengths
 ```
 
 ## Combine the 'All sites' plot with each site's plot into a single figure
-```{r plot-pca-merged, fig.height=6, fig.width=16}
+```{r plot-pca-merged, fig.width=7.08661, fig.height=7.08661}
 plot.pca.env.merged <-
   cowplot::plot_grid(
     results_list[[1]][[4]] +
       theme(
-        legend.position = "bottom",
-        legend.justification = "center"
+        legend.position = "right",
+        legend.justification = "center",
+        plot.margin = unit(c(0.25, 3, 0, 0.25), "cm"),
+        axis.title.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        # legend.key.size = unit(0.5, 'cm'),
+        # legend.spacing.y = unit(1, "cm"),
+        legend.title = element_text(size=12, hjust = 0.5),
+        legend.text = element_text(size=10),
+        legend.margin = margin(t = 0.25, r = 0, b = 0.25, l = 2, unit = "cm"),
+        plot.title = element_text(size = 14)
         ) +
-      labs(title = element_blank()),
+      guides(
+        fill = guide_legend(title.position = "top", title.hjust=0.5),
+        color = guide_legend(title.position = "top", title.hjust=0.5),
+        shape = guide_legend(title.position = "top", title.hjust=0.5)
+        ),
     cowplot::plot_grid(
-      (results_list[[2]][[4]] + theme(legend.position = "none")),
-      (results_list[[3]][[4]] + theme(legend.position = "none")),
-      (results_list[[4]][[4]] + theme(legend.position = "none")),
-      (results_list[[5]][[4]] + theme(legend.position = "none")),
-      (results_list[[6]][[4]] + theme(legend.position = "none")),
-      (results_list[[7]][[4]] + theme(legend.position = "none")),
-      (results_list[[8]][[4]] + theme(legend.position = "none")),
+      (results_list[[2]][[4]] +
+         theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.5, 0.25, 0.2, 0.25), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              )
+       ),
+      (results_list[[3]][[4]] +
+         theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.5, 0.25, 0.2, 0.25), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              )
+       ),
+      (results_list[[4]][[4]] +
+         theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.5, 0.25, 0.2, 0.25), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              )
+       ),
+      (results_list[[5]][[4]] +
+         theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.5, 0.25, 0.5, 0.25), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              )
+       ),
+      (results_list[[6]][[4]] +
+         theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.5, 0.25, 0.5, 0.25), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              )
+       ),
+      (results_list[[7]][[4]] +
+         theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.5, 0.25, 0.5, 0.25), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              )
+       ),
+      (results_list[[8]][[4]] +
+         theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.5, 0.25, 0.5, 0.25), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              )
+       ),
       (get_legend(
         (results_list[[1]][[4]] +
            theme(
              legend.position = "right",
-             legend.key.size = unit(0.3, 'in'),
-             legend.title = element_text(size=16, hjust = 0.5),
-             legend.text = element_text(size=14)
-             )
+             legend.key.size = unit(0.5, 'cm'),
+             legend.spacing.y = unit(0.5, "cm"),
+             legend.title = element_text(size=10, hjust = 0.5),
+             legend.text = element_text(size=8),
+             ) +
+         labs(
+           fill = "Ecosystem health\nstatus",
+           color = "Ecosystem health\nstatus",
+           shape = "Ecosystem health\nstatus"
+         )
          )
         )
        ),
       ncol = 4
       ),
-    ncol = 2,
-    rel_widths = c(6, 12),
+    ncol = 1,
+    rel_heights = c(0.9, 1.1),
     labels = c("A", "B"),
     label_fontface = "bold",
-    label_size = 24,
-    label_fontfamily = "sans",
-    label_x = -0.01,
-    label_y = 1.0
+    label_size = 18,
+    label_fontfamily = "sans"
   )
 
 ggsave(plot.pca.env.merged,
-       file="../Plots/environment/FigS1.png",
+       file="../Plots/environment/ExtendedDataFig1.png",
        device="png",
-       dpi=600, units="in", width=8, height=3,
-       scale = 2,
+       dpi=600, units="in", height=7.08661, width=7.08661,
+       scale = 1,
+       bg = "white")
+ggsave(plot.pca.env.merged,
+       file="../Plots/environment/ExtendedDataFig1.svg",
+       device="svg",
+       dpi=600, units="in", height=7.08661, width=7.08661,
+       scale = 1,
        bg = "white")
 plot.pca.env.merged
 ```

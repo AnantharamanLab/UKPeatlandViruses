@@ -1,7 +1,7 @@
 Virus Replication
 ================
 James C. Kosmopoulos
-2025-08-05
+2025-09-26
 
 # Load packages
 
@@ -158,7 +158,7 @@ plot.virus.over.host.abundance.phylum <- ggplot(virus_host_abundance_by_phylum %
   geom_richtext(data = annotation_data, aes(label = annotation),
                   x = -Inf, y = Inf,
                   hjust = -0.05, vjust = 1.1,
-                  size = 3.5,
+                  size = 2.75,
                   color = "black",
                   fill = NA,
                   label.color = NA) +
@@ -168,12 +168,12 @@ plot.virus.over.host.abundance.phylum <- ggplot(virus_host_abundance_by_phylum %
   cowplot::theme_cowplot() +
   theme(
     legend.position = "none",
-    # axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    # axis.text.y = element_text(size = 10),
-    strip.text.x = element_text(size = 10),
-    strip.text.y = element_text(size = 10),
-    # axis.title = element_text(size = 12)
+    axis.text.x = element_text(size = 8),
+    axis.text.y = element_text(size = 8),
+    strip.text.x = element_text(size = 7.9),
+    strip.text.y = element_text(size = 8),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10, margin = margin(t = 0, r = 0, b = 0, l = -3)),
   ) +
   xlab("Total Host Abundance") +
   ylab("Total Virus Abundance")
@@ -181,15 +181,15 @@ plot.virus.over.host.abundance.phylum <- ggplot(virus_host_abundance_by_phylum %
 plot.virus.over.host.abundance.phylum
 ```
 
-![](virus_replication_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](virus_replication_files/figure-gfm/plot-virus-over-host-1.png)<!-- -->
 
 ``` r
 ggsave(plot = plot.virus.over.host.abundance.phylum,
        file = "../Plots/virus_replication/virus_over_host_abundance_by_phylum.png",
        device = "png",
        dpi = 600,
-       width = 12,
-       height = 4,
+       width = 7.08661,
+       height = 2.83464,
        units = "in",
        bg = "white")
 ```
@@ -322,7 +322,7 @@ annot_all_non <- pairs_all_non %>%
   mutate(
     group1 = sub(" - .*", "", contrast),
     group2 = sub(".* - ", "", contrast),
-    ymin   = y_max_non + gap_non * row_number(),
+    ymin   = (y_max_non) + (gap_non * row_number()),
     label  = case_when(
       p.value <= 0.0001 ~ "****",
       p.value <= 0.001  ~ "***",
@@ -352,7 +352,9 @@ ggplot(lysogenic_per_sample,
     p.adjust.method    = "BH",
     label              = "p.adj.signif",
     method             = "emmeans_test",
-    hide.ns            = TRUE
+    hide.ns            = TRUE,
+    bracket.nudge.y    = -0.15,
+    vjust = 0.5,
   ) +
   # Add “All sites” LME‐based asterisks:
   geom_segment(
@@ -360,7 +362,8 @@ ggplot(lysogenic_per_sample,
     aes(
       x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
       xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
-      y    = ymin, yend = ymin
+      y    = ymin,
+      yend = ymin
     ),
     inherit.aes = FALSE,
     color = "black",
@@ -377,21 +380,24 @@ ggplot(lysogenic_per_sample,
     size = 4,
     inherit.aes = FALSE
   ) +
-  scale_y_continuous(labels = scales::scientific_format()) +
+  scale_y_continuous(
+    labels = scales::scientific_format(),
+    expand = expansion(mult = c(0.05, 0.15))
+    ) +
   scale_color_manual(
     values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
     name = "Ecosystem health"
   ) +
   labs(
     x = "Ecosystem health status",
-    y = "Mean lysogenic virus abundance (per sample)"
+    y = "Mean lysogenic virus\nabundance (per sample)"
   ) +
   cowplot::theme_cowplot() +
   theme(
     axis.text.x    = element_text(angle = 45, hjust = 1, size = 10),
     axis.text.y    = element_text(size = 9),
     axis.title     = element_text(size = 12),
-    strip.text.x   = element_text(size = 10),
+    strip.text.x   = element_text(size = 8),
     legend.position= "none"
   )
 plot.lysogenic.tmeans.mean
@@ -403,7 +409,7 @@ plot.lysogenic.tmeans.mean
 ggsave(plot.lysogenic.tmeans.mean,
        file="../Plots/virus_replication/lysogenic_phage_abundance.png",
        device = "png",
-       width = 10, height = 5, units = "in",
+       width = 7.08661, height = 2.83464, units = "in",
        dpi = 600, bg = "white")
 ```
 
@@ -576,7 +582,9 @@ ggplot(lysogenic_per_sample_norm,
     p.adjust.method    = "BH",
     label              = "p.adj.signif",
     method             = "emmeans_test",
-    hide.ns            = TRUE
+    hide.ns            = TRUE,
+    bracket.nudge.y    = -0.15,
+    vjust = 0.5,
   ) +
   # Add “All sites” LME‐based asterisks:
   geom_segment(
@@ -597,7 +605,7 @@ ggplot(lysogenic_per_sample_norm,
     aes(
       x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
       xend = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
-      y    = ymin+0.000025,
+      y    = ymin +0.000025,
       yend = ymin - tick_height
     ),
     inherit.aes = FALSE,
@@ -609,7 +617,7 @@ ggplot(lysogenic_per_sample_norm,
     aes(
       x    = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
       xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
-      y    = ymin+0.000025,
+      y    = ymin + 0.000025,
       yend = ymin - tick_height
     ),
     inherit.aes = FALSE,
@@ -628,19 +636,22 @@ ggplot(lysogenic_per_sample_norm,
     size = 4,
     inherit.aes = FALSE) +
   geom_boxplot(outlier.shape = NA, alpha = 0.25) +
-  scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) +
+  scale_y_continuous(
+    labels = function(x) format(x, scientific = TRUE),
+    expand = expansion(mult = c(0.0, 0.1))
+    ) +
   scale_color_manual(
     values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
     name = "Ecosystem health") +
-  labs(x = "Ecosystem health status", y = "Normalized lysogenic virus abundance (per sample)") +
+  labs(x = "Ecosystem health status", y = "Normalized lysogenic virus\nabundance (per sample)") +
   cowplot::theme_cowplot() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
-    axis.text.y = element_text(size = 9),
-    axis.title = element_text(size=12),
-    strip.text.x = element_text(size = 10),
-    legend.position = "none"
-    )
+    axis.text.x    = element_text(angle = 45, hjust = 1, size = 10),
+    axis.text.y    = element_text(size = 9),
+    axis.title     = element_text(size = 12),
+    strip.text.x   = element_text(size = 8),
+    legend.position= "none"
+  )
 plot.lysogenic.tmeans.mean.norm
 ```
 
@@ -650,7 +661,7 @@ plot.lysogenic.tmeans.mean.norm
 ggsave(plot.lysogenic.tmeans.mean.norm,
        file="../Plots/virus_replication/lysogenic_phage_abundance_normalized.png",
        device = "png",
-       width = 10, height = 5, units = "in",
+       width = 7.08661, height = 2.83464, units = "in",
        dpi = 600, bg = "white")
 ```
 
@@ -667,9 +678,14 @@ plot.combined.lysogenic <- cowplot::plot_grid(plot.lysogenic.tmeans.mean,
                                               label_fontfamily = "sans",
                                               label_fontface = "bold")
 ggsave(plot.combined.lysogenic,
-       file="../Plots/virus_replication/FigS5.png",
+       file="../Plots/virus_replication/ExtendedDataFig5.png",
        device = "png",
-       width = 10, height = 10, units = "in",
+       width = 7.08661, height = 7.08661, units = "in",
+       dpi = 600, bg = "white")
+ggsave(plot.combined.lysogenic,
+       file="../Plots/virus_replication/ExtendedDataFig5.svg",
+       device = "svg",
+       width = 7.08661, height = 7.08661, units = "in",
        dpi = 600, bg = "white")
 plot.combined.lysogenic
 ```
@@ -689,10 +705,13 @@ ggplot(lysogenic_per_sample_norm %>%
   scale_color_manual(
     values = c("Natural" = "#4DAF4A", "Restored" = "#377EB8", "Damaged" = "#E41A1C"),
     name = "Ecosystem health") +
-  labs(x = "Ecosystem health status", y = "Normalized lysogenic virus\nabundance (per sample)") +
+  labs(x = "Ecosystem health\nstatus", y = "Normalized lysogenic virus\nabundance (per sample)") +
   cowplot::theme_cowplot() +
   theme(
-    legend.position = "none"
+    legend.position = "none",
+    text = element_text(size = 10),
+    axis.title = element_text(size=10),
+    axis.text = element_text(size=9),
     )
 
 plot.lysogenic.tmeans.mean.norm.allsites <- plot.lysogenic.tmeans.mean.norm.allsites +
@@ -702,8 +721,8 @@ plot.lysogenic.tmeans.mean.norm.allsites <- plot.lysogenic.tmeans.mean.norm.alls
     aes(
       x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
       xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
-      y    = ymin - 0.00375,
-      yend = ymax - 0.00375
+      y    = (ymin - 0.00375)*0.8,
+      yend = (ymax - 0.00375)*0.8
     ),
     inherit.aes = FALSE,
     color = "black",
@@ -715,8 +734,8 @@ plot.lysogenic.tmeans.mean.norm.allsites <- plot.lysogenic.tmeans.mean.norm.alls
     aes(
       x    = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
       xend = as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))),
-      y    = ymin+0.000025 - 0.00375,
-      yend = ymin - tick_height - 0.00375
+      y    = (ymin+0.000025 - 0.00375)*0.8,
+      yend = (ymin - tick_height - 0.00375)*0.8
     ),
     inherit.aes = FALSE,
     color       = "black",
@@ -727,8 +746,8 @@ plot.lysogenic.tmeans.mean.norm.allsites <- plot.lysogenic.tmeans.mean.norm.alls
     aes(
       x    = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
       xend = as.numeric(factor(group2, levels = c("Natural","Restored","Damaged"))),
-      y    = ymin+0.000025 - 0.00375,
-      yend = ymin - tick_height - 0.00375
+      y    = (ymin+0.000025 - 0.00375)*0.8,
+      yend = (ymin - tick_height - 0.00375)*0.8
     ),
     inherit.aes = FALSE,
     color       = "black",
@@ -740,11 +759,12 @@ plot.lysogenic.tmeans.mean.norm.allsites <- plot.lysogenic.tmeans.mean.norm.alls
     aes(
       x = (as.numeric(factor(group1, levels = c("Natural","Restored","Damaged"))) +
            as.numeric(factor(group2, levels = c("Natural","Restored","Damaged")))) / 2,
-      y = ymin + (0.02 * y_max_allsites_norm) - 0.00375, # small vertical offset above the bar
+      y = (ymin + (0.02 * y_max_allsites_norm) - 0.00375)*0.8, # small vertical offset above the bar
       label = label
     ),
     size = 4,
     inherit.aes = FALSE) +
+  scale_y_continuous(labels = function(x) format(x, scientific = TRUE), limits = c(0, 1.6e-2)) +
   theme(legend.position = "none")
 
 plot.lysogenic.tmeans.mean.norm.allsites
@@ -1561,10 +1581,27 @@ draw(
 
 ![](virus_replication_files/figure-gfm/ratio-heatmap-1.png)<!-- -->
 
-### Save the heatmap as a PNG
+### Save the heatmap as a PNG and SVG
 
 ``` r
-png("../Plots/virus_replication/FigS6.png", width = 9, height = 9, res = 600, units = "in") 
+png("../Plots/virus_replication/ExtendedDataFig6.png", width = 9, height = 9, res = 600, units = "in") 
+
+draw(
+  heatmap,
+  padding = unit(c(0, 0, 0, 60), "pt"),
+  heatmap_legend_side = "bottom", 
+  annotation_legend_side = "bottom",
+  merge_legends = TRUE
+)
+
+dev.off()
+```
+
+    ## quartz_off_screen 
+    ##                 2
+
+``` r
+svg("../Plots/virus_replication/ExtendedDataFig6.svg", width = 9, height = 9) 
 
 draw(
   heatmap,
@@ -2391,7 +2428,7 @@ plot.lysogenic.over.eco.index.mean.norm <-
   geom_point(
     aes(fill=site, shape=treatment),
     color = "black",
-    size = 4,
+    size = 2.5,
     alpha = 0.8
     ) +
   scale_color_brewer(palette = "Dark2", name = "Site") +
@@ -2408,7 +2445,7 @@ plot.lysogenic.over.eco.index.mean.norm <-
     x = 0.975 * min(lysogenic_per_sample_eco_index$index), # when NOT using scale_x_reverse()
     # x = -0.975 * min(lysogenic_per_sample_eco_index$index), # when using scale_x_reverse()
     # y = 0.97 * max(lysogenic_per_sample_eco_index$mean_abundance_norm), # when NOT needing to be consistent with the boxplot
-    y = 0.97 * 2e-2, # when needing to be consistent with the boxplot
+    y = 0.77 * 2e-2, # when needing to be consistent with the boxplot
     label = paste0(
       "italic(R[marg.]^2) == ", round(m1_r2m,2),
        "*','~",  # no space before the comma, small space after
@@ -2419,27 +2456,23 @@ plot.lysogenic.over.eco.index.mean.norm <-
     parse    = TRUE,
     hjust    = 0,
     vjust    = 1,
-    size     = 4
+    size     = 3
     ) +
   ggplot2::annotate(
     "text",
     x = 0.975 * min(lysogenic_per_sample_eco_index$index), # when NOT using scale_x_reverse()
     # x = -0.975 * min(lysogenic_per_sample_eco_index$index), # when using scale_x_reverse()
     # y = 0.89 * max(lysogenic_per_sample_eco_index$mean_abundance_norm), # when NOT needing to be consistent with the boxplot
-    y = 0.89 * 2e-2, # when needing to be consistent with the boxplot
+    y = 0.6 * 2e-2, # when needing to be consistent with the boxplot
     label = paste0(
       "italic(P) == ", p_mantissa, " %*% 10^", p_exp, ""
     ),
     parse    = TRUE,
     hjust    = 0,
     vjust    = 1,
-    size     = 4
+    size     = 3
     ) +
-  labs(x = "Ecosystem health index", y = "Normalized lysogenic virus\nabundance (per sample)") +
-  theme(
-    legend.position = "right",
-    text = element_text(size = 14)
-    ) +
+  labs(x = "Ecosystem health\nindex", y = "Normalized lysogenic virus\nabundance (per sample)") +
   scale_shape_manual(name = "Ecosystem\nhealth status",
                      values=c(21,24,23),
                      breaks = c("Natural", "Restored", "Damaged"),
@@ -2454,9 +2487,22 @@ plot.lysogenic.over.eco.index.mean.norm <-
                              override.aes = list(shape = 21, color = "black")),
          shape = guide_legend(title.position = "top",
                               title.hjust = 0.5)) +
-  scale_y_continuous(labels = function(x) format(x, scientific = TRUE), limits = c(0, 2e-2)) +
+  scale_y_continuous(labels = function(x) format(x, scientific = TRUE), limits = c(0, 1.6e-2)) +
   # scale_x_reverse() + # To be consistent with Natural -> Damaged gradient
-  cowplot::theme_cowplot()
+  cowplot::theme_cowplot() +
+  theme(
+    text = element_text(size = 10),
+    axis.title.x = element_text(size=10),
+    axis.text.x = element_text(size=9),
+    axis.title.y = element_text(size=10),
+    axis.text.y = element_text(size=9),
+    legend.spacing.y = unit(0.4, "cm"),
+    legend.key.height = unit(0.75, "lines"),
+    legend.title = element_text(size=10),
+    legend.text = element_text(size=9),
+    legend.position = "right",
+    legend.justification = c(0.5, 0.88)
+    )
 plot.lysogenic.over.eco.index.mean.norm
 ```
 
@@ -2486,7 +2532,7 @@ plot.lysogenic.combined <- cowplot::plot_grid(
   ncol = 2,
   rel_widths = c(4, 6),
   labels = c("B", "C"),
-  label_size = 20,
+  label_size = 16,
   label_fontface = "bold",
   label_fontfamily = "sans"
   )
@@ -2503,7 +2549,7 @@ plot.combined.lysogenic.virus.host <- cowplot::plot_grid(
   plot.lysogenic.combined,
   ncol = 1,
   labels = c("A", ""),
-  label_size = 20,
+  label_size = 16,
   label_fontface = "bold",
   label_fontfamily = "sans",
   hjust = -0.5,
@@ -2519,8 +2565,15 @@ plot.combined.lysogenic.virus.host
 ``` r
 ggsave(plot.combined.lysogenic.virus.host,
        file = "../Plots/virus_replication/Fig5.png",
-       width = 10,
-       height = 8,
+       width = 7.08661,
+       height = 5.66928,
+       units = "in",
+       dpi = 600,
+       bg = "white")
+ggsave(plot.combined.lysogenic.virus.host,
+       file = "../Plots/virus_replication/Fig5.svg",
+       width = 7.08661,
+       height = 5.66928,
        units = "in",
        dpi = 600,
        bg = "white")

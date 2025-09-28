@@ -1,7 +1,7 @@
 Host Genome DESeq and Abundance Clustering
 ================
 James C. Kosmopoulos
-2025-08-05
+2025-09-25
 
 # Load packages
 
@@ -708,12 +708,12 @@ host.clusters.balmoral <- data.frame(Host = names(host.cut.balmoral),
                                       Cluster = host.cut.balmoral) %>%
   inner_join(host.ord.balmoral, by = "Host") %>%
   inner_join(host.zs.balmoral, by = "Host") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 host.clusters.balmoral <- host.clusters.balmoral %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Host)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-host.clusters.balmoral$Title <- paste("Group: ", host.clusters.balmoral$Cluster, " - ", host.clusters.balmoral$Cluster.size, " hosts", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+host.clusters.balmoral$Title <- paste("Group: ", host.clusters.balmoral$Cluster, "\n", host.clusters.balmoral$Cluster.size, " hosts", sep = "")
 
 head(host.clusters.balmoral)
 ```
@@ -722,24 +722,28 @@ head(host.clusters.balmoral)
     ## # Groups:   Cluster [1]
     ##   Host               Cluster order treatment  MeanZS Title          Cluster.size
     ##   <chr>                <int> <int> <fct>       <dbl> <chr>                 <int>
-    ## 1 BAr1A1B1C__bin_100       1    15 DAM       -0.875  Group: 1 - 85…           85
-    ## 2 BAr1A1B1C__bin_100       1    15 NAT        0.865  Group: 1 - 85…           85
-    ## 3 BAr1A1B1C__bin_100       1    15 REST       0.0103 Group: 1 - 85…           85
-    ## 4 BAr1A1B1C__bin_103       1    69 DAM       -0.376  Group: 1 - 85…           85
-    ## 5 BAr1A1B1C__bin_103       1    69 NAT        0.752  Group: 1 - 85…           85
-    ## 6 BAr1A1B1C__bin_103       1    69 REST      -0.376  Group: 1 - 85…           85
+    ## 1 BAr1A1B1C__bin_100       1    15 DAM       -0.875  "Group: 1\n85…           85
+    ## 2 BAr1A1B1C__bin_100       1    15 NAT        0.865  "Group: 1\n85…           85
+    ## 3 BAr1A1B1C__bin_100       1    15 REST       0.0103 "Group: 1\n85…           85
+    ## 4 BAr1A1B1C__bin_103       1    69 DAM       -0.376  "Group: 1\n85…           85
+    ## 5 BAr1A1B1C__bin_103       1    69 NAT        0.752  "Group: 1\n85…           85
+    ## 6 BAr1A1B1C__bin_103       1    69 REST      -0.376  "Group: 1\n85…           85
 
 ### Plot Z-Score clusters
 
 ``` r
 plot.clusters.balmoral <-
-ggplot(data = host.clusters.balmoral, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = host.clusters.balmoral, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -817,12 +821,12 @@ host.clusters.bowness <- data.frame(Host = names(host.cut.bowness),
                                       Cluster = host.cut.bowness) %>%
   inner_join(host.ord.bowness, by = "Host") %>%
   inner_join(host.zs.bowness, by = "Host") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 host.clusters.bowness <- host.clusters.bowness %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Host)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-host.clusters.bowness$Title <- paste("Group: ", host.clusters.bowness$Cluster, " - ", host.clusters.bowness$Cluster.size, " hosts", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+host.clusters.bowness$Title <- paste("Group: ", host.clusters.bowness$Cluster, "\n", host.clusters.bowness$Cluster.size, " hosts", sep = "")
 
 head(host.clusters.bowness)
 ```
@@ -831,24 +835,29 @@ head(host.clusters.bowness)
     ## # Groups:   Cluster [2]
     ##   Host               Cluster order treatment MeanZS Title           Cluster.size
     ##   <chr>                <int> <int> <fct>      <dbl> <chr>                  <int>
-    ## 1 BAr1A1B1C__bin_104       1   294 DAM       -0.721 Group: 1 - 55 …           55
-    ## 2 BAr1A1B1C__bin_104       1   294 NAT       -0.444 Group: 1 - 55 …           55
-    ## 3 BAr1A1B1C__bin_104       1   294 REST       1.16  Group: 1 - 55 …           55
-    ## 4 BAr1A1B1C__bin_105       2    34 DAM        0.667 Group: 2 - 52 …           52
-    ## 5 BAr1A1B1C__bin_105       2    34 NAT       -0.333 Group: 2 - 52 …           52
-    ## 6 BAr1A1B1C__bin_105       2    34 REST      -0.333 Group: 2 - 52 …           52
+    ## 1 BAr1A1B1C__bin_104       1   294 DAM       -0.721 "Group: 1\n55 …           55
+    ## 2 BAr1A1B1C__bin_104       1   294 NAT       -0.444 "Group: 1\n55 …           55
+    ## 3 BAr1A1B1C__bin_104       1   294 REST       1.16  "Group: 1\n55 …           55
+    ## 4 BAr1A1B1C__bin_105       2    34 DAM        0.667 "Group: 2\n52 …           52
+    ## 5 BAr1A1B1C__bin_105       2    34 NAT       -0.333 "Group: 2\n52 …           52
+    ## 6 BAr1A1B1C__bin_105       2    34 REST      -0.333 "Group: 2\n52 …           52
 
 ### Plot Z-Score clusters
 
 ``` r
 plot.clusters.bowness <-
-ggplot(data = host.clusters.bowness, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = host.clusters.bowness, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -926,12 +935,12 @@ host.clusters.crocach <- data.frame(Host = names(host.cut.crocach),
                                       Cluster = host.cut.crocach) %>%
   inner_join(host.ord.crocach, by = "Host") %>%
   inner_join(host.zs.crocach, by = "Host") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 host.clusters.crocach <- host.clusters.crocach %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Host)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-host.clusters.crocach$Title <- paste("Group: ", host.clusters.crocach$Cluster, " - ", host.clusters.crocach$Cluster.size, " hosts", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+host.clusters.crocach$Title <- paste("Group: ", host.clusters.crocach$Cluster, "\n", host.clusters.crocach$Cluster.size, " hosts", sep = "")
 
 head(host.clusters.crocach)
 ```
@@ -940,24 +949,29 @@ head(host.clusters.crocach)
     ## # Groups:   Cluster [2]
     ##   Host               Cluster order treatment MeanZS Title           Cluster.size
     ##   <chr>                <int> <int> <fct>      <dbl> <chr>                  <int>
-    ## 1 BAr1A1B1C__bin_103       1    75 DAM       -0.333 Group: 1 - 57 …           57
-    ## 2 BAr1A1B1C__bin_103       1    75 NAT        0.667 Group: 1 - 57 …           57
-    ## 3 BAr1A1B1C__bin_103       1    75 REST      -0.333 Group: 1 - 57 …           57
-    ## 4 BAr1A1B1C__bin_116       2    17 DAM       -0.333 Group: 2 - 52 …           52
-    ## 5 BAr1A1B1C__bin_116       2    17 NAT       -0.333 Group: 2 - 52 …           52
-    ## 6 BAr1A1B1C__bin_116       2    17 REST       0.667 Group: 2 - 52 …           52
+    ## 1 BAr1A1B1C__bin_103       1    75 DAM       -0.333 "Group: 1\n57 …           57
+    ## 2 BAr1A1B1C__bin_103       1    75 NAT        0.667 "Group: 1\n57 …           57
+    ## 3 BAr1A1B1C__bin_103       1    75 REST      -0.333 "Group: 1\n57 …           57
+    ## 4 BAr1A1B1C__bin_116       2    17 DAM       -0.333 "Group: 2\n52 …           52
+    ## 5 BAr1A1B1C__bin_116       2    17 NAT       -0.333 "Group: 2\n52 …           52
+    ## 6 BAr1A1B1C__bin_116       2    17 REST       0.667 "Group: 2\n52 …           52
 
 ### Plot Z-Score clusters
 
 ``` r
 plot.clusters.crocach <-
-ggplot(data = host.clusters.crocach, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = host.clusters.crocach, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -1035,12 +1049,12 @@ host.clusters.langwell <- data.frame(Host = names(host.cut.langwell),
                                       Cluster = host.cut.langwell) %>%
   inner_join(host.ord.langwell, by = "Host") %>%
   inner_join(host.zs.langwell, by = "Host") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 host.clusters.langwell <- host.clusters.langwell %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Host)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-host.clusters.langwell$Title <- paste("Group: ", host.clusters.langwell$Cluster, " - ", host.clusters.langwell$Cluster.size, " hosts", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+host.clusters.langwell$Title <- paste("Group: ", host.clusters.langwell$Cluster, "\n", host.clusters.langwell$Cluster.size, " hosts", sep = "")
 
 head(host.clusters.langwell)
 ```
@@ -1049,24 +1063,29 @@ head(host.clusters.langwell)
     ## # Groups:   Cluster [1]
     ##   Host               Cluster order treatment MeanZS Title           Cluster.size
     ##   <chr>                <int> <int> <fct>      <dbl> <chr>                  <int>
-    ## 1 BAr1A1B1C__bin_100       1   111 DAM       -0.630 Group: 1 - 75 …           75
-    ## 2 BAr1A1B1C__bin_100       1   111 NAT       -0.630 Group: 1 - 75 …           75
-    ## 3 BAr1A1B1C__bin_100       1   111 REST       1.26  Group: 1 - 75 …           75
-    ## 4 BAr1A1B1C__bin_103       1   102 DAM       -0.643 Group: 1 - 75 …           75
-    ## 5 BAr1A1B1C__bin_103       1   102 NAT       -0.643 Group: 1 - 75 …           75
-    ## 6 BAr1A1B1C__bin_103       1   102 REST       1.29  Group: 1 - 75 …           75
+    ## 1 BAr1A1B1C__bin_100       1   111 DAM       -0.630 "Group: 1\n75 …           75
+    ## 2 BAr1A1B1C__bin_100       1   111 NAT       -0.630 "Group: 1\n75 …           75
+    ## 3 BAr1A1B1C__bin_100       1   111 REST       1.26  "Group: 1\n75 …           75
+    ## 4 BAr1A1B1C__bin_103       1   102 DAM       -0.643 "Group: 1\n75 …           75
+    ## 5 BAr1A1B1C__bin_103       1   102 NAT       -0.643 "Group: 1\n75 …           75
+    ## 6 BAr1A1B1C__bin_103       1   102 REST       1.29  "Group: 1\n75 …           75
 
 ### Plot Z-Score clusters
 
 ``` r
 plot.clusters.langwell <-
-ggplot(data = host.clusters.langwell, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = host.clusters.langwell, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -1144,12 +1163,12 @@ host.clusters.migneint <- data.frame(Host = names(host.cut.migneint),
                                       Cluster = host.cut.migneint) %>%
   inner_join(host.ord.migneint, by = "Host") %>%
   inner_join(host.zs.migneint, by = "Host") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 host.clusters.migneint <- host.clusters.migneint %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Host)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-host.clusters.migneint$Title <- paste("Group: ", host.clusters.migneint$Cluster, " - ", host.clusters.migneint$Cluster.size, " hosts", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+host.clusters.migneint$Title <- paste("Group: ", host.clusters.migneint$Cluster, "\n", host.clusters.migneint$Cluster.size, " hosts", sep = "")
 
 head(host.clusters.migneint)
 ```
@@ -1158,24 +1177,29 @@ head(host.clusters.migneint)
     ## # Groups:   Cluster [2]
     ##   Host               Cluster order treatment MeanZS Title           Cluster.size
     ##   <chr>                <int> <int> <fct>      <dbl> <chr>                  <int>
-    ## 1 BAr1A1B1C__bin_104       1    32 DAM        0.667 Group: 1 - 22 …           22
-    ## 2 BAr1A1B1C__bin_104       1    32 NAT       -0.333 Group: 1 - 22 …           22
-    ## 3 BAr1A1B1C__bin_104       1    32 REST      -0.333 Group: 1 - 22 …           22
-    ## 4 BAr1A1B1C__bin_138       2     7 DAM       -0.413 Group: 2 - 24 …           24
-    ## 5 BAr1A1B1C__bin_138       2     7 NAT        0.827 Group: 2 - 24 …           24
-    ## 6 BAr1A1B1C__bin_138       2     7 REST      -0.413 Group: 2 - 24 …           24
+    ## 1 BAr1A1B1C__bin_104       1    32 DAM        0.667 "Group: 1\n22 …           22
+    ## 2 BAr1A1B1C__bin_104       1    32 NAT       -0.333 "Group: 1\n22 …           22
+    ## 3 BAr1A1B1C__bin_104       1    32 REST      -0.333 "Group: 1\n22 …           22
+    ## 4 BAr1A1B1C__bin_138       2     7 DAM       -0.413 "Group: 2\n24 …           24
+    ## 5 BAr1A1B1C__bin_138       2     7 NAT        0.827 "Group: 2\n24 …           24
+    ## 6 BAr1A1B1C__bin_138       2     7 REST      -0.413 "Group: 2\n24 …           24
 
 ### Plot Z-Score clusters
 
 ``` r
 plot.clusters.migneint <-
-ggplot(data = host.clusters.migneint, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = host.clusters.migneint, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -1253,12 +1277,12 @@ host.clusters.moor_house <- data.frame(Host = names(host.cut.moor_house),
                                       Cluster = host.cut.moor_house) %>%
   inner_join(host.ord.moor_house, by = "Host") %>%
   inner_join(host.zs.moor_house, by = "Host") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 host.clusters.moor_house <- host.clusters.moor_house %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Host)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-host.clusters.moor_house$Title <- paste("Group: ", host.clusters.moor_house$Cluster, " - ", host.clusters.moor_house$Cluster.size, " hosts", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+host.clusters.moor_house$Title <- paste("Group: ", host.clusters.moor_house$Cluster, "\n", host.clusters.moor_house$Cluster.size, " hosts", sep = "")
 
 head(host.clusters.moor_house)
 ```
@@ -1267,24 +1291,29 @@ head(host.clusters.moor_house)
     ## # Groups:   Cluster [1]
     ##   Host               Cluster order treatment MeanZS Title           Cluster.size
     ##   <chr>                <int> <int> <fct>      <dbl> <chr>                  <int>
-    ## 1 BAr1A1B1C__bin_100       1   101 DAM       -0.333 Group: 1 - 57 …           57
-    ## 2 BAr1A1B1C__bin_100       1   101 NAT        0.667 Group: 1 - 57 …           57
-    ## 3 BAr1A1B1C__bin_100       1   101 REST      -0.333 Group: 1 - 57 …           57
-    ## 4 BAr1A1B1C__bin_103       1    56 DAM       -0.439 Group: 1 - 57 …           57
-    ## 5 BAr1A1B1C__bin_103       1    56 NAT        0.877 Group: 1 - 57 …           57
-    ## 6 BAr1A1B1C__bin_103       1    56 REST      -0.439 Group: 1 - 57 …           57
+    ## 1 BAr1A1B1C__bin_100       1   101 DAM       -0.333 "Group: 1\n57 …           57
+    ## 2 BAr1A1B1C__bin_100       1   101 NAT        0.667 "Group: 1\n57 …           57
+    ## 3 BAr1A1B1C__bin_100       1   101 REST      -0.333 "Group: 1\n57 …           57
+    ## 4 BAr1A1B1C__bin_103       1    56 DAM       -0.439 "Group: 1\n57 …           57
+    ## 5 BAr1A1B1C__bin_103       1    56 NAT        0.877 "Group: 1\n57 …           57
+    ## 6 BAr1A1B1C__bin_103       1    56 REST      -0.439 "Group: 1\n57 …           57
 
 ### Plot Z-Score clusters
 
 ``` r
 plot.clusters.moor_house <-
-ggplot(data = host.clusters.moor_house, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = host.clusters.moor_house, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -1367,7 +1396,7 @@ host.clusters.stean <- host.clusters.stean %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Host)) %>%
   mutate(Title = factor(treatment, levels = c("NAT", "DAM")))
-host.clusters.stean$Title <- paste("Group: ", host.clusters.stean$Cluster, " - ", host.clusters.stean$Cluster.size, " hosts", sep = "")
+host.clusters.stean$Title <- paste("Group: ", host.clusters.stean$Cluster, "\n", host.clusters.stean$Cluster.size, " hosts", sep = "")
 
 head(host.clusters.stean)
 ```
@@ -1376,12 +1405,12 @@ head(host.clusters.stean)
     ## # Groups:   Cluster [2]
     ##   Host               Cluster order treatment  MeanZS Title          Cluster.size
     ##   <chr>                <int> <int> <fct>       <dbl> <chr>                 <int>
-    ## 1 BAr1A1B1C__bin_104       1    27 DAM        -0.534 Group: 1 - 41…           41
-    ## 2 BAr1A1B1C__bin_104       1    27 REST        0.534 Group: 1 - 41…           41
-    ## 3 BAr1A1B1C__bin_116       2    65 DAM       NaN     Group: 2 - 56…           56
-    ## 4 BAr1A1B1C__bin_116       2    65 REST      NaN     Group: 2 - 56…           56
-    ## 5 BAr1A1B1C__bin_58        1    38 DAM        -0.408 Group: 1 - 41…           41
-    ## 6 BAr1A1B1C__bin_58        1    38 REST        0.408 Group: 1 - 41…           41
+    ## 1 BAr1A1B1C__bin_104       1    27 DAM        -0.534 "Group: 1\n41…           41
+    ## 2 BAr1A1B1C__bin_104       1    27 REST        0.534 "Group: 1\n41…           41
+    ## 3 BAr1A1B1C__bin_116       2    65 DAM       NaN     "Group: 2\n56…           56
+    ## 4 BAr1A1B1C__bin_116       2    65 REST      NaN     "Group: 2\n56…           56
+    ## 5 BAr1A1B1C__bin_58        1    38 DAM        -0.408 "Group: 1\n41…           41
+    ## 6 BAr1A1B1C__bin_58        1    38 REST        0.408 "Group: 1\n41…           41
 
 ### Plot Z-Score clusters
 
@@ -1389,9 +1418,14 @@ head(host.clusters.stean)
 plot.clusters.stean <-
 ggplot(data = host.clusters.stean, aes(x = factor(treatment, levels = c("NAT", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
   scale_x_discrete(labels = c("Natural", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
@@ -1474,10 +1508,18 @@ plot.clusters.combined <- cowplot::plot_grid(plot.clusters.balmoral,
                                              label_fontfamily = "sans",
                                              label_fontface = "bold")
 ggsave(plot = plot.clusters.combined,
-       filename = "../Plots/DESeq/host_trend_groups.png",
+       filename = "../Plots/DESeq/ExtendedDataFig4.png",
        device = "png",
        dpi = 600,
-       width = 10,
+       width = 8,
+       height = 10,
+       units = "in",
+       bg = "white")
+ggsave(plot = plot.clusters.combined,
+       filename = "../Plots/DESeq/ExtendedDataFig4.svg",
+       device = "svg",
+       dpi = 600,
+       width = 8,
        height = 10,
        units = "in",
        bg = "white")

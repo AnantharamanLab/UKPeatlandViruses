@@ -1,7 +1,7 @@
 Virus Presence/Absence
 ================
 James C. Kosmopoulos
-2025-08-05
+2025-09-25
 
 # Virus distribution
 
@@ -443,6 +443,15 @@ ggsave(Fig2,
        width = 10,
        height = 8,
        units = "in",
+       device="png",
+       dpi = 600,
+       bg = "white")
+ggsave(Fig2,
+       file = "../Plots/distribution/Fig2.svg",
+       width = 10,
+       height = 8,
+       units = "in",
+       device="svg",
        dpi = 600,
        bg = "white")
 ```

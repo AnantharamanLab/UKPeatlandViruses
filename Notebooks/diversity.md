@@ -1,7 +1,7 @@
 Peatland Sampling Map and Virus/Host Diversity
 ================
 James C. Kosmopoulos
-2025-08-05
+2025-09-28
 
 # Map
 
@@ -185,14 +185,13 @@ eco_index_avg <- eco_index %>%
 eco_plot_data <- eco_index_avg %>%
   left_join(labels %>% select(name, lon, lat), by = join_by(site == name))
 
-top <- 58.5
-bottom <- 50.5
+top <- 59
+bottom <- 50.9
 label_positions <- tibble(
   site = c(
     "Crocach", "Langwell", "Balmoral", "Bowness", "Moor House", "Stean", "Migneint"
     ),
-  label_x = -12.5,
-  # label_y = c(59.0, 58.0, 57.0, 55.5, 54.5, 53.0, 52.0)
+  label_x = -8.15,
   label_y = c(
     bottom + (6/6)*(top-bottom),
     bottom + (5/6)*(top-bottom),
@@ -200,23 +199,22 @@ label_positions <- tibble(
     bottom + (3/6)*(top-bottom),
     bottom + (2/6)*(top-bottom),
     bottom + (1/6)*(top-bottom),
-    bottom + (0/7)*(top-bottom))
+    bottom + (0/8)*(top-bottom))
 )
 
 treatment_offsets <- tibble(
   treatment = c("NAT","REST","DAM"),
-  dx = c(1, 2.3, 3.6)
+  dx = c(-2.9, -1.6, -0.3)
 )
 eco_index_avg <- eco_index_avg %>%
   mutate(site = gsub("_", " ", site))
 eco_plot_data <- eco_index_avg %>%
-  # filter(!is.na(avg_index)) %>%
   left_join(labels %>% select(site = name, lon, lat), by = "site") %>%
   left_join(label_positions, by = "site") %>%
   left_join(treatment_offsets, by = "treatment") %>%
   mutate(
     x_shape = label_x + dx,
-    y_shape = label_y
+    y_shape = label_y - ((1/6)*(top-bottom))*0.5
   )
 eco_plot_data
 ```
@@ -225,46 +223,64 @@ eco_plot_data
     ## # Groups:   site, treatment [20]
     ##    site      treatment shape avg_index   lon   lat label_x label_y    dx x_shape
     ##    <chr>     <chr>     <dbl>     <dbl> <dbl> <dbl>   <dbl>   <dbl> <dbl>   <dbl>
-    ##  1 Balmoral  DAM          23   -1.03   -3.16  56.9   -12.5    55.8   3.6    -8.9
-    ##  2 Balmoral  NAT          21   -0.368  -3.16  56.9   -12.5    55.8   1     -11.5
-    ##  3 Balmoral  REST         24   -0.542  -3.16  56.9   -12.5    55.8   2.3   -10.2
-    ##  4 Bowness   DAM          23   -0.648  -3.24  54.9   -12.5    54.5   3.6    -8.9
-    ##  5 Bowness   NAT          21   -0.0130 -3.24  54.9   -12.5    54.5   1     -11.5
-    ##  6 Bowness   REST         24    0.202  -3.24  54.9   -12.5    54.5   2.3   -10.2
-    ##  7 Crocach   DAM          23    0.225  -4.00  58.4   -12.5    58.5   3.6    -8.9
-    ##  8 Crocach   NAT          21    0.547  -4.00  58.4   -12.5    58.5   1     -11.5
-    ##  9 Crocach   REST         24    0.181  -4.00  58.4   -12.5    58.5   2.3   -10.2
-    ## 10 Langwell  DAM          23   -0.268  -3.61  58.2   -12.5    57.2   3.6    -8.9
-    ## 11 Langwell  NAT          21    0.577  -3.61  58.2   -12.5    57.2   1     -11.5
-    ## 12 Langwell  REST         24   -0.107  -3.61  58.2   -12.5    57.2   2.3   -10.2
-    ## 13 Migneint  DAM          23    0.0450 -3.82  53.0   -12.5    50.5   3.6    -8.9
-    ## 14 Migneint  NAT          21    1.07   -3.82  53.0   -12.5    50.5   1     -11.5
-    ## 15 Migneint  REST         24    0.657  -3.82  53.0   -12.5    50.5   2.3   -10.2
-    ## 16 Moor Hou… DAM          23   -0.169  -2.38  54.7   -12.5    53.2   3.6    -8.9
-    ## 17 Moor Hou… NAT          21    0.285  -2.38  54.7   -12.5    53.2   1     -11.5
-    ## 18 Moor Hou… REST         24   -0.135  -2.38  54.7   -12.5    53.2   2.3   -10.2
-    ## 19 Stean     DAM          23   -0.771  -1.95  54.1   -12.5    51.8   3.6    -8.9
-    ## 20 Stean     REST         24    0.178  -1.95  54.1   -12.5    51.8   2.3   -10.2
+    ##  1 Balmoral  DAM          23   -1.03   -3.16  56.9   -8.15    56.3  -0.3   -8.45
+    ##  2 Balmoral  NAT          21   -0.368  -3.16  56.9   -8.15    56.3  -2.9  -11.0 
+    ##  3 Balmoral  REST         24   -0.542  -3.16  56.9   -8.15    56.3  -1.6   -9.75
+    ##  4 Bowness   DAM          23   -0.648  -3.24  54.9   -8.15    55.0  -0.3   -8.45
+    ##  5 Bowness   NAT          21   -0.0130 -3.24  54.9   -8.15    55.0  -2.9  -11.0 
+    ##  6 Bowness   REST         24    0.202  -3.24  54.9   -8.15    55.0  -1.6   -9.75
+    ##  7 Crocach   DAM          23    0.225  -4.00  58.4   -8.15    59    -0.3   -8.45
+    ##  8 Crocach   NAT          21    0.547  -4.00  58.4   -8.15    59    -2.9  -11.0 
+    ##  9 Crocach   REST         24    0.181  -4.00  58.4   -8.15    59    -1.6   -9.75
+    ## 10 Langwell  DAM          23   -0.268  -3.61  58.2   -8.15    57.6  -0.3   -8.45
+    ## 11 Langwell  NAT          21    0.577  -3.61  58.2   -8.15    57.6  -2.9  -11.0 
+    ## 12 Langwell  REST         24   -0.107  -3.61  58.2   -8.15    57.6  -1.6   -9.75
+    ## 13 Migneint  DAM          23    0.0450 -3.82  53.0   -8.15    50.9  -0.3   -8.45
+    ## 14 Migneint  NAT          21    1.07   -3.82  53.0   -8.15    50.9  -2.9  -11.0 
+    ## 15 Migneint  REST         24    0.657  -3.82  53.0   -8.15    50.9  -1.6   -9.75
+    ## 16 Moor Hou… DAM          23   -0.169  -2.38  54.7   -8.15    53.6  -0.3   -8.45
+    ## 17 Moor Hou… NAT          21    0.285  -2.38  54.7   -8.15    53.6  -2.9  -11.0 
+    ## 18 Moor Hou… REST         24   -0.135  -2.38  54.7   -8.15    53.6  -1.6   -9.75
+    ## 19 Stean     DAM          23   -0.771  -1.95  54.1   -8.15    52.2  -0.3   -8.45
+    ## 20 Stean     REST         24    0.178  -1.95  54.1   -8.15    52.2  -1.6   -9.75
     ## # ℹ 1 more variable: y_shape <dbl>
 
 ``` r
-segment_data <- eco_plot_data %>%
-  group_by(site) %>%
-  filter(dx == max(dx)) %>%
+segment_data <- eco_index_avg %>%
+  left_join(labels %>% select(site = name, lon, lat), by = "site") %>%
+  left_join(label_positions, by = "site") %>%
+  left_join(treatment_offsets, by = "treatment") %>%
+  mutate(
+    x_shape = label_x,
+    y_shape = label_y
+  ) %>%
   ungroup()
 segment_data
 ```
 
-    ## # A tibble: 7 × 11
-    ##   site       treatment shape avg_index   lon   lat label_x label_y    dx x_shape
-    ##   <chr>      <chr>     <dbl>     <dbl> <dbl> <dbl>   <dbl>   <dbl> <dbl>   <dbl>
-    ## 1 Balmoral   DAM          23   -1.03   -3.16  56.9   -12.5    55.8   3.6    -8.9
-    ## 2 Bowness    DAM          23   -0.648  -3.24  54.9   -12.5    54.5   3.6    -8.9
-    ## 3 Crocach    DAM          23    0.225  -4.00  58.4   -12.5    58.5   3.6    -8.9
-    ## 4 Langwell   DAM          23   -0.268  -3.61  58.2   -12.5    57.2   3.6    -8.9
-    ## 5 Migneint   DAM          23    0.0450 -3.82  53.0   -12.5    50.5   3.6    -8.9
-    ## 6 Moor House DAM          23   -0.169  -2.38  54.7   -12.5    53.2   3.6    -8.9
-    ## 7 Stean      DAM          23   -0.771  -1.95  54.1   -12.5    51.8   3.6    -8.9
+    ## # A tibble: 20 × 11
+    ##    site      treatment shape avg_index   lon   lat label_x label_y    dx x_shape
+    ##    <chr>     <chr>     <dbl>     <dbl> <dbl> <dbl>   <dbl>   <dbl> <dbl>   <dbl>
+    ##  1 Balmoral  DAM          23   -1.03   -3.16  56.9   -8.15    56.3  -0.3   -8.15
+    ##  2 Balmoral  NAT          21   -0.368  -3.16  56.9   -8.15    56.3  -2.9   -8.15
+    ##  3 Balmoral  REST         24   -0.542  -3.16  56.9   -8.15    56.3  -1.6   -8.15
+    ##  4 Bowness   DAM          23   -0.648  -3.24  54.9   -8.15    55.0  -0.3   -8.15
+    ##  5 Bowness   NAT          21   -0.0130 -3.24  54.9   -8.15    55.0  -2.9   -8.15
+    ##  6 Bowness   REST         24    0.202  -3.24  54.9   -8.15    55.0  -1.6   -8.15
+    ##  7 Crocach   DAM          23    0.225  -4.00  58.4   -8.15    59    -0.3   -8.15
+    ##  8 Crocach   NAT          21    0.547  -4.00  58.4   -8.15    59    -2.9   -8.15
+    ##  9 Crocach   REST         24    0.181  -4.00  58.4   -8.15    59    -1.6   -8.15
+    ## 10 Langwell  DAM          23   -0.268  -3.61  58.2   -8.15    57.6  -0.3   -8.15
+    ## 11 Langwell  NAT          21    0.577  -3.61  58.2   -8.15    57.6  -2.9   -8.15
+    ## 12 Langwell  REST         24   -0.107  -3.61  58.2   -8.15    57.6  -1.6   -8.15
+    ## 13 Migneint  DAM          23    0.0450 -3.82  53.0   -8.15    50.9  -0.3   -8.15
+    ## 14 Migneint  NAT          21    1.07   -3.82  53.0   -8.15    50.9  -2.9   -8.15
+    ## 15 Migneint  REST         24    0.657  -3.82  53.0   -8.15    50.9  -1.6   -8.15
+    ## 16 Moor Hou… DAM          23   -0.169  -2.38  54.7   -8.15    53.6  -0.3   -8.15
+    ## 17 Moor Hou… NAT          21    0.285  -2.38  54.7   -8.15    53.6  -2.9   -8.15
+    ## 18 Moor Hou… REST         24   -0.135  -2.38  54.7   -8.15    53.6  -1.6   -8.15
+    ## 19 Stean     DAM          23   -0.771  -1.95  54.1   -8.15    52.2  -0.3   -8.15
+    ## 20 Stean     REST         24    0.178  -1.95  54.1   -8.15    52.2  -1.6   -8.15
     ## # ℹ 1 more variable: y_shape <dbl>
 
 ### Plot the map with ecosystem index
@@ -272,99 +288,74 @@ segment_data
 ``` r
 peat_soil_map_eco_index <-
   ggplot() +
-  # Base polygon (UK outline)
+  # UK outline
   geom_polygon(
     data = uk_map,
-    aes(x = long, y = lat, group = group),
-    fill = "grey90", color = "black", linewidth = 0.5
+    aes(long, lat, group = group),
+    fill = "grey92", color = "black", linewidth = 0.42
   ) +
-  # Peatlands layers
-  geom_sf(
-    data = england_peatlands,
-    fill = "#7B3F00", color = NA, alpha = 1
-    ) +
-  geom_sf(
-    data = wales_peatlands,
-    fill = "#7B3F00", color = NA, alpha = 1
-    ) +
-  geom_sf(
-    data = scotland_peatlands,
-    fill = "#7B3F00", color = NA, alpha = 1
-    ) +
-  # Expand the bounding box slightly to give label space
+  # peat layers
+  geom_sf(data = england_peatlands,  fill = "#7B3F00", color = NA) +
+  geom_sf(data = wales_peatlands,    fill = "#7B3F00", color = NA) +
+  geom_sf(data = scotland_peatlands, fill = "#7B3F00", color = NA) +
+  
+  # crop (clip ON so Shetland is removed, sorry Shetland)
   coord_sf(
-    xlim = c(-20.25, 1.5),
-    ylim = c(50.25, 59)
+    xlim = c(-13.65, 1.5),
+    ylim = c(50.1, 59)
     ) +
-  # Minimal theme
   theme_void() +
-  # connector from shape back to real map point
-  geom_segment(
-    data = segment_data,
-    aes(x = x_shape, y = y_shape, xend = lon, yend = lat),
-    color = "black", size = 0.66
-  ) +
-  # Points for each site
-  geom_point(
-    data = labels,
-    aes(x = lon, y = lat),
-    color = "black", fill = "red", size = 3, shape = 21, stroke = 1
-  ) +
-  # draw the fan of 3 treatment shapes next to each label
-  geom_point(
-    data = eco_plot_data,
-    aes(x = x_shape, y = y_shape, shape = treatment, fill = avg_index),
-    color  = "black", size = 5, stroke = 1
-  ) +
-  # give each treatment its numeric code
+  # connectors + sites
+  geom_segment(data = segment_data,
+               aes(x_shape, y_shape, xend = lon, yend = lat),
+               linewidth = 0.55, color = "black") +
+  geom_point(data = labels,
+             aes(lon, lat),
+             shape = 21, size = 1.6, stroke = 0.6, fill = "red", color = "black") +
+  # three treatment symbols per site
+  geom_point(data = eco_plot_data,
+             aes(x_shape, y_shape, shape = treatment, fill = avg_index),
+             hjust = 1.0, vjust = 0.5,
+             size = 3.8, stroke = 0.6, color = "black") +
   scale_shape_manual(
     name   = "Ecosystem\nhealth status",
-    values = c(
-      NAT  = 21, # filled circle
-      REST = 24, # filled triangle
-      DAM  = 23 # filled diamond
-    ),
-    breaks = c("NAT", "REST", "DAM"),
-    labels=c("Natural", "Restored", "Damaged")
+    values = c(NAT = 21, REST = 24, DAM = 23),
+    breaks = c("NAT","REST","DAM"),
+    labels = c("Natural","Restored","Damaged")
   ) +
-  # continuous viridis for the index
   scale_fill_viridis_c(
-    name   = "Avg. ecosystem\nhealth index",
+    name = "Avg. ecosystem\nhealth index",
     option = "viridis"
   ) +
-  # draw the fixed labels (one per site)
-  geom_text(
-    data = label_positions,
-    aes(x = label_x, y = label_y, label = site),
-    hjust = 1, # right align
-    fontface = "bold",
-    color = "black",
-    size = 7,
-    nudge_x = 0.02 # little buffer so text outline doesn’t overlap point
-  ) +
-  # give each guide an explicit order
+  # site labels
+  geom_text(data = label_positions,
+            aes(label_x, label_y, label = site),
+            hjust = 1.0, vjust = 0.5,
+            fontface = "bold", size = 4.0, color = "black",
+            nudge_x = -0.0) +
+  # legends sized for small canvas
   guides(
     shape = guide_legend(
-      order = 1,
-      title.position = "top",
-      title.hjust = 0.5,
-      override.aes = list(fill = "grey50", size = 4)
+      order = 0, title.position = "top", title.hjust = 0.5,
+      override.aes = list(fill = "grey55", size = 3.2, stroke = 0.6)
     ),
     fill = guide_colorbar(
-      order = 2,
-      title.position = "top",
-      title.hjust = 0.5,
+      order = 2, title.position = "top", title.hjust = 0.5,
+      barheight = unit(60, "pt"), barwidth = unit(10, "pt"),
       label.position = "left"
     )
   ) +
-  # stack legends vertically, center them, and adjust spacing
   theme(
     legend.position = "right", # move both legends below plot
     legend.box = "vertical", # stack shape above fill
     legend.box.just = "center", # center the stacked box
     legend.title.align = 0.5, # center titles inside each legend
-    legend.margin = margin(t = 5, r = 10, b = 5, l = -25, unit = "pt"),
-    text = element_text(size = 14)
+    legend.margin = margin(t = 0, r = 6, b = 2, l = -12.5, unit = "pt"),
+    legend.spacing.y = unit(0.3, "cm"),
+    legend.key.height = unit(1, "lines"),
+    legend.title = element_text(size = 10),
+    legend.text  = element_text(size = 9),
+    text = element_text(size = 12)
   )
 
 peat_soil_map_eco_index
@@ -379,7 +370,7 @@ ggsave("../Plots/diversity/sample_map.png",
        peat_soil_map_eco_index,
        device="png",
        dpi=600,
-       width=6, height=4, units="in",
+       width=3.543305, height=2.75590, units="in",
        bg = "white")
 ```
 
@@ -567,7 +558,7 @@ summary(anosim_result)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0412 0.0569 0.0678 0.0847 
+    ## 0.0404 0.0548 0.0683 0.0843 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75%   100%    N
@@ -593,7 +584,7 @@ plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
   geom_point(aes(shape=as.character(treatment),
                  fill=as.character(site)),
              color = "black",
-             size = 5,
+             size = 3,
              alpha=0.8,
              stroke=0.5) +
   xlab(paste("PCo1 (", eigval$Eigval[1], " %)", sep = "")) +
@@ -602,7 +593,7 @@ plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
   ggplot2::annotate(
     "text",
     x      = Inf,
-    y      = -Inf,
+    y      = -0.49,
     label  = as.expression(
       bquote(
         atop(
@@ -613,11 +604,12 @@ plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
     ),
     fontface= "plain",
     family  = "sans",
-    hjust   = 1.1,
-    vjust   = -0.5,
-    size    = 4,
+    hjust   = 1,
+    vjust   = 0,
+    size    = 3.5,
     parse   = FALSE
   ) +
+  ylim(-0.49, 0.25) +
   scale_shape_manual(name = "Ecosystem\nhealth status",
                      #values=c(16,17,18),
                      values=c(21,24,23),
@@ -630,19 +622,30 @@ plot.pcoa <- ggplot(axes, aes(Axis.1, Axis.2)) +
                              "Stean")) +
   guides(fill = guide_legend(title.position = "top",
                              title.hjust = 0.5,
-                             override.aes = list(shape = 21, color = "black")),
+                             override.aes = list(shape = 21, color = "black", size = 3.5),
+                             ),
          shape = guide_legend(title.position = "top",
-                              title.hjust = 0.5)) +
+                              title.hjust = 0.5),
+                              override.aes = list(size = 3.5),
+         ) +
   cowplot::theme_cowplot() +
-  theme(text = element_text(size = 14),
+  theme(axis.title = element_text(size=10),
+        axis.text = element_text(size=9),
+        text = element_text(size = 12),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.position = "right")
+        legend.spacing.y = unit(0.4, "cm"),
+        legend.key.height = unit(0.75, "lines"),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=9),
+        legend.position = "right",
+        legend.justification = c(0.5, 0.88)
+        )
 ggsave("../Plots/diversity/pcoa_all_site_treat.png",
        plot.pcoa,
        device="png",
        dpi=600,
-       width=6, height=4, units="in",
+       width=3.543305, height=2.75590, units="in",
        bg = "white")
 plot.pcoa
 ```
@@ -721,8 +724,8 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
       ## force ggplot2::annotate and plain font for the expression
       ggplot2::annotate(
         "text",
-        x      = Inf,
-        y      = -Inf,
+        x      = -0.05,
+        y      = 0,
         label  = as.expression(
           bquote(
             atop(
@@ -733,9 +736,9 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
         ),
         fontface= "plain",
         family  = "sans",
-        hjust   = 1.1,
-        vjust   = -0.5,
-        size    = 4,
+        hjust   = 0.5,
+        vjust   = 0.5,
+        size    = 3,
         parse   = FALSE
       ) +
       scale_fill_manual(
@@ -747,11 +750,20 @@ pcoa_plot_by_site <- function(metadata, tmeans) {
       guides(fill = guide_legend(title.position = "top", title.hjust = 0.5)) +
       theme_linedraw() +
       ggtitle(ifelse(site == "Moor_House", "Moor House", site)) + # Change title for "Moor_House"
-      theme(text = element_text(size = 9),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            legend.position = "right",
-            plot.title = element_text(hjust = 0.5))
+    theme(
+        axis.title = element_text(size=8),
+        axis.text = element_text(size=8),
+        text = element_text(size = 10),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.spacing.y = unit(0.4, "cm"),
+        legend.key.height = unit(0.75, "lines"),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=9),
+        legend.position = "right",
+        legend.justification = c(0.5, 0.88),
+        plot.title = element_text(size=10, hjust = 0.5)
+        )
     
     plots[[site]] <- plot.pcoa
   }
@@ -924,7 +936,7 @@ summary(anosim_result_hosts)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0450 0.0601 0.0750 0.0933 
+    ## 0.0404 0.0569 0.0712 0.0904 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75% 100%    N
@@ -944,7 +956,7 @@ plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
   geom_point(aes(shape=as.character(treatment),
                  fill=as.character(site)),
              color = "black",
-             size = 5,
+             size = 3,
              alpha=0.8,
              stroke=0.5) +
   xlab(paste("PCo1 (", eigval_host$Eigval[1], " %)", sep = "")) +
@@ -953,7 +965,7 @@ plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
   ggplot2::annotate(
     "text",
     x      = Inf,
-    y      = -Inf,
+    y      = -0.455,
     label  = as.expression(
       bquote(
         atop(
@@ -964,11 +976,12 @@ plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
     ),
     fontface= "plain",
     family  = "sans",
-    hjust   = 1.1,
-    vjust   = -0.5,
-    size    = 4,
+    hjust   = 1,
+    vjust   = 0,
+    size    = 3.5,
     parse   = FALSE
   ) +
+  ylim(-0.49, 0.25) +
   scale_shape_manual(name = "Ecosystem\nhealth status",
                      #values=c(16,17,18),
                      values=c(21,24,23),
@@ -981,19 +994,30 @@ plot.pcoa.host <- ggplot(axes_host, aes(Axis.1, Axis.2)) +
                              "Stean")) +
   guides(fill = guide_legend(title.position = "top",
                              title.hjust = 0.5,
-                             override.aes = list(shape = 21, color = "black")),
+                             override.aes = list(shape = 21, color = "black", size = 3.5),
+                             ),
          shape = guide_legend(title.position = "top",
-                              title.hjust = 0.5)) +
+                              title.hjust = 0.5),
+                              override.aes = list(size = 3.5),
+         ) +
   cowplot::theme_cowplot() +
-  theme(text = element_text(size = 12),
+  theme(axis.title = element_text(size=10),
+        axis.text = element_text(size=9),
+        text = element_text(size = 12),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.position = "right")
+        legend.spacing.y = unit(0.4, "cm"),
+        legend.key.height = unit(0.75, "lines"),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=9),
+        legend.position = "right",
+        legend.justification = c(0.5, 0.88)
+        )
 ggsave("../Plots/diversity/pcoa_host_all_site_treat.png",
-       plot.pcoa,
+       plot.pcoa.host,
        device="png",
        dpi=600,
-       width=6, height=4, units="in",
+       width=3.543305, height=2.75590, units="in",
        bg = "white")
 plot.pcoa.host
 ```
@@ -1017,7 +1041,7 @@ permutest(bd_treat, permutations = 999)
     ## 
     ## Response: Distances
     ##           Df  Sum Sq   Mean Sq      F N.Perm Pr(>F)
-    ## Groups     2 0.03329 0.0166448 1.8856    999  0.164
+    ## Groups     2 0.03329 0.0166448 1.8856    999  0.154
     ## Residuals 57 0.50317 0.0088275
 
 ``` r
@@ -1464,7 +1488,7 @@ plot.pcoa.eco.index <- ggplot(axes.eco.index, aes(Axis.1, Axis.2)) +
     aes(fill = index),
     color = "black",
     shape = 21,
-    size  = 5
+    size = 3
   ) +
   xlab(paste0("PCo1 (", eigval$Eigval[1], " %)")) +
   ylab(paste0("PCo2 (", eigval$Eigval[2], " %)")) +
@@ -1472,8 +1496,8 @@ plot.pcoa.eco.index <- ggplot(axes.eco.index, aes(Axis.1, Axis.2)) +
   # annotation with plain fontface and sans family
   ggplot2::annotate(
     "text",
-    x     = 0.02,
-    y     = -0.50,
+    x     = -0.2,
+    y     = -0.485,
     label = as.expression(
       bquote(atop(
         italic(R[index]^2) == .(R_permanova_index) * "," ~ italic(P) == .(p_values_index_bh),
@@ -1482,9 +1506,9 @@ plot.pcoa.eco.index <- ggplot(axes.eco.index, aes(Axis.1, Axis.2)) +
     ),
     fontface = "plain",
     family   = "sans",
-    hjust    = 0,
-    vjust    = -0.5,
-    size     = 4,
+    hjust    = 0.0,
+    vjust    = 0.0,
+    size     = 2.5,
     parse    = FALSE
   ) +
 
@@ -1497,14 +1521,25 @@ plot.pcoa.eco.index <- ggplot(axes.eco.index, aes(Axis.1, Axis.2)) +
     ),
     color = "none"
   ) +
-
+  guides(
+    fill = guide_colorbar(
+      order = 2, title.position = "top", title.hjust = 0.5,
+      barheight = unit(60, "pt"), barwidth = unit(10, "pt"),
+      label.position = "left"
+    )
+  ) +
   theme_cowplot() +
-  theme(
-    panel.grid.major   = element_blank(),
-    panel.grid.minor   = element_blank(),
-    text               = element_text(size = 14),
-    legend.position    = "right"
-  )
+  theme(axis.title = element_text(size=10),
+        axis.text = element_text(size=9),
+        text = element_text(size = 12),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        # legend.margin = margin(l = -10, unit = "pt"),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=9),
+        legend.position = "right",
+        legend.justification = c(0.5, 0.5),
+        )
 
 plot.pcoa.eco.index
 ```
@@ -1539,19 +1574,15 @@ plot.eco.index.pcoa1 <- ggplot(axes_long %>%
   geom_point(
     aes(fill=site, shape=treatment),
     color = "black",
-    size = 4,
+    size = 3,
     alpha = 0.8
     ) +
   scale_color_brewer(palette = "Dark2", name = "Site") +
   geom_smooth(method = "lm", se = TRUE, color = "black") +
   stat_poly_line(se=FALSE, color = NA) +
-  stat_poly_eq(use_label(c("R2", "p")), size=4) +
+  stat_poly_eq(use_label(c("R2", "p")), size=3.5) +
   ylab(expression("PCo1 (16.96%)")) +
   xlab("Ecosystem health index") +
-  theme(
-    legend.position = "right",
-    text = element_text(size = 14)
-    ) +
   scale_shape_manual(name = "Ecosystem\nhealth status",
                      values=c(21,24,23),
                      breaks = c("NAT", "REST", "DAM"),
@@ -1566,7 +1597,20 @@ plot.eco.index.pcoa1 <- ggplot(axes_long %>%
                              override.aes = list(shape = 21, color = "black")),
          shape = guide_legend(title.position = "top",
                               title.hjust = 0.5)) +
-  cowplot::theme_cowplot()
+  cowplot::theme_cowplot() +
+  theme(axis.title = element_text(size=10),
+        axis.text = element_text(size=9),
+        text = element_text(size = 12),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.spacing.y = unit(0.3, "cm"),
+        legend.key.height = unit(0.75, "lines"),
+        # legend.margin = margin(l = -10, unit = "pt"),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=9),
+        legend.position = "right",
+        legend.justification = c(0.5, 0.88)
+        )
 plot.eco.index.pcoa1
 ```
 
@@ -1613,8 +1657,8 @@ plot.eco.index.pcoa
 legend_plot <- cowplot::get_legend(
   pcoa_list[[1]] +
     theme(
-      legend.title = element_text(size = 16),
-      legend.text = element_text(size = 14),
+      legend.title = element_text(size = 10),
+      legend.text = element_text(size = 9),
       legend.title.align=0.5) +
     guides(
       fill = guide_legend(
@@ -1631,57 +1675,70 @@ Fig1 <- cowplot::plot_grid(
     plot.pcoa.eco.index,
     ncol = 1,
     nrow = 3,
-    rel_heights = c(4, 4, 4),
     labels = c("A", "B", "D"),
     label_fontface = "bold",
-    label_size = 24,
-    label_fontfamily = "sans",
-    label_x = -0.01,
-    label_y = 1.02
+    label_size = 16,
+    label_fontfamily = "sans"
   ),
-  
-  
-  # Middle major pseudo column
-  cowplot::plot_grid(
-    ggplot() + cowplot::theme_cowplot(),
-    ggplot() + cowplot::theme_cowplot(),
-    ncol = 1,
-    nrow = 2,
-    rel_heights = c(8, 4),
-    labels = c("", ""),
-    label_fontface = "bold",
-    label_size = 24,
-    label_fontfamily = "sans",
-    label_x = -0.01,
-    label_y = 1.02
-  ),
-  
   
   # Right major column
   cowplot::plot_grid(
     # Top 2/3 row
     cowplot::plot_grid(
-      ggplot() + cowplot::theme_cowplot(),
-      pcoa_list[["Balmoral"]] + theme(text = element_text(size = 12), legend.position = "none"),
-      pcoa_list[["Bowness"]] + theme(text = element_text(size = 12), legend.position = "none"),
-      ggplot() + cowplot::theme_cowplot(),
-      pcoa_list[["Crocach"]] + theme(text = element_text(size = 12), legend.position = "none"),
-      pcoa_list[["Langwell"]] + theme(text = element_text(size = 12), legend.position = "none"),
-      ggplot() + cowplot::theme_cowplot(),
-      pcoa_list[["Migneint"]] + theme(text = element_text(size = 12), legend.position = "none"),
-      pcoa_list[["Moor_House"]] + theme(text = element_text(size = 12), legend.position = "none"),
-      ggplot() + cowplot::theme_cowplot(),
-      pcoa_list[["Stean"]] + theme(text = element_text(size = 12), legend.position = "none"),
+      pcoa_list[["Balmoral"]] +
+        theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.25, 0.29, 0.1, 0.29), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              ),
+      pcoa_list[["Bowness"]] +
+        theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.25, 0.29, 0.1, 0.29), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              ),
+      pcoa_list[["Crocach"]] +
+        theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.25, 0.29, 0.1, 0.29), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              ),
+      pcoa_list[["Langwell"]] +
+        theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.25, 0.29, 0.1, 0.29), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              ),
+      pcoa_list[["Migneint"]] +
+        theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.25, 0.29, 0.1, 0.29), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              ),
+      pcoa_list[["Moor_House"]] +
+        theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.25, 0.29, 0.1, 0.29), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              ),
+      pcoa_list[["Stean"]] +
+        theme(text = element_text(size = 8), legend.position = "none",
+              plot.margin = unit(c(0.25, 0.29, 0.1, 0.29), "cm"),
+              axis.title.y = element_text(margin = margin(t = 0, r = -1, b = 0, l = 0)),
+              axis.title.x = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+              plot.title = element_text(margin = margin(t = 0, r = 0, b = 2, l = 0))
+              ),
       legend_plot,
-      ncol = 3,
+      ncol = 2,
       nrow = 4,
-      rel_widths = c(0.25, 2.875, 2.875),
-      labels = c("", "", "", "", "", "", "", "", "", "", ""),
-      label_fontface = "bold",
-      label_size = 24,
-      label_fontfamily = "sans",
-      label_x = -0.05,
-      label_y = 1.02
+      rel_widths = c(1,1),
+      labels = NA
     ),
     
     # Bottom 1/3 row
@@ -1689,35 +1746,37 @@ Fig1 <- cowplot::plot_grid(
       plot.eco.index.pcoa1,
       labels = c("E"),
       label_fontface = "bold",
-      label_size = 24,
-      label_fontfamily = "sans",
-      label_x = -0.05,
-      label_y = 1 + 0.02*(3/3)
+      label_size = 16,
+      label_fontfamily = "sans"
     ),
     labels = c("C", ""),
     label_fontface = "bold",
-    label_size = 24,
+    label_size = 16,
     label_fontfamily = "sans",
-    label_x = -0.05,
-    label_y = 1 + 0.02*(1.5/3),
     ncol = 1,
     nrow = 2,
-    rel_heights = c(8, 4)
+    rel_heights = c(4.72440, 2.36220)
   ),
   
   
-  ncol = 3,
+  ncol = 2,
   nrow = 1,
-  rel_widths = c(7, 0.25, 4.75),
+  rel_widths = c(1, 1),
   labels = NA
 )
 
 ggsave(filename = "../Plots/diversity/Fig1.png",
        plot = Fig1,
        device = "png",
-       width = 12, height = 12, units = "in",
+       width = 7.08661, height = 8.26772, units = "in",
        dpi = 600,
        bg = "white")
+# ggsave(filename = "../Plots/diversity/Fig1.svg",
+#        plot = Fig1,
+#        device = "svg",
+#        width = 7.08661, height = 8.26772, units = "in",
+#        dpi = 600,
+#        bg = "white") # Too large for GitHub
 Fig1
 ```
 
@@ -1873,10 +1932,16 @@ combined_pcoas_host
 ![](diversity_files/figure-gfm/combine-host-pcoa-and-combined-host-pcoa-1.png)<!-- -->
 
 ``` r
-ggsave("../Plots/diversity/FigS2.png",
+ggsave("../Plots/diversity/ExtendedDataFig2.png",
        combined_pcoas_host,
        device="png",
        dpi=600,
-       width=8, height=8, units="in",
+       width=7.08661, height=7.08661, units="in",
+       bg = "white")
+ggsave("../Plots/diversity/ExtendedDataFig2.svg",
+       combined_pcoas_host,
+       device="svg",
+       dpi=600,
+       width=7.08661, height=7.08661, units="in",
        bg = "white")
 ```

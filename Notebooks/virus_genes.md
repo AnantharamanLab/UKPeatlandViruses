@@ -1,7 +1,7 @@
 Virus Genes
 ================
 James C. Kosmopoulos
-2025-08-05
+2025-09-26
 
 # Load packages
 
@@ -159,14 +159,14 @@ metabolism_labels <- c(
   "Amino acid\nmetabolism",
   "Biosynthesis of other\nsecondary metabolites",
   "Carbohydrate\nmetabolism",
-  "Energy\nmetabolism",
+  "Energy metabolism",
   "Folding, sorting\nand degradation",
   "Glycan biosynthesis\nand metabolism",
-  "Lipid\nmetabolism",
-  "Metabolism of cofactors\nand vitamins",
+  "Lipid metabolism",
+  "Metabolism of\ncofactors and\nvitamins",
   "Metabolism of other\namino acids",
-  "Metabolism of terpenoids\nand polyketides",
-  "Xenobiotics biodegradation\nand metabolism"
+  "Metabolism of\nterpenoids and\npolyketides",
+  "Xenobiotics\nbiodegradation and\nmetabolism"
 )
 
 upset.amgs.treatment.KEGG <- ComplexUpset::upset(
@@ -185,7 +185,7 @@ upset.amgs.treatment.KEGG <- ComplexUpset::upset(
     ),
   name = 'AMG families per health status',
   annotations = list(
-    'KEGG metabolism distribution' = (
+    "KEGG metabolism distribution" = (
       ggplot(mapping = aes(fill = Metabolism)) +
         geom_bar(stat = 'count', position = 'fill') +
         scale_y_continuous(labels = scales::percent_format()) +
@@ -196,58 +196,59 @@ upset.amgs.treatment.KEGG <- ComplexUpset::upset(
         theme_minimal() +
         theme(axis.text.x = element_blank(),
               axis.title.x = element_blank(),
-              axis.text.y = element_text(color = 'black',
-                                         size = 11),
-              axis.title.y = element_text(color = 'black',
-                                          size = 12),
-              legend.text = element_text(color = 'black',
-                                         size = 11),
-              legend.title = element_text(color = 'black',
-                                          size = 12),
-              legend.position = c(1, 0.2), # Move legend down
-              legend.justification = c("right", "bottom"),  # Adjust justification
-              legend.margin = margin(0, 0, -130, 0), # Add margin to move it down
-              legend.key.spacing.y = unit(5, 'pt') # Increase space between legend items
+              axis.text.y = element_text(color = 'black', size = 10),
+              axis.title.y = element_text(color = 'black', size = 10, margin = margin(t = 0, r = -30, b = 0, l = -5)),
+              legend.text = element_text(color = 'black', size = 10),
+              legend.title = element_text(color = 'black', size = 10),
+              legend.justification.inside = c(1, 1),
+              legend.margin = margin(0, 5, -150, 5), # Add margin to move it down and to the left
+              legend.key.spacing.y = unit(2, 'pt'),
+              legend.key.size = unit(0.4, "cm")
               ) +
-        ylab('KEGG metabolism distribution')
+        ylab("KEGG metabolism\ndistribution")
     )
   ),
   base_annotations = list(
       'Intersection size' = (
-        intersection_size(text = list(size = 3)) +
-          ylab("Ecosystem health intersections")
+        intersection_size(
+          text = list(size = 3, angle = 90, vjust = 0.5, hjust = -0.2),
+          bar_number_threshold = 1,
+          ) +
+          ylab("Ecosystem health\nintersections") +
+          ylim(0, 27)
         )
     ),
     themes = upset_modify_themes(
       list(
-        'overall_sizes' = theme(axis.text.x = element_text(color = 'black', size = 11),
-                                axis.title.x = element_text(color = 'black', size = 12)
+        'overall_sizes' = theme(axis.text.x = element_text(color = 'black', size = 10),
+                                axis.title.x = element_text(color = 'black', size = 10)
                                 ),
         'intersections_matrix' = theme(axis.text.x = element_blank(),
                                        axis.title.x = element_blank(),
-                                       axis.text.y = element_text(color = 'black', size = 12)
+                                       axis.text.y = element_text(color = 'black', size = 10)
                                        ),
-        'Intersection size' = theme(axis.text.y = element_text(color = 'black', size = 11),
-                                    axis.title.y = element_text(size = 12)
+        'Intersection size' = theme(axis.text.y = element_text(color = 'black', size = 10),
+                                    axis.title.y = element_text(size = 10, margin = margin(t = 0, r = -30, b = 0, l = -5)),
                                     )
         )
     ),
-  set_sizes=(
-        upset_set_size(
-            geom=geom_bar(
-                aes(fill=Metabolism, x=group),
-                show.legend = FALSE,
-                width=0.8,
-                height = 4,
-            ),
-            position='right'
-        )) +
-    ylab("AMG protein families per\nhealth status") +
+  set_sizes = (
+    upset_set_size(
+      geom = geom_bar(
+        aes(fill = Metabolism, x = group),
+        show.legend = FALSE,
+        width = 0.65,
+        height = 4,
+      ),
+      position = 'right'
+    )) +
+    ylab("AMG protein families\nper health status") +
     scale_fill_brewer(palette = "Spectral", na.value="grey",
                       labels = metabolism_labels),  # Apply custom labels
   # moves legends over the set sizes
-  guides='over',
-  width_ratio = 0.45,
+  guides = 'over',
+  width_ratio = 0.60,
+  height_ratio=0.65,
   wrap = F,
   min_size = 1 # Ensure even small intersections are shown
 )
@@ -261,7 +262,7 @@ upset.amgs.treatment.KEGG
 ### Save the plot
 
 ``` r
-ggsave(upset.amgs.treatment.KEGG, file="../Plots/virus_genes/upset_AMGs_KEGG_treatment.png", device = "png", width = 6, height = 8, units = "in", dpi = 600, bg = "white")
+ggsave(upset.amgs.treatment.KEGG, file="../Plots/virus_genes/upset_AMGs_KEGG_treatment.png", device = "png", width = 3.543305, height = 5.90551, units = "in", dpi = 600, bg = "white")
 ```
 
 ### Gather unique annotations
@@ -562,14 +563,14 @@ head(virus_prot_clusters_annotated)
 ``` r
 phrog_labels <- c(
   "Connector",
-  "DNA, RNA, and nucleotide\nmetabolism",
+  "DNA, RNA, and\nnucleotide metabolism",
   "Head and packaging",
-  "Integration and excision",
+  "Integration and\nexcision",
   "Lysis",
-  "Moron, auxiliary metabolic\ngene, and host takeover",
+  "Moron, auxiliary\nmetabolic gene, and\nhost takeover",
   "Other",
   "Tail",
-  "Transcription regulation",
+  "Transcription\nregulation",
   "Unknown function"
 )
 
@@ -588,49 +589,54 @@ upset_data_prot_clusters <- virus_prot_clusters_annotated %>%
 # Create the UpSet plot
 upset.virus_clusters <- ComplexUpset::upset(
   upset_data_prot_clusters,
-  intersect = c('Natural', 'Restored', 'Damaged'),  # Use the actual treatment column names
+  intersect = c('Natural', 'Restored', 'Damaged'), # Use the actual treatment column names
   name = 'Cluster replication across treatments',
   annotations = list(
     'PHROG category distribution' = (
       ggplot(virus_prot_clusters_annotated, mapping = aes(fill = PHROG_Category)) +
         geom_bar(stat = 'count', position = 'fill') +
         scale_y_continuous(labels = scales::percent_format()) +
-        coord_cartesian(ylim=c(0.7,1)) + # Set y-axis limits from 70% to 100%
+        coord_cartesian(ylim=c(0.8,1)) + # Set y-axis limits from 80% to 100%
         scale_fill_brewer(palette = "Set3",
                           na.value="grey",
                           name = "PHROG category",
-                          labels = phrog_labels) +  # Apply custom labels with capitalized first letters
+                          labels = phrog_labels) + # Apply custom labels with capitalized first letters
         theme_minimal() +
         theme(axis.text.x = element_blank(),
               axis.title.x = element_blank(),
-              axis.text.y = element_text(color = 'black', size = 11),
-              axis.title.y = element_text(color = 'black', size = 12),
-              legend.text = element_text(color = 'black', size = 11),
-              legend.title = element_text(color = 'black', size = 12),
-              legend.position = c(1, 0.2), # Move legend down
-              legend.justification = c("right", "bottom"),  # Adjust justification
-              legend.margin = margin(0, 0, -65, 0), # Add margin to move it down
-              legend.key.spacing.y = unit(5, 'pt')) +  # Increase space between legend items
-        ylab('PHROG category distribution')
+              axis.text.y = element_text(color = 'black', size = 10),
+              axis.title.y = element_text(color = 'black', size = 10, margin = margin(t = 0, r = -15, b = 0, l = -5)),
+              legend.text = element_text(color = 'black', size = 10),
+              legend.title = element_text(color = 'black', size = 10),
+              legend.justification.inside = c(1, 1),
+              legend.margin = margin(0, 0, -70, 5), # Add margin to move it down and to the left
+              legend.key.spacing.y = unit(2, 'pt'),
+              legend.key.size = unit(0.4, "cm")
+              ) +
+        ylab('PHROG category\ndistribution')
     )
   ),
   base_annotations = list(
       'Intersection size' = (
-        intersection_size(text = list(size = 3)) +
-          ylab("Ecosystem health intersections")
+        intersection_size(
+          text = list(size = 2.5, angle = 90, vjust = 0.5, hjust = -0.1),
+          bar_number_threshold = 1,
+          ) +
+          ylab("Ecosystem health\nintersections") +
+          ylim(0, 13700)
         )
     ),
     themes = upset_modify_themes(
       list(
-        'overall_sizes' = theme(axis.text.x = element_text(color = 'black', size = 11),
-                                axis.title.x = element_text(color = 'black', size = 12)
+        'overall_sizes' = theme(axis.text.x = element_text(color = 'black', size = 10),
+                                axis.title.x = element_text(color = 'black', size = 10)
                                 ),
         'intersections_matrix' = theme(axis.text.x = element_blank(),
                                        axis.title.x = element_blank(),
-                                       axis.text.y = element_text(color = 'black', size = 12)
+                                       axis.text.y = element_text(color = 'black', size = 10)
                                        ),
-        'Intersection size' = theme(axis.text.y = element_text(color = 'black', size = 11),
-                                    axis.title.y = element_text(size = 12)
+        'Intersection size' = theme(axis.text.y = element_text(color = 'black', size = 10),
+                                    axis.title.y = element_text(size = 10, margin = margin(t = 0, r = -15, b = 0, l = -5)),
                                     )
         )
     ),
@@ -639,17 +645,22 @@ upset.virus_clusters <- ComplexUpset::upset(
       geom = geom_bar(
         aes(fill = PHROG_Category, x = group),
         show.legend = FALSE,
-        width = 0.8,
+        width = 0.65,
         height = 4,
       ),
       position = 'right'
     )) +
     ylab("Protein clusters per\nhealth status") +
+    theme(
+      axis.title.x = element_text(size = 10, margin = margin(t = 5, r = 0, b = -5, l = 0)),
+      axis.text.x = element_text(size = 8)
+    ) +
     scale_fill_brewer(palette = "Set3", na.value = "grey",
-                      labels = c(phrog_labels, "Unknown function")),  # Include "Unknown function" in intersection plot
+                      labels = c(phrog_labels, "Unknown function")), # Include "Unknown function" in intersection plot
   # moves legends over the set sizes
   guides = 'over',
-  width_ratio = 0.45,
+  width_ratio = 0.60,
+  height_ratio=0.65,
   wrap = F,
   min_size = 1 # Ensure even small intersections are shown
 )
@@ -661,7 +672,7 @@ upset.virus_clusters
 ![](virus_genes_files/figure-gfm/plot-upset-prot-clusters-PHROG-1.png)<!-- -->
 
 ``` r
-ggsave(upset.virus_clusters, file="../Plots/virus_genes/upset_virus_proteins_treatment.png", device = "png", width = 6, height = 8, units = "in", dpi = 600, bg = "white")
+ggsave(upset.virus_clusters, file="../Plots/virus_genes/upset_virus_proteins_treatment.png", device = "png", width = 3.5433, height = 5.90551, units = "in", dpi = 600, bg = "white")
 ```
 
 # Combine the two upset plots
@@ -686,8 +697,17 @@ upset.combined
 ``` r
 ggsave(upset.combined,
        file = "../Plots/virus_genes/Fig4.png",
-       width = 12,
-       height = 8,
+       device="png",
+       width = 7.08661,
+       height = 5.90551,
+       units = "in",
+       dpi = 600,
+       bg = "white")
+ggsave(upset.combined,
+       file = "../Plots/virus_genes/Fig4.svg",
+       device="svg",
+       width = 7.08661,
+       height = 5.90551,
        units = "in",
        dpi = 600,
        bg = "white")

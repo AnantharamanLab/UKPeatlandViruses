@@ -679,6 +679,14 @@ ggsave(plot = Fig3,
        units = "in",
        dpi = 600,
        bg = "white")
+ggsave(plot = Fig3,
+       filename = "../Plots/virus_host/Fig3.svg",
+       device = "svg",
+       width = 10,
+       height = 9,
+       units = "in",
+       dpi = 600,
+       bg = "white")
 ```
 
 ## Get pairwise comparisons

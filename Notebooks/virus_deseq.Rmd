@@ -426,12 +426,12 @@ virus.clusters.balmoral <- data.frame(Virus = names(virus.cut.balmoral),
                                       Cluster = virus.cut.balmoral) %>%
   inner_join(virus.ord.balmoral, by = "Virus") %>%
   inner_join(virus.zs.balmoral, by = "Virus") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 virus.clusters.balmoral <- virus.clusters.balmoral %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Virus)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-virus.clusters.balmoral$Title <- paste("Group: ", virus.clusters.balmoral$Cluster, " - ", virus.clusters.balmoral$Cluster.size, " viruses", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+virus.clusters.balmoral$Title <- paste("Group: ", virus.clusters.balmoral$Cluster, "\n", virus.clusters.balmoral$Cluster.size, " viruses", sep = "")
 
 head(virus.clusters.balmoral)
 ```
@@ -439,13 +439,18 @@ head(virus.clusters.balmoral)
 ### Plot Z-Score clusters
 ```{r plot-zscores-balmoral, fig.height=3, fig.width=5}
 plot.clusters.balmoral <-
-ggplot(data = virus.clusters.balmoral, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = virus.clusters.balmoral, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -505,12 +510,12 @@ virus.clusters.bowness <- data.frame(Virus = names(virus.cut.bowness),
                                       Cluster = virus.cut.bowness) %>%
   inner_join(virus.ord.bowness, by = "Virus") %>%
   inner_join(virus.zs.bowness, by = "Virus") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 virus.clusters.bowness <- virus.clusters.bowness %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Virus)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-virus.clusters.bowness$Title <- paste("Group: ", virus.clusters.bowness$Cluster, " - ", virus.clusters.bowness$Cluster.size, " viruses", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+virus.clusters.bowness$Title <- paste("Group: ", virus.clusters.bowness$Cluster, "\n", virus.clusters.bowness$Cluster.size, " viruses", sep = "")
 
 head(virus.clusters.bowness)
 ```
@@ -518,13 +523,18 @@ head(virus.clusters.bowness)
 ### Plot Z-Score clusters
 ```{r plot-zscores-bowness, fig.height=3, fig.width=5}
 plot.clusters.bowness <-
-ggplot(data = virus.clusters.bowness, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = virus.clusters.bowness, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -584,12 +594,12 @@ virus.clusters.crocach <- data.frame(Virus = names(virus.cut.crocach),
                                       Cluster = virus.cut.crocach) %>%
   inner_join(virus.ord.crocach, by = "Virus") %>%
   inner_join(virus.zs.crocach, by = "Virus") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 virus.clusters.crocach <- virus.clusters.crocach %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Virus)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-virus.clusters.crocach$Title <- paste("Group: ", virus.clusters.crocach$Cluster, " - ", virus.clusters.crocach$Cluster.size, " viruses", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+virus.clusters.crocach$Title <- paste("Group: ", virus.clusters.crocach$Cluster, "\n", virus.clusters.crocach$Cluster.size, " viruses", sep = "")
 
 head(virus.clusters.crocach)
 ```
@@ -597,13 +607,18 @@ head(virus.clusters.crocach)
 ### Plot Z-Score clusters
 ```{r plot-zscores-crocach, fig.height=3, fig.width=5}
 plot.clusters.crocach <-
-ggplot(data = virus.clusters.crocach, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = virus.clusters.crocach, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -663,12 +678,12 @@ virus.clusters.langwell <- data.frame(Virus = names(virus.cut.langwell),
                                       Cluster = virus.cut.langwell) %>%
   inner_join(virus.ord.langwell, by = "Virus") %>%
   inner_join(virus.zs.langwell, by = "Virus") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 virus.clusters.langwell <- virus.clusters.langwell %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Virus)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-virus.clusters.langwell$Title <- paste("Group: ", virus.clusters.langwell$Cluster, " - ", virus.clusters.langwell$Cluster.size, " viruses", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+virus.clusters.langwell$Title <- paste("Group: ", virus.clusters.langwell$Cluster, "\n", virus.clusters.langwell$Cluster.size, " viruses", sep = "")
 
 head(virus.clusters.langwell)
 ```
@@ -676,13 +691,18 @@ head(virus.clusters.langwell)
 ### Plot Z-Score clusters
 ```{r plot-zscores-langwell, fig.height=3, fig.width=5}
 plot.clusters.langwell <-
-ggplot(data = virus.clusters.langwell, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = virus.clusters.langwell, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -742,12 +762,12 @@ virus.clusters.migneint <- data.frame(Virus = names(virus.cut.migneint),
                                       Cluster = virus.cut.migneint) %>%
   inner_join(virus.ord.migneint, by = "Virus") %>%
   inner_join(virus.zs.migneint, by = "Virus") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 virus.clusters.migneint <- virus.clusters.migneint %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Virus)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-virus.clusters.migneint$Title <- paste("Group: ", virus.clusters.migneint$Cluster, " - ", virus.clusters.migneint$Cluster.size, " viruses", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+virus.clusters.migneint$Title <- paste("Group: ", virus.clusters.migneint$Cluster, "\n", virus.clusters.migneint$Cluster.size, " viruses", sep = "")
 
 head(virus.clusters.migneint)
 ```
@@ -755,13 +775,18 @@ head(virus.clusters.migneint)
 ### Plot Z-Score clusters
 ```{r plot-zscores-migneint, fig.height=3, fig.width=5}
 plot.clusters.migneint <-
-ggplot(data = virus.clusters.migneint, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = virus.clusters.migneint, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -821,12 +846,12 @@ virus.clusters.moor_house <- data.frame(Virus = names(virus.cut.moor_house),
                                       Cluster = virus.cut.moor_house) %>%
   inner_join(virus.ord.moor_house, by = "Virus") %>%
   inner_join(virus.zs.moor_house, by = "Virus") %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
 virus.clusters.moor_house <- virus.clusters.moor_house %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Virus)) %>%
-  mutate(Title = factor(treatment, levels = c("NAT", "DAM", "REST")))
-virus.clusters.moor_house$Title <- paste("Group: ", virus.clusters.moor_house$Cluster, " - ", virus.clusters.moor_house$Cluster.size, " viruses", sep = "")
+  mutate(Title = factor(treatment, levels = c("NAT", "REST", "DAM")))
+virus.clusters.moor_house$Title <- paste("Group: ", virus.clusters.moor_house$Cluster, "\n", virus.clusters.moor_house$Cluster.size, " viruses", sep = "")
 
 head(virus.clusters.moor_house)
 ```
@@ -834,13 +859,18 @@ head(virus.clusters.moor_house)
 ### Plot Z-Score clusters
 ```{r plot-zscores-moor_house, fig.height=3, fig.width=5}
 plot.clusters.moor_house <-
-ggplot(data = virus.clusters.moor_house, aes(x = factor(treatment, levels = c("NAT", "DAM", "REST")), y = MeanZS)) +
+ggplot(data = virus.clusters.moor_house, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Natural", "Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Natural", "Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -905,7 +935,7 @@ virus.clusters.stean <- virus.clusters.stean %>%
   group_by(Cluster) %>%
   mutate(Cluster.size = n_distinct(Virus)) %>%
   mutate(Title = factor(treatment, levels = c("NAT", "DAM")))
-virus.clusters.stean$Title <- paste("Group: ", virus.clusters.stean$Cluster, " - ", virus.clusters.stean$Cluster.size, " viruses", sep = "")
+virus.clusters.stean$Title <- paste("Group: ", virus.clusters.stean$Cluster, "\n", virus.clusters.stean$Cluster.size, " viruses", sep = "")
 
 head(virus.clusters.stean)
 ```
@@ -913,13 +943,18 @@ head(virus.clusters.stean)
 ### Plot Z-Score clusters
 ```{r plot-zscores-stean, fig.height=3, fig.width=5}
 plot.clusters.stean <-
-ggplot(data = virus.clusters.stean, aes(x = factor(treatment, levels = c("DAM", "REST")), y = MeanZS)) +
+ggplot(data = virus.clusters.stean, aes(x = factor(treatment, levels = c("NAT", "REST", "DAM")), y = MeanZS)) +
   geom_boxplot(aes(color = treatment), outlier.shape = NA) +
-  scale_color_brewer(palette = "Dark2") +
-  geom_smooth(aes(group = 1), method = "lm", color="black", se = F, formula = y ~ poly(x, 2),) +
-  xlab("Restoration status") +
+  scale_color_manual(
+        values = c("NAT" = "#4DAF4A", "REST" = "#377EB8", "DAM" = "#E41A1C"),
+        name = "Ecosystem\nhealth status",
+        breaks = c("NAT", "REST", "DAM"),
+        labels = c("Natural", "Restored", "Damaged")
+        ) +
+
+  xlab("Ecosystem health status") +
   ylab("Abundance\n(mean Z-Score)") +
-  scale_x_discrete(labels = c("Damaged", "Restored")) +
+  scale_x_discrete(labels = c("Restored", "Damaged")) +
   facet_wrap(~Title, ncol = 3, labeller = labeller(label_column = as.character)) +
   theme_linedraw() +
   theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -953,7 +988,7 @@ unique(virus.clusters$site)
 ```
 
 ## Combine cluster barplots
-```{r plot-clusters-combined, fig.height=10, fig.width=10}
+```{r plot-clusters-combined, fig.height=10, fig.width=8}
 plot.clusters.combined <- cowplot::plot_grid(plot.clusters.balmoral,
                                              plot.clusters.bowness,
                                              plot.clusters.crocach,
@@ -967,10 +1002,18 @@ plot.clusters.combined <- cowplot::plot_grid(plot.clusters.balmoral,
                                              label_fontfamily = "sans",
                                              label_fontface = "bold")
 ggsave(plot = plot.clusters.combined,
-       filename = "../Plots/DESeq/virus_trend_groups.png",
+       filename = "../Plots/DESeq/ExtendedDataFig3.png",
        device = "png",
        dpi = 600,
-       width = 10,
+       width = 8,
+       height = 10,
+       units = "in",
+       bg = "white")
+ggsave(plot = plot.clusters.combined,
+       filename = "../Plots/DESeq/ExtendedDataFig3.svg",
+       device = "svg",
+       dpi = 600,
+       width = 8,
        height = 10,
        units = "in",
        bg = "white")

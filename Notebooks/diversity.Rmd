@@ -289,6 +289,7 @@ axes <- as.data.frame(pcoa$vectors) # make a dataframe named axes, put pcoa valu
 axes$SampleID <- rownames(axes) # Give df extra column with the rownames in it 
 axes <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes, by.x = "SampleID", by.y = "SampleID")
 saveRDS(axes, "../Data/pcoa_axes_all.RDS")
+write_csv(axes, "../Tables/virus_pcoa_axes.csv")
 head(axes)
 ```
 
@@ -535,6 +536,7 @@ axes_host <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row
       ),
   by = "SampleID")
 saveRDS(axes_host, "../Data/pcoa_axes_host_all.RDS")
+write_csv(axes_host, "../Tables/host_pcoa_axes.csv")
 head(axes_host)
 ```
 

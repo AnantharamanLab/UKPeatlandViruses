@@ -1,7 +1,7 @@
 Peatland Sampling Map and Virus/Host Diversity
 ================
 James C. Kosmopoulos
-2025-09-28
+2025-09-29
 
 # Map
 
@@ -418,6 +418,7 @@ axes <- as.data.frame(pcoa$vectors) # make a dataframe named axes, put pcoa valu
 axes$SampleID <- rownames(axes) # Give df extra column with the rownames in it 
 axes <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row.names(.)), axes, by.x = "SampleID", by.y = "SampleID")
 saveRDS(axes, "../Data/pcoa_axes_all.RDS")
+write_csv(axes, "../Tables/virus_pcoa_axes.csv")
 head(axes)
 ```
 
@@ -558,7 +559,7 @@ summary(anosim_result)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0404 0.0548 0.0683 0.0843 
+    ## 0.0459 0.0597 0.0731 0.0960 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75%   100%    N
@@ -840,6 +841,7 @@ axes_host <- merge(metadata[,c("site", "treatment")] %>% mutate("SampleID" = row
       ),
   by = "SampleID")
 saveRDS(axes_host, "../Data/pcoa_axes_host_all.RDS")
+write_csv(axes_host, "../Tables/host_pcoa_axes.csv")
 head(axes_host)
 ```
 
@@ -936,7 +938,7 @@ summary(anosim_result_hosts)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0404 0.0569 0.0712 0.0904 
+    ## 0.0425 0.0541 0.0642 0.0780 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75% 100%    N
@@ -1041,7 +1043,7 @@ permutest(bd_treat, permutations = 999)
     ## 
     ## Response: Distances
     ##           Df  Sum Sq   Mean Sq      F N.Perm Pr(>F)
-    ## Groups     2 0.03329 0.0166448 1.8856    999  0.154
+    ## Groups     2 0.03329 0.0166448 1.8856    999  0.164
     ## Residuals 57 0.50317 0.0088275
 
 ``` r

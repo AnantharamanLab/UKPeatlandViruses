@@ -1,7 +1,7 @@
 Peatland Sampling Map and Virus/Host Diversity
 ================
 James C. Kosmopoulos
-2025-09-29
+2025-10-03
 
 # Map
 
@@ -559,7 +559,7 @@ summary(anosim_result)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0459 0.0597 0.0731 0.0960 
+    ## 0.0412 0.0590 0.0713 0.0854 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75%   100%    N
@@ -938,7 +938,7 @@ summary(anosim_result_hosts)
     ## 
     ## Upper quantiles of permutations (null model):
     ##    90%    95%  97.5%    99% 
-    ## 0.0425 0.0541 0.0642 0.0780 
+    ## 0.0447 0.0621 0.0748 0.0912 
     ## 
     ## Dissimilarity ranks between and within classes:
     ##            0%    25%   50%     75% 100%    N
@@ -1043,7 +1043,7 @@ permutest(bd_treat, permutations = 999)
     ## 
     ## Response: Distances
     ##           Df  Sum Sq   Mean Sq      F N.Perm Pr(>F)
-    ## Groups     2 0.03329 0.0166448 1.8856    999  0.164
+    ## Groups     2 0.03329 0.0166448 1.8856    999  0.146
     ## Residuals 57 0.50317 0.0088275
 
 ``` r
@@ -1568,7 +1568,43 @@ plot.pcoa.eco.index
 
 ### Just host PCo 1
 
+#### Manually compute the regression for plotting
+
 ``` r
+lm.eco.index.pcoa1 <- lm(value~index, data = axes_long %>% filter(Axis == "Axis 1 (16.96%)"))
+summary.lm.eco.index.pcoa1 <- summary(lm.eco.index.pcoa1)
+p.eco.index.pcoa1 <- summary.lm.eco.index.pcoa1$coefficients[, "Pr(>|t|)"][2]
+r.squared.eco.index.pcoa1 <- summary.lm.eco.index.pcoa1$r.squared
+summary.lm.eco.index.pcoa1
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = value ~ index, data = axes_long %>% filter(Axis == 
+    ##     "Axis 1 (16.96%)"))
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -0.39022 -0.20385  0.04813  0.16024  0.31731 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 0.0009551  0.0264177   0.036    0.971    
+    ## index       0.2383101  0.0474975   5.017 5.28e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.2046 on 58 degrees of freedom
+    ## Multiple R-squared:  0.3027, Adjusted R-squared:  0.2906 
+    ## F-statistic: 25.17 on 1 and 58 DF,  p-value: 5.277e-06
+
+#### Make the plot
+
+``` r
+r2 <- formatC(r.squared.eco.index.pcoa1, digits = 2, format = "g")
+pv <- formatC(p.eco.index.pcoa1, format = "e", digits = 1)
+lab <- paste0("italic(R)^2==", r2, " * \", \" ~ italic(P)==", pv)
+
 plot.eco.index.pcoa1 <- ggplot(axes_long %>%
                                 filter(Axis == "Axis 1 (16.96%)"),
                               aes(y=value, x=index)
@@ -1582,7 +1618,7 @@ plot.eco.index.pcoa1 <- ggplot(axes_long %>%
   scale_color_brewer(palette = "Dark2", name = "Site") +
   geom_smooth(method = "lm", se = TRUE, color = "black") +
   stat_poly_line(se=FALSE, color = NA) +
-  stat_poly_eq(use_label(c("R2", "p")), size=3.5) +
+  annotate("text", x = -1.5, y = 0.45, hjust = 0, label = lab, parse = TRUE, size = 3.5) +
   ylab(expression("PCo1 (16.96%)")) +
   xlab("Ecosystem health index") +
   scale_shape_manual(name = "Ecosystem\nhealth status",

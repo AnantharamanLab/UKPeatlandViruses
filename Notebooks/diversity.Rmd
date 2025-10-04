@@ -905,7 +905,21 @@ head(axes_long)
 ```
 
 ### Just host PCo 1
+#### Manually compute the regression for plotting
+```{r get-vals-eco-index-pcoa1-reg}
+lm.eco.index.pcoa1 <- lm(value~index, data = axes_long %>% filter(Axis == "Axis 1 (16.96%)"))
+summary.lm.eco.index.pcoa1 <- summary(lm.eco.index.pcoa1)
+p.eco.index.pcoa1 <- summary.lm.eco.index.pcoa1$coefficients[, "Pr(>|t|)"][2]
+r.squared.eco.index.pcoa1 <- summary.lm.eco.index.pcoa1$r.squared
+summary.lm.eco.index.pcoa1
+```
+
+#### Make the plot
 ```{r plot-eco-index-pcoa1-reg, fig.width=3.543305, fig.height=2.75590}
+r2 <- formatC(r.squared.eco.index.pcoa1, digits = 2, format = "g")
+pv <- formatC(p.eco.index.pcoa1, format = "e", digits = 1)
+lab <- paste0("italic(R)^2==", r2, " * \", \" ~ italic(P)==", pv)
+
 plot.eco.index.pcoa1 <- ggplot(axes_long %>%
                                 filter(Axis == "Axis 1 (16.96%)"),
                               aes(y=value, x=index)
@@ -919,7 +933,7 @@ plot.eco.index.pcoa1 <- ggplot(axes_long %>%
   scale_color_brewer(palette = "Dark2", name = "Site") +
   geom_smooth(method = "lm", se = TRUE, color = "black") +
   stat_poly_line(se=FALSE, color = NA) +
-  stat_poly_eq(use_label(c("R2", "p")), size=3.5) +
+  annotate("text", x = -1.5, y = 0.45, hjust = 0, label = lab, parse = TRUE, size = 3.5) +
   ylab(expression("PCo1 (16.96%)")) +
   xlab("Ecosystem health index") +
   scale_shape_manual(name = "Ecosystem\nhealth status",

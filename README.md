@@ -1,5 +1,5 @@
-# Welcome
-This repository contains all scripts and data tables used for the analysis of viruses in total metagenomes generated from upland peatland soils in the UK, as presented in [Kosmopoulos et al. (2025; in review)]().
+# <div class="NodiCopyInline">Code to reproduce UK peatland viral metagenomic analyses</div>
+This repository contains all scripts and data tables used for the analysis of viruses in total metagenomes generated from upland peatland soils in the UK, as presented in *Ecosystem Health Shapes Viral Ecology in Peatland Soils* ([Kosmopoulos et al. (2025)](https://doi.org/10.1038/s41564-025-02199-x)).
 
 All raw sequencing data are publicly available in the NCBI Short Read Archive under BioProject accession [PRJNA1203648](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1203648). Whole assembled metagenomic contigs as well as high-quality (CheckM) prokaryotic metagenome-assembled genomes (MAGs) are available at the NCBI WGS using the same BioProject accession. All viral metagenome-assembled genomes (vMAGs) and prokaryotic metagenome-assembled genomes (medium and high quality) are publicly available on figshare under the DOI [10.6084/m9.figshare.28143446](https://doi.org/10.6084/m9.figshare.28143446).
 

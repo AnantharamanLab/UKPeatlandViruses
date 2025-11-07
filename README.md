@@ -30,7 +30,7 @@ The total runtime to fully reproduce the analyses (from metagenome assembly, bin
 2. [Gather and organize data](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/data.md)
 3. [Soil Environmental Parameters (Extended Data Figure 1)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/environment.md)
 4. [Peatland Map and Virus/Host Diversity (Figure 1, Extended Data Figure 2)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/diversity.md)
-5. [Virus Distribution (Figure 2)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_distribution.md)
+5. [Virus Distribution (Figure 2)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/distribution.md)
 6. [Virus Genome DESeq and Clustering (Extended Data Figure 3)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_deseq.md)
 7. [Host Genome DESeq and Clustering (Extended Data Figure 4)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/host_deseq.md)
 8. [Virus and Host Relative Abundance (Figure 3)](https://github.com/AnantharamanLab/UKPeatlandViruses/blob/main/Notebooks/virus_host.md)
